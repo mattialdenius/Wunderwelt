@@ -69,18 +69,25 @@ const SPEECH = {
   backpack_1:      { text: 'Du hast einen Kristall.', audio: null },
   backpack_2:      { text: 'Du hast zwei Kristalle.', audio: null },
   backpack_3:      { text: 'Du hast alle drei Kristalle!', audio: null },
-  owl_intro:       { text: 'Schuhu! Ich bin die Eule. Schau dir die Reihe an. Welcher Edelstein kommt als nächstes?', audio: null },
+  owl_intro:       { text: 'Schuhu! Ich bin die Eule. Schau dir die Reihe an. Welcher Edelstein fehlt?', audio: null },
+  owl_intro2:      { text: 'Schuhu! Jetzt wird es kniffliger. Welcher Edelstein fehlt?', audio: null },
   owl_next:        { text: ['Und jetzt?', 'Noch eine Reihe!'], audio: null },
-  owl_hint:        { text: 'Schau genau hin. Welcher Edelstein fehlt am Ende?', audio: null },
+  owl_hint:        { text: 'Schau genau hin. Welcher Edelstein passt in die Lücke?', audio: null },
   fox_intro:       { text: 'Hallo, ich bin der Fuchs! Zieh jedes Tier auf seinen Schatten.', audio: null },
+  fox_intro2:      { text: 'Jetzt sind es mehr Tiere! Zieh jedes auf seinen Schatten.', audio: null },
+  fox_intro3:      { text: 'Achtung, die Schatten schauen jetzt in die andere Richtung! Findest du trotzdem alle?', audio: null },
   fox_hint:        { text: 'Welcher Schatten sieht genauso aus?', audio: null },
   frog_intro:      { text: 'Quak! Hüpf über die Seerosen zu mir und sammle die Sterne! Mit den Pfeilen läufst du, mit dem großen Knopf springst du.', audio: null },
+  frog_intro2:     { text: 'Quak! Diesmal ist der Weg länger. Pass auf, manche Seerosen schwimmen hin und her!', audio: null },
   frog_hint:       { text: 'Drück auf den großen Knopf, dann springst du!', audio: null },
   frog_splash:     { text: ['Platsch! Nicht schlimm, gleich nochmal!', 'Hoppla! Weiter geht\'s!'], audio: null },
   try_again:       { text: ['Probier\'s nochmal!', 'Fast! Versuch es noch einmal.', 'Hm, schau nochmal genau hin.'], audio: null },
   good:            { text: ['Super!', 'Richtig!', 'Toll gemacht!', 'Prima!'], audio: null },
   win:             { text: ['Juhu! Du hast es geschafft!', 'Hurra! Das war spitze!'], audio: null },
   reward:          { text: 'Du bekommst einen Kristall für deinen Rucksack!', audio: null },
+  reward_up:       { text: 'Schau mal, dein Kristall wächst! Er ist jetzt größer.', audio: null },
+  reward_gold:     { text: 'Wow! Dein Kristall ist jetzt riesig und glitzert golden!', audio: null },
+  all_gold:        { text: 'Unglaublich! Alle drei Kristalle glitzern golden. Du bist die Meisterin vom Zauberwald!', audio: null },
   dragon_steal:    { text: 'Hihihi! Den leih ich mir mal aus!', audio: null },
   dragon_oh:       { text: 'Oh nein, der freche Drache hat einen Kristall stibitzt!', audio: null },
   dragon_dropped:  { text: 'Schau, er hat ihn fallen lassen! Hol ihn dir schnell zurück.', audio: null },
@@ -274,15 +281,17 @@ const Voice = {
 /* ---- Spielstand ---- */
 const Save = {
   data: null,
-  fresh() { return { name: null, nameId: null, crystals: { owl: false, fox: false, frog: false }, dragon: { state: 'waiting', x: 0, y: 0, who: null }, celebrated: false, pos: null }; },
+  fresh() { return { name: null, nameId: null, crystals: { owl: false, fox: false, frog: false }, level: { owl: 0, fox: 0, frog: 0 }, goldParty: false, dragon: { state: 'waiting', x: 0, y: 0, who: null }, celebrated: false, pos: null }; },
   load() {
     this.data = this.fresh();
     try {
       const raw = window.localStorage.getItem(CONFIG.saveKey);
-      if (raw) { const d = JSON.parse(raw); if (d && typeof d === 'object') { Object.assign(this.data, d); this.data.crystals = Object.assign(this.fresh().crystals, d.crystals || {}); this.data.dragon = Object.assign(this.fresh().dragon, d.dragon || {}); } }
+      if (raw) { const d = JSON.parse(raw); if (d && typeof d === 'object') { Object.assign(this.data, d); this.data.crystals = Object.assign(this.fresh().crystals, d.crystals || {}); this.data.dragon = Object.assign(this.fresh().dragon, d.dragon || {}); this.data.level = Object.assign(this.fresh().level, d.level || {}); for (const k in this.data.crystals) if (this.data.crystals[k] && !this.data.level[k]) this.data.level[k] = 1; } }
     } catch (e) {}
   },
   store() { try { window.localStorage.setItem(CONFIG.saveKey, JSON.stringify(this.data)); } catch (e) {} },
+  // Nur den Fortschritt löschen (Kristalle, Stufen, Drache); der Name des Einhorns bleibt
+  resetProgress() { const f = this.fresh(); f.name = this.data.name; f.nameId = this.data.nameId; this.data = f; this.store(); },
   reset() { this.data = this.fresh(); try { window.localStorage.removeItem(CONFIG.saveKey); } catch (e) {} }
 };
 
@@ -369,6 +378,8 @@ function drawIcon(c, id, x, y, s, col) {
     case 'right': tri(c, -14, -20, 18, 0, -14, 20); fs(c, col || '#fff', col || '#fff', 8); break;
     case 'up': tri(c, -20, 12, 0, -20, 20, 12); fs(c, col || '#fff', col || '#fff', 8); break;
     case 'home': tri(c, -24, -2, 0, -24, 24, -2); fs(c, col || '#fff', col || '#fff', 6); rr(c, -16, -4, 32, 24, 4); c.fill(); c.fillStyle = 'rgba(0,0,0,0.18)'; rr(c, -5, 6, 10, 14, 3); c.fill(); break;
+    case 'x': c.strokeStyle = col || '#fff'; c.lineWidth = 11; line(c, -16, -16, 16, 16); line(c, 16, -16, -16, 16); break;
+    case 'redo': c.strokeStyle = col || '#fff'; c.lineWidth = 9; c.beginPath(); c.arc(0, 0, 18, -Math.PI * 0.35, Math.PI * 1.25); c.stroke(); tri(c, 2, -26, 22, -16, 6, -6); fs(c, col || '#fff', col || '#fff', 4); break;
     case 'star': starPath(c, 0, 0, 25); fs(c, '#ffd54a', '#f0b429', 3); break;
     case 'sparkle': sparklePath(c, -2, 2, 24); fs(c, '#ff8fd0'); sparklePath(c, 17, -16, 11); fs(c, '#ffd54a'); sparklePath(c, -18, -15, 8); fs(c, '#a98bff'); break;
     case 'cloud': c.fillStyle = '#fff'; c.strokeStyle = '#a9cdee'; c.lineWidth = 3;
@@ -660,14 +671,19 @@ function drawMeadow(c, t) {
    Jede Szene hat: enter(opts), update(dt), draw(c) und optional down/move/up/key/resize/leave. */
 
 const StartScene = {
-  enter() { this.t = 0; this.hold = null; this.holdT = 0; this.flash = 0; },
+  enter() { this.t = 0; this.hold = null; this.holdT = 0; this.flash = 0; this.panel = false; this.armed = -1; },
   btn() { return { x: VW / 2, y: VH * 0.5, r: Math.max(View.btn * 0.8, 92) }; },
-  gear() { return { x: VW - 42, y: VH - 42, r: 26 }; },
+  gear() { return { x: VW - 46, y: VH - 46, r: 28 }; },
+  // Eltern-Bereich: 0 = Kristalle neu sammeln, 1 = alles neu, 2 = zurück
+  panelBtns() {
+    const r = Math.max(View.btn / 2, 56), sp = Math.min(240, (VW - 150) / 2.5), y = VH / 2 - 6;
+    return [{ x: VW / 2 - sp, y, r, color: '#b79cff', label: 'Kristalle neu sammeln', sub: 'Der Name bleibt' }, { x: VW / 2, y, r, color: '#ff8fb1', label: 'Alles neu', sub: 'Auch der Name' }, { x: VW / 2 + sp, y, r, color: '#9ecbff', label: 'Zurück', sub: '' }];
+  },
   update(dt) {
     this.t += dt;
-    if (this.hold != null) { this.holdT += dt; if (this.holdT > 2.5) { Save.reset(); Sfx.play('win'); this.flash = 1; this.hold = null; } }
+    if (this.hold != null) { this.holdT += dt; if (this.holdT > 1.5) { this.hold = null; this.panel = true; this.armed = -1; Sfx.play('pop'); } }
     if (this.flash > 0) this.flash -= dt;
-    if (Math.random() < dt * 4) ScreenFx.add({ x: rnd(VW), y: rnd(VH * 0.7), vy: -12, life: 1.4, size: rnd(5, 11), color: pick(PASTEL), shape: 'star', vr: 2 });
+    if (!this.panel && Math.random() < dt * 4) ScreenFx.add({ x: rnd(VW), y: rnd(VH * 0.7), vy: -12, life: 1.4, size: rnd(5, 11), color: pick(PASTEL), shape: 'star', vr: 2 });
   },
   draw(c) {
     drawMeadow(c, this.t);
@@ -679,19 +695,40 @@ const StartScene = {
     drawActor(c, 't', VW * 0.5 - 380 < 60 ? 70 : VW * 0.5 - 380, VH - 40, { size: 135, t: this.t });
     const b = this.btn();
     c.fillStyle = 'rgba(255,255,255,0.45)'; circ(c, b.x, b.y, b.r + 22 + Math.sin(this.t * 4) * 6); c.fill();
-    drawRoundBtn(c, b.x, b.y, b.r, { color: '#5fd38d', icon: 'play', pulse: true });
+    drawRoundBtn(c, b.x, b.y, b.r, { color: '#5fd38d', icon: 'play', pulse: !this.panel });
     const g = this.gear();
-    c.globalAlpha = 0.35; c.fillStyle = '#fff'; circ(c, g.x, g.y, g.r); c.fill(); c.fillStyle = '#8aa'; for (let i = 0; i < 3; i++) { circ(c, g.x - 9 + i * 9, g.y, 2.6); c.fill(); } c.globalAlpha = 1;
-    if (this.hold != null) { c.strokeStyle = '#ff8fb1'; c.lineWidth = 5; c.beginPath(); c.arc(g.x, g.y, g.r + 5, -Math.PI / 2, -Math.PI / 2 + TAU * this.holdT / 2.5); c.stroke(); }
-    if (this.flash > 0) { c.fillStyle = 'rgba(255,255,255,' + this.flash * 0.8 + ')'; c.fillRect(0, 0, VW, VH); }
+    c.globalAlpha = 0.6; c.fillStyle = '#fff'; circ(c, g.x, g.y, g.r); c.fill(); c.fillStyle = '#7a8a9a'; for (let i = 0; i < 3; i++) { circ(c, g.x - 10 + i * 10, g.y, 3); c.fill(); } c.globalAlpha = 1;
+    if (this.hold != null) { c.strokeStyle = '#ff8fb1'; c.lineWidth = 6; c.lineCap = 'round'; c.beginPath(); c.arc(g.x, g.y, g.r + 6, -Math.PI / 2, -Math.PI / 2 + TAU * this.holdT / 1.5); c.stroke(); }
+    if (this.panel) {
+      c.fillStyle = 'rgba(40,40,70,0.55)'; c.fillRect(0, 0, VW, VH);
+      const B = this.panelBtns(), w = Math.min(VW - 40, B[2].x - B[0].x + 260);
+      rr(c, VW / 2 - w / 2, VH / 2 - 170, w, 330, 30); fs(c, '#fffaf2', '#fff', 4);
+      c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = '#5a4a7a'; c.font = '700 26px system-ui, sans-serif'; c.fillText('Für Eltern', VW / 2, VH / 2 - 132);
+      B.forEach((q, i) => {
+        const arm = this.armed === i;
+        drawRoundBtn(c, q.x, q.y, q.r, { color: arm ? '#ff9f43' : q.color, icon: i === 2 ? 'x' : arm ? 'check' : 'redo', pulse: arm });
+        if (i === 0 && !arm) drawCrystal(c, q.x, q.y, 9, '#fff');
+        c.fillStyle = '#5a4a7a'; c.font = '700 19px system-ui, sans-serif'; c.fillText(arm ? 'Wirklich? Nochmal tippen' : q.label, q.x, q.y + q.r + 28);
+        c.fillStyle = '#8a7aa8'; c.font = '500 16px system-ui, sans-serif'; if (!arm && q.sub) c.fillText(q.sub, q.x, q.y + q.r + 52);
+      });
+      c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+    }
+    if (this.flash > 0) { c.fillStyle = 'rgba(255,255,255,' + clamp(this.flash, 0, 1) * 0.8 + ')'; c.fillRect(0, 0, VW, VH); }
   },
   down(p) {
+    if (this.panel) {
+      const B = this.panelBtns(), i = B.findIndex(q => hit(p, q.x, q.y, q.r + 10));
+      if (i < 0 || i === 2) { this.panel = false; Sfx.play('tap'); return; }
+      if (this.armed !== i) { this.armed = i; Sfx.play('tap'); return; }
+      if (i === 0) Save.resetProgress(); else Save.reset();
+      this.panel = false; this.flash = 1; Sfx.play('good'); return;
+    }
     const b = this.btn(); if (hit(p, b.x, b.y, b.r + 14)) { this.start(p); return; }
-    const g = this.gear(); if (hit(p, g.x, g.y, g.r + 12)) { this.hold = p.id; this.holdT = 0; return; }
+    const g = this.gear(); if (hit(p, g.x, g.y, g.r + 14)) { this.hold = p.id; this.holdT = 0; return; }
     Voice.say('start_welcome');
   },
   up(p) { if (this.hold === p.id) this.hold = null; },
-  key(k) { if (k === 'Enter' || k === 'Space') this.start(null); },
+  key(k) { if (this.panel) { if (k === 'Escape') this.panel = false; return; } if (k === 'Enter' || k === 'Space') this.start(null); },
   start(p) {
     Sfx.play('pop'); if (p && p.type === 'touch') goFullscreen();
     if (Save.data.name) Game.go(World, { back: true }); else Game.go(NamingScene, {});
@@ -903,14 +940,17 @@ const World = {
   hud() { const r = Math.max(View.btn / 2, 48); return { pack: { x: VW - 16 - r, y: 16 + r, r }, hint: { x: 16 + r, y: 16 + r, r } }; },
   slotScreen(id) { const h = this.hud(), i = NPC_ORDER.indexOf(id); return { x: h.pack.x - h.pack.r - 30 - (2 - i) * 46, y: h.pack.y }; },
   slotWorld(id) { const s = this.slotScreen(id); return { x: s.x + this.cam.x, y: s.y + this.cam.y }; },
-  inPack(id) { const d = Save.data.dragon; return Save.data.crystals[id] && this.pending !== id && !(d.state === 'dropped' && d.who === id && this.grabbed); },
+  // Stufe des Kristalls, wie er gerade im Rucksack liegt (0 = nicht da, 1–3 = klein, groß, golden)
+  packLv(id) { const d = Save.data.dragon; if (d.state === 'dropped' && d.who === id && this.grabbed) return 0; return Math.max(0, (Save.data.level[id] || 0) - (this.pending === id ? 1 : 0)); },
+  inPack(id) { return this.packLv(id) > 0; },
   earned() { return NPC_ORDER.filter(id => Save.data.crystals[id]).length; },
   blocked() { return !!(this.ev && this.ev.block) || this.queue.length > 0; },
 
   checkStory() {
     const n = this.earned(), d = Save.data.dragon;
     if (n >= 2 && d.state === 'waiting') { this.queue.push(() => this.evWait(0.7)); this.queue.push(() => this.evDragon()); return; }
-    if (n === 3 && d.state !== 'dropped' && !Save.data.celebrated) { this.queue.push(() => this.evWait(0.5)); this.queue.push(() => this.evParty()); }
+    if (n === 3 && d.state !== 'dropped' && !Save.data.celebrated) { this.queue.push(() => this.evWait(0.5)); this.queue.push(() => this.evParty(false)); return; }
+    if (NPC_ORDER.every(id => Save.data.level[id] >= 3) && d.state !== 'dropped' && !Save.data.goldParty) { this.queue.push(() => this.evWait(0.5)); this.queue.push(() => this.evParty(true)); }
   },
   walkTo(x, y, cb) {
     const p = this.findPath(this.T.x, this.T.y, x, y);
@@ -924,7 +964,8 @@ const World = {
   },
   hintTarget() {
     if (this.crystalGround) return { x: this.crystalGround.x, y: this.crystalGround.y, crystal: true };
-    for (const id of NPC_ORDER) if (!Save.data.crystals[id]) { const s = this.npcSpot(NPCS[id]); return { x: s.x, y: s.y, npc: id }; }
+    const id = NPC_ORDER.slice().sort((a, b) => Save.data.level[a] - Save.data.level[b])[0];   // wer hat die niedrigste Stufe?
+    if (Save.data.level[id] < 3) { const s = this.npcSpot(NPCS[id]); return { x: s.x, y: s.y, npc: id }; }
     return null;
   },
   showHint() {
@@ -946,7 +987,7 @@ const World = {
   /* ---- Ereignisse: Belohnung, Drache, Feier ---- */
   evWait(s) { const e = { block: true, t: 0 }; e.update = dt => (e.t += dt) >= s; return e; },
   evReward(id) {
-    const W = this, n = NPCS[id]; W.pending = id; n.hop = 1; Voice.say('reward'); Sfx.play('crystal');
+    const W = this, n = NPCS[id], lv = Save.data.level[id], big = 24 + lv * 8; W.pending = id; n.hop = 1; Voice.say(lv >= 3 ? 'reward_gold' : lv === 2 ? 'reward_up' : 'reward'); Sfx.play('crystal');
     const e = { block: true, t: 0, x: n.x, y: n.y - 140, s: 0 };
     e.update = dt => {
       e.t += dt; const slot = W.slotWorld(id), by = n.y - 140;
@@ -955,7 +996,7 @@ const World = {
       else { W.pending = null; W.packWig = 1; W.U.hop = 1; Sfx.play('good'); return true; }
       return false;
     };
-    e.draw = c => drawCrystal(c, e.x, e.y, 36 * e.s, CRYSTAL_COL[id]);
+    e.draw = c => { if (lv >= 3) { c.fillStyle = 'rgba(255,213,74,0.45)'; circ(c, e.x, e.y, big * 1.3 * e.s); c.fill(); } drawCrystal(c, e.x, e.y, big * e.s, CRYSTAL_COL[id]); };
     return e;
   },
   evDragon() {
@@ -1003,8 +1044,8 @@ const World = {
       return e;
     });
   },
-  evParty() {
-    const W = this; Save.data.celebrated = true; Save.store(); Sfx.play('fanfare'); Voice.say('all_done'); W.party = 1;
+  evParty(gold) {
+    const W = this; Save.data.celebrated = true; if (gold) Save.data.goldParty = true; Save.store(); Sfx.play('fanfare'); Voice.say(gold ? 'all_gold' : 'all_done'); W.party = 1;
     const e = { block: false, t: 0, n: 0 };
     e.update = dt => { e.t += dt; if (e.t > e.n * 0.5 && e.n < 12) { e.n++; ScreenFx.confetti(VW, 26); if (e.n % 3 === 0) Sfx.play('star'); } if (e.t > 7) { W.party = 0; return true; } return false; };
     e.drawScreen = c => {
@@ -1109,14 +1150,14 @@ const World = {
       add(n.y, () => {
         if (id === 'owl') { c.fillStyle = 'rgba(40,70,50,0.16)'; ell(c, n.x, n.y + 2, 34, 10); c.fill(); rr(c, n.x - 24, n.y - 30, 48, 32, 8); fs(c, '#b98852', '#96693d', 2); ell(c, n.x, n.y - 30, 24, 8); fs(c, '#e5c08e', '#96693d', 2); }
         if (id === 'frog') { c.fillStyle = 'rgba(40,70,50,0.16)'; ell(c, n.x, n.y + 2, 40, 11); c.fill(); ell(c, n.x, n.y - 4, 36, 13); fs(c, '#c9c9d6', '#a8a8b8', 2); }
-        const done = Save.data.crystals[id], isHint = this.hint && this.hint.target.npc === id;
+        const lv = Save.data.level[id], done = lv >= 3, isHint = this.hint && this.hint.target.npc === id;
         drawActor(c, n.art, n.x, n.y, { size: n.size, t, lift: n.lift + hopLift(n.hop) + ph(i), happy: n.hop > 0 || this.party, noShadow: n.lift > 0 });
         const by2 = n.y - n.size - n.lift - 44 + Math.sin(t * 3 + i) * 5, s = (done ? 0.8 : 1) * (isHint ? 1.15 + Math.sin(t * 8) * 0.08 : 1);
         c.save(); c.translate(n.x, by2); c.scale(s, s); c.globalAlpha = done ? 0.85 : 1;
         c.fillStyle = 'rgba(60,40,80,0.15)'; circ(c, 0, 3, 34); c.fill();
         c.beginPath(); c.arc(0, 0, 33, Math.PI * 0.62, Math.PI * 0.38); c.lineTo(0, 46); c.closePath(); fs(c, '#fff', isHint ? '#ffd54a' : '#e8dff5', isHint ? 5 : 3);
         drawIcon(c, n.icon, 0, 0, 40);
-        if (done) { circ(c, 24, -24, 13); fs(c, '#5fd38d', '#fff', 2.5); drawIcon(c, 'check', 24, -24, 15); }
+        if (lv > 0) for (let k = 0; k < 3; k++) { starPath(c, -20 + k * 20, -46, 9); fs(c, k < lv ? '#ffd54a' : '#fff', k < lv ? '#f0b429' : '#d6cfe6', 2); }   // Stufen-Sterne
         c.restore();
       });
     });
@@ -1150,7 +1191,7 @@ const World = {
     // Anzeige: Rucksack mit Kristallen, Einhorn-Hilfeknopf
     const H = this.hud(), s0 = this.slotScreen('owl');
     rr(c, s0.x - 30, H.pack.y - 27, H.pack.x - s0.x + 30, 54, 27); fs(c, 'rgba(255,255,255,0.75)');
-    for (const id of NPC_ORDER) { const s = this.slotScreen(id); if (this.inPack(id)) drawCrystal(c, s.x, s.y, 18, CRYSTAL_COL[id]); else { c.setLineDash([5, 5]); circ(c, s.x, s.y, 15); c.strokeStyle = 'rgba(150,130,180,0.6)'; c.lineWidth = 2.5; c.stroke(); c.setLineDash([]); } }
+    for (const id of NPC_ORDER) { const s = this.slotScreen(id); const pl = this.packLv(id); if (pl > 0) { if (pl >= 3) { c.fillStyle = 'rgba(255,213,74,' + (0.5 + Math.sin(t * 4) * 0.2) + ')'; circ(c, s.x, s.y, 24); c.fill(); } drawCrystal(c, s.x, s.y, 10 + pl * 4, CRYSTAL_COL[id]); } else { c.setLineDash([5, 5]); circ(c, s.x, s.y, 15); c.strokeStyle = 'rgba(150,130,180,0.6)'; c.lineWidth = 2.5; c.stroke(); c.setLineDash([]); } }
     c.save(); c.translate(H.pack.x, H.pack.y); c.rotate(this.packWig > 0 ? Math.sin(this.packWig * 22) * 0.2 * this.packWig : 0);
     circ(c, 0, 0, H.pack.r); fs(c, '#fff7ea', '#fff', 4); drawBackpack(c, 0, 4, H.pack.r * 1.05);
     if (Save.data.celebrated) { c.fillStyle = '#ffd54a'; sparklePath(c, H.pack.r * 0.6, -H.pack.r * 0.6, 9 + Math.sin(t * 5) * 3); c.fill(); }
@@ -1198,35 +1239,43 @@ const World = {
    und in MINIGAMES eintragen. */
 function miniExit() { const r = Math.max(View.btn / 2 - 6, 44); return { x: 14 + r, y: 14 + r, r }; }
 function drawMiniExit(c) { const e = miniExit(); drawRoundBtn(c, e.x, e.y, e.r, { color: '#ffb199', icon: 'home', iconScale: 0.9 }); }
-function finishMini(id) { const first = !Save.data.crystals[id]; Save.data.crystals[id] = true; Save.store(); Game.go(World, { from: id, reward: first ? id : null }); }
+// Jedes Minispiel hat drei Stufen. Wer eine Stufe schafft, lässt seinen Kristall wachsen (Stufe 3 = golden).
+const miniLevel = id => Math.min(Save.data.level[id] || 0, 2);
+function finishMini(id) { if (Game.pending) return; const up = (Save.data.level[id] || 0) < 3; if (up) Save.data.level[id] = (Save.data.level[id] || 0) + 1; Save.data.crystals[id] = true; Save.store(); Game.go(World, { from: id, reward: up ? id : null }); }
 function miniWin(scene) { scene.winT = 0; Sfx.play('win'); Voice.say('win'); ScreenFx.confetti(VW, 80); }
 function drawSparkleLine(c, x1, y1, x2, y2, t) { const n = Math.max(3, Math.floor(dist(x1, y1, x2, y2) / 46)); for (let i = 1; i < n; i++) { const k = i / n, tw = Math.max(0, Math.sin(t * 6 - i * 0.7)); c.fillStyle = 'rgba(255,225,90,' + (0.5 + tw * 0.5) + ')'; sparklePath(c, lerp(x1, x2, k), lerp(y1, y2, k) - Math.sin(k * Math.PI) * 30, 8 + tw * 7); c.fill(); } }
 
-/* ---------- Eule: Muster fortsetzen ---------- */
+/* ---------- Eule: Muster fortsetzen ----------
+   u = Muster-Baustein, n = Länge der Reihe, gap = Stelle der Lücke (-1 = am Ende), k = Anzahl Auswahl-Steine */
+const OWL_ROUNDS = [
+  [{ u: 'AB', n: 5, gap: -1 }, { u: 'AAB', n: 6, gap: -1 }, { u: 'ABC', n: 6, gap: -1 }],
+  [{ u: 'ABB', n: 6, gap: -1 }, { u: 'AABB', n: 7, gap: -1 }, { u: 'ABC', n: 7, gap: 3 }],
+  [{ u: 'ABAC', n: 8, gap: -1, k: 4 }, { u: 'AABC', n: 8, gap: 4, k: 4 }, { u: 'ABCD', n: 8, gap: 2, k: 4 }]
+];
 const OwlGame = {
   id: 'owl',
-  enter() { this.round = 0; this.winT = -1; this.t = 0; this.wrongs = 0; this.setup(); Voice.say('owl_intro'); },
+  enter() { this.lv = miniLevel('owl'); this.round = 0; this.winT = -1; this.t = 0; this.wrongs = 0; this.setup(); Voice.say(this.lv ? 'owl_intro2' : 'owl_intro'); },
   setup() {
-    const [A, B, C] = shuffle([0, 1, 2, 3]);
-    const d = [{ seq: [A, B, A, B], ans: A }, { seq: [A, A, B, A, A], ans: B }, { seq: [A, B, C, A, B], ans: C }][this.round];
-    this.seq = d.seq; this.ans = d.ans; this.opts = shuffle([A, B, C]);
+    const d = OWL_ROUNDS[this.lv][this.round], T = shuffle([0, 1, 2, 3]);
+    this.seq = Array.from({ length: d.n }, (_, i) => T['ABCD'.indexOf(d.u[i % d.u.length])]);
+    this.gap = d.gap < 0 ? d.n - 1 : d.gap; this.ans = this.seq[this.gap]; this.opts = shuffle(T.slice(0, d.k || 3));
     this.state = 'intro'; this.st = 0; this.shown = 0; this.fly = null; this.idle = 0; this.hintT = 0; this.bump = -1; this.bumpT = 0; this.shake = 0;
   },
   layout() {
-    const n = this.seq.length + 1, gap = Math.min(104, (VW - 90) / n), x0 = VW / 2 - (n - 1) * gap / 2;
-    const br = Math.max(View.btn / 2 + 6, 60), sp = Math.min(200, (VW - 240) / 2);
-    return { gap, y: 268, gr: gap * 0.33, slots: Array.from({ length: n }, (_, i) => x0 + i * gap), br, opts: [0, 1, 2].map(i => ({ x: VW / 2 + (i - 1) * sp + 30, y: VH - br - 24 })), uni: { x: 78, y: VH - 14 } };
+    const n = this.seq.length, k = this.opts.length, gap = Math.min(104, (VW - 90) / n), x0 = VW / 2 - (n - 1) * gap / 2;
+    const br = Math.max(View.btn / 2 + 6, 60), sp = Math.min(200, (VW - 270) / (k - 1));
+    return { gap, y: 268, gr: gap * 0.33, slots: Array.from({ length: n }, (_, i) => x0 + i * gap), br, opts: this.opts.map((_, i) => ({ x: VW / 2 + (i - (k - 1) / 2) * sp + 30, y: VH - br - 24 })), uni: { x: 78, y: VH - 14 } };
   },
   update(dt) {
     this.t += dt; this.st += dt; if (this.hintT > 0) this.hintT -= dt; if (this.bumpT > 0) this.bumpT -= dt * 3; if (this.shake > 0) this.shake -= dt * 2.5;
     if (this.winT >= 0) { this.winT += dt; if (this.winT > 2.8) finishMini('owl'); return; }
-    if (this.state === 'intro') { const k = Math.floor(this.st / 0.38); if (k > this.shown && this.shown < this.seq.length) { Sfx.play('note', GEMS[this.seq[this.shown]].tone); this.shown++; } if (this.st > this.seq.length * 0.38 + 0.5) { this.state = 'choose'; this.idle = 0; } }
+    if (this.state === 'intro') { const k = Math.floor(this.st / 0.38); if (k > this.shown && this.shown < this.seq.length) { if (this.shown !== this.gap) Sfx.play('note', GEMS[this.seq[this.shown]].tone); this.shown++; } if (this.st > this.seq.length * 0.38 + 0.5) { this.state = 'choose'; this.idle = 0; } }
     else if (this.state === 'choose') { this.idle += dt; if (this.idle > CONFIG.hintDelay) this.hint(); }
     else if (this.state === 'fly') {
       this.fly.t += dt / 0.4;
       if (this.fly.t >= 1) {
         const L = this.layout();
-        if (this.fly.ok) { this.state = 'right'; this.st = 0; Sfx.play('good'); Voice.say('good'); ScreenFx.burst(L.slots[L.slots.length - 1], L.y, 18, { g: 160 }); }
+        if (this.fly.ok) { this.state = 'right'; this.st = 0; Sfx.play('good'); Voice.say('good'); ScreenFx.burst(L.slots[this.gap], L.y, 18, { g: 160 }); }
         else { this.state = 'back'; this.fly.t = 0; this.shake = 1; this.wrongs++; Sfx.play('wrong'); Voice.say('try_again'); }
       }
     }
@@ -1244,9 +1293,9 @@ const OwlGame = {
     drawActor(c, 'owl', VW / 2, 146, { size: 112, t, happy, lift: happy ? Math.abs(Math.sin(t * 9)) * 12 : 0, noShadow: true });
     // Reihe
     rr(c, L.slots[0] - L.gap * 0.6, L.y - L.gap * 0.56, L.gap * (L.slots.length + 0.2), L.gap * 1.12, 26); fs(c, 'rgba(255,255,255,0.6)');
-    const last = L.slots.length - 1;
+    const last = this.gap;
     for (let i = 0; i < this.seq.length; i++) {
-      if (i >= this.shown) continue;
+      if (i >= this.shown || i === last) continue;
       const wave = this.state === 'right' ? Math.max(0, Math.sin(this.st * 9 - i * 0.7)) * 14 : 0, bp = this.bump === i && this.bumpT > 0 ? Math.sin(this.bumpT * Math.PI) * 12 : 0;
       drawGem(c, this.seq[i], L.slots[i], L.y - wave - bp, L.gr);
     }
@@ -1273,11 +1322,11 @@ const OwlGame = {
     if (this.winT >= 0) return;
     const L = this.layout(); this.idle = 0;
     if (hit(p, L.uni.x, L.uni.y - 55, 60)) { this.hint(); return; }
-    for (let i = 0; i < this.shown; i++) if (hit(p, L.slots[i], L.y, L.gap * 0.5)) { this.bump = i; this.bumpT = 1; Sfx.play('note', GEMS[this.seq[i]].tone); return; }
+    for (let i = 0; i < this.shown; i++) if (i !== this.gap && hit(p, L.slots[i], L.y, L.gap * 0.5)) { this.bump = i; this.bumpT = 1; Sfx.play('note', GEMS[this.seq[i]].tone); return; }
     if (this.state !== 'choose') return;
-    for (let i = 0; i < 3; i++) if (hit(p, L.opts[i].x, L.opts[i].y, L.br + 8)) { this.hintT = 0; this.fly = { i, t: 0, ok: this.opts[i] === this.ans }; this.state = 'fly'; Sfx.play('note', GEMS[this.opts[i]].tone); return; }
+    for (let i = 0; i < this.opts.length; i++) if (hit(p, L.opts[i].x, L.opts[i].y, L.br + 8)) { this.hintT = 0; this.fly = { i, t: 0, ok: this.opts[i] === this.ans }; this.state = 'fly'; Sfx.play('note', GEMS[this.opts[i]].tone); return; }
   },
-  key(k) { const n = { Digit1: 0, Digit2: 1, Digit3: 2 }[k]; if (n != null && this.state === 'choose' && this.winT < 0) { this.fly = { i: n, t: 0, ok: this.opts[n] === this.ans }; this.state = 'fly'; } }
+  key(k) { const n = { Digit1: 0, Digit2: 1, Digit3: 2, Digit4: 3 }[k]; if (n != null && n < this.opts.length && this.state === 'choose' && this.winT < 0) { this.fly = { i: n, t: 0, ok: this.opts[n] === this.ans }; this.state = 'fly'; } }
 };
 
 /* ---------- Fuchs: Schatten zuordnen ---------- */
@@ -1285,16 +1334,17 @@ const FoxGame = {
   id: 'fox',
   enter() {
     this.t = 0; this.winT = -1; this.idle = 0; this.hintT = 0; this.sel = -1; this.wrongs = 0;
-    const names = shuffle(['unicorn', 'dragon', 'owl', 'frog', 'butterfly']).slice(0, 3);
-    let order; do { order = shuffle([0, 1, 2]); } while (order[0] === 0 && order[1] === 1 && order[2] === 2);
+    this.lv = miniLevel('fox'); this.n = 3 + this.lv;          // Stufe 1: 3 Tiere, Stufe 2: 4, Stufe 3: 5 und gespiegelte Schatten
+    const names = shuffle(['unicorn', 'dragon', 'owl', 'frog', 'butterfly', 'fox', 't']).slice(0, this.n);
+    let order; do { order = shuffle(names.map((_, i) => i)); } while (order.every((v, i) => v === i));
     this.slots = order;                           // slots[j] = Index der Figur, die in Schatten j gehört
     const L = this.layout();
     this.items = names.map((name, i) => ({ name, x: L.home[i].x, y: L.home[i].y, placed: false, drag: null, shake: 0, hop: 0 }));
-    Voice.say('fox_intro');
+    Voice.say(['fox_intro', 'fox_intro2', 'fox_intro3'][this.lv]);
   },
   layout() {
-    const sp = Math.min(235, (VW - 250) / 2), cx = VW / 2;
-    return { sp, card: 152, slot: [0, 1, 2].map(j => ({ x: cx + (j - 1) * sp, y: 168 })), home: [0, 1, 2].map(i => ({ x: cx + (i - 1) * sp, y: 400 })), uni: { x: 62, y: VH - 12 }, fox: { x: VW - 64, y: VH - 12 } };
+    const n = this.n, sp = Math.min(235, (VW - (n > 3 ? 330 : 250)) / (n - 1)), cx = VW / 2, card = Math.min(152, sp - 14), ix = Array.from({ length: n }, (_, i) => cx + (i - (n - 1) / 2) * sp);
+    return { sp, card, k: card / 152, slot: ix.map(x => ({ x, y: 168 })), home: ix.map(x => ({ x, y: 400 })), uni: { x: 62, y: VH - 12 }, fox: { x: VW - 64, y: VH - 12 } };
   },
   resize() { const L = this.layout(); for (const it of this.items) if (!it.drag) { const tg = it.placed ? L.slot[this.slots.indexOf(this.items.indexOf(it))] : L.home[this.items.indexOf(it)]; it.x = tg.x; it.y = tg.y; } },
   update(dt) {
@@ -1326,13 +1376,13 @@ const FoxGame = {
     L.slot.forEach((s, j) => {
       const h = L.card / 2, want = this.slots[j], isHint = hintI === want;
       rr(c, s.x - h, s.y - h, L.card, L.card, 26); fs(c, '#fffdf5', isHint ? '#ffd54a' : '#e6d9bd', isHint ? 6 : 3);
-      if (!this.items[want].placed) drawSilhouette(c, this.items[want].name, s.x, s.y + 56, 112);
+      if (!this.items[want].placed) { c.save(); c.translate(s.x, 0); if (this.lv >= 2) c.scale(-1, 1); drawSilhouette(c, this.items[want].name, 0, s.y + 56 * L.k, 112 * L.k); c.restore(); }
     });
     const order = this.items.map((_, i) => i).sort((a, b) => (this.items[a].drag != null) - (this.items[b].drag != null));
     for (const i of order) {
       const it = this.items[i], sx = it.shake > 0 ? Math.sin(it.shake * 30) * 9 * it.shake : 0, wig = hintI === i ? Math.sin(t * 10) * 4 : 0;
-      if (this.sel === i && it.drag == null) { c.fillStyle = 'rgba(255,225,90,0.5)'; circ(c, it.x, it.y, 74); c.fill(); }
-      drawActor(c, it.name, it.x + sx + wig, it.y + 56, { size: it.drag != null ? 124 : 112, t: it.placed || it.drag != null ? t : 0.5, lift: hopLift(it.hop, 26) + (it.drag != null ? 8 : 0), mark: it.name === 'unicorn' ? uniMark() : null });
+      if (this.sel === i && it.drag == null) { c.fillStyle = 'rgba(255,225,90,0.5)'; circ(c, it.x, it.y, 74 * L.k); c.fill(); }
+      drawActor(c, it.name, it.x + sx + wig, it.y + 56 * L.k, { size: (it.drag != null ? 124 : 112) * L.k, t: it.placed || it.drag != null ? t : 0.5, lift: hopLift(it.hop, 26) + (it.drag != null ? 8 : 0), mark: it.name === 'unicorn' ? uniMark() : null });
     }
     if (hintI >= 0 && this.items[hintI].drag == null) { const it = this.items[hintI], s = L.slot[this.slots.indexOf(hintI)]; drawSparkleLine(c, it.x, it.y - 30, s.x, s.y + 40, t); }
     const win = this.winT >= 0;
@@ -1344,8 +1394,8 @@ const FoxGame = {
     const e = miniExit(); if (hit(p, e.x, e.y, e.r + 6)) { Sfx.play('tap'); Game.go(World, { from: 'fox' }); return; }
     if (this.winT >= 0) return;
     const L = this.layout(); this.idle = 0;
-    for (let i = 0; i < 3; i++) { const it = this.items[i]; if (!it.placed && it.drag == null && hit(p, it.x, it.y, 78)) { it.drag = p.id; it.ox = it.x - p.x; it.oy = it.y - p.y; this.hintT = 0; Sfx.play('pop'); return; } }
-    if (this.sel >= 0) for (let j = 0; j < 3; j++) if (hit(p, L.slot[j].x, L.slot[j].y, 90) && !this.items[this.slots[j]].placed) { this.tryPlace(this.sel, j); return; }
+    for (let i = 0; i < this.n; i++) { const it = this.items[i]; if (!it.placed && it.drag == null && hit(p, it.x, it.y, 78 * L.k)) { it.drag = p.id; it.ox = it.x - p.x; it.oy = it.y - p.y; this.hintT = 0; Sfx.play('pop'); return; } }
+    if (this.sel >= 0) for (let j = 0; j < this.n; j++) if (hit(p, L.slot[j].x, L.slot[j].y, 90 * L.k) && !this.items[this.slots[j]].placed) { this.tryPlace(this.sel, j); return; }
     if (hit(p, L.uni.x, L.uni.y - 50, 56)) this.hint();
   },
   move(p) { for (const it of this.items) if (it.drag === p.id) { it.x = p.x + it.ox; it.y = p.y + it.oy; this.idle = 0; } },
@@ -1353,30 +1403,38 @@ const FoxGame = {
     const L = this.layout();
     this.items.forEach((it, i) => {
       if (it.drag !== p.id) return; it.drag = null; this.idle = 0;
-      let best = -1, bd = 105; for (let j = 0; j < 3; j++) { if (this.items[this.slots[j]].placed) continue; const d = dist(it.x, it.y, L.slot[j].x, L.slot[j].y); if (d < bd) { bd = d; best = j; } }
+      let best = -1, bd = 105; for (let j = 0; j < this.n; j++) { if (this.items[this.slots[j]].placed) continue; const d = dist(it.x, it.y, L.slot[j].x, L.slot[j].y); if (d < bd) { bd = d; best = j; } }
       if (best >= 0) this.tryPlace(i, best);
       else if (dist(p.x, p.y, p.sx, p.sy) < 14) { this.sel = i; it.hop = 1; }   // nur angetippt: auswählen, dann Schatten antippen
     });
   }
 };
 
-/* ---------- Frosch: Hüpfspiel (Seitenansicht) ---------- */
+/* ---------- Frosch: Hüpfspiel (Seitenansicht) ----------
+   Pro Stufe: Lücken, Breiten und Höhen der Seerosen/Steine, Sterne (auf welchen Plattformen), move = jede wievielte schwimmt */
+const FROG_LEVELS = [
+  { gaps: [80, 90, 100, 90, 110, 80, 100, 110, 90, 100, 120, 90, 100, 80], ws: [140, 130, 150, 120, 140, 160, 120, 130, 150, 120, 140, 130, 150, 140], ys: [0, -20, -40, -20, 0, -30, -50, -20, 0, -30, -10, -40, -20, 0], stars: [0, 2, 3, 5, 7, 9, 11, 13], move: 0, amp: 0 },
+  { gaps: [90, 100, 110, 100, 120, 90, 110, 120, 100, 110, 125, 100, 110, 90, 110, 100], ws: [130, 120, 140, 120, 130, 140, 120, 130, 130, 120, 130, 120, 140, 130, 120, 140], ys: [0, -30, -60, -30, 0, -40, -70, -40, -10, -40, -10, -50, -80, -50, -20, 0], stars: [0, 1, 3, 5, 6, 8, 10, 12, 13, 15], move: 4, amp: 20 },
+  { gaps: [100, 110, 120, 110, 125, 100, 120, 125, 110, 120, 125, 110, 120, 100, 120, 125, 110, 100], ws: [120, 110, 130, 110, 120, 130, 110, 120, 120, 110, 120, 110, 130, 120, 110, 120, 110, 130], ys: [0, -40, -80, -40, 0, -45, -90, -50, -10, -50, -90, -50, -10, -50, -90, -45, -20, 0], stars: [0, 1, 2, 4, 5, 7, 8, 10, 11, 13, 15, 17], move: 3, amp: 22 }
+];
 const FrogGame = {
   id: 'frog', WATER: 440,
   enter() {
-    const gaps = [80, 90, 100, 90, 110, 80, 100, 110, 90, 100, 120, 90, 100, 80], ws = [140, 130, 150, 120, 140, 160, 120, 130, 150, 120, 140, 130, 150, 140], ys = [0, -20, -40, -20, 0, -30, -50, -20, 0, -30, -10, -40, -20, 0];
+    this.lv = miniLevel('frog'); const d = FROG_LEVELS[this.lv];
     this.pl = [{ x: -300, w: 580, y: 400, type: 'ground' }]; this.stars = [];
     let x = 280;
-    gaps.forEach((gp, i) => {
-      x += gp; const y = 400 + ys[i]; this.pl.push({ x, w: ws[i], y, type: i % 2 ? 'stone' : 'pad' });
-      if ([0, 2, 3, 5, 7, 9, 11, 13].includes(i)) this.stars.push({ x: x + ws[i] / 2, y: y - (this.stars.length % 2 ? 128 : 64), got: false });
-      x += ws[i];
+    d.gaps.forEach((gp, i) => {
+      x += gp; const y = 400 + d.ys[i], pl = { x, w: d.ws[i], y, type: i % 2 ? 'stone' : 'pad' };
+      if (d.move && i % d.move === d.move - 1) { pl.type = 'pad'; pl.bx = x; pl.amp = d.amp; pl.ph = i; }   // schwimmt hin und her
+      this.pl.push(pl);
+      if (d.stars.includes(i)) this.stars.push({ x: x + d.ws[i] / 2, y: y - (this.stars.length % 2 ? 128 : 64), got: false });
+      x += d.ws[i];
     });
     x += 90; this.endX = x; this.pl.push({ x, w: 900, y: 400, type: 'ground' }); this.levelW = x + 560;
     this.p = { x: 110, y: 400, vy: 0, ground: true, face: 1, coy: 0, buf: 0, moving: false };
-    this.safe = { x: 110, y: 400 }; this.cam = 0; this.t = 0; this.winT = -1; this.got = 0; this.idle = 0; this.bestX = 110; this.hintT = 0; this.respawn = 0; this.falls = 0; this.jumpHeld = false; this.teach = 7;
+    this.safe = { pl: this.pl[0], rel: 410, y: 400 }; this.cam = 0; this.t = 0; this.winT = -1; this.got = 0; this.idle = 0; this.bestX = 110; this.hintT = 0; this.respawn = 0; this.falls = 0; this.jumpHeld = false; this.teach = this.lv ? 0 : 7;
     this.fx = new Fx(); this.uni = { x: 30, y: 250 };
-    Voice.say('frog_intro');
+    Voice.say(this.lv ? 'frog_intro2' : 'frog_intro');
   },
   btns() { const r = Math.max(View.btn / 2, 54), rj = r * 1.3; return { l: { x: 22 + r, y: VH - 22 - r, r }, r: { x: 22 + r * 3 + 18, y: VH - 22 - r, r }, j: { x: VW - 26 - rj, y: VH - 26 - rj, r: rj } }; },
   update(dt) {
@@ -1385,7 +1443,7 @@ const FrogGame = {
     this.uni.x = lerp(this.uni.x, p.x - 86 * p.face, Math.min(1, dt * 3)); this.uni.y = lerp(this.uni.y, p.y - 170 + Math.sin(this.t * 2) * 8, Math.min(1, dt * 3));
     for (const s of this.stars) if (s.got && s.pop > 0) s.pop -= dt * 3;
     if (this.winT >= 0) { this.winT += dt; p.moving = false; if (this.winT > 2.8) finishMini('frog'); return; }
-    if (this.respawn > 0) { this.respawn -= dt; if (this.respawn <= 0) { p.x = this.safe.x; p.y = this.safe.y; p.vy = 0; p.ground = true; Sfx.play('pop'); this.fx.burst(p.x - this.cam, p.y - 40, 10, { g: 60 }); } return; }
+    if (this.respawn > 0) { this.respawn -= dt; if (this.respawn <= 0) { p.x = this.safe.pl.x + this.safe.rel; p.y = this.safe.y; p.vy = 0; p.ground = true; Sfx.play('pop'); this.fx.burst(p.x - this.cam, p.y - 40, 10, { g: 60 }); } return; }
     let left = K.has('ArrowLeft'), right = K.has('ArrowRight'), jump = K.has('Space') || K.has('ArrowUp');
     for (const q of Input.pointers.values()) { if (hit(q, B.l.x, B.l.y, B.l.r + 14)) left = true; else if (hit(q, B.r.x, B.r.y, B.r.r + 14)) right = true; else if (hit(q, B.j.x, B.j.y, B.j.r + 22)) jump = true; }
     this.pressed = { left, right, jump };
@@ -1393,11 +1451,12 @@ const FrogGame = {
     const dir = (right ? 1 : 0) - (left ? 1 : 0);
     if (dir) { p.face = dir; p.x = clamp(p.x + dir * 235 * dt, 30, this.levelW - 60); }
     p.moving = !!dir;
+    for (const pl of this.pl) if (pl.amp) { const nx = pl.bx + Math.sin(this.t * 1.5 + pl.ph) * pl.amp; if (p.on === pl && p.ground) p.x += nx - pl.x; pl.x = nx; }
     p.buf -= dt; p.coy -= dt;
     if (p.buf > 0 && (p.ground || p.coy > 0)) { p.vy = -650; p.ground = false; p.coy = 0; p.buf = 0; Sfx.play('jump'); }
     const prevY = p.y, wasGround = p.ground, fallV = p.vy; p.vy = Math.min(p.vy + 1500 * dt, 900); p.y += p.vy * dt; p.ground = false;
     if (p.vy >= 0) for (const pl of this.pl) if (p.x > pl.x - 10 && p.x < pl.x + pl.w + 10 && prevY <= pl.y + 0.5 && p.y >= pl.y) {
-      p.y = pl.y; p.vy = 0; p.ground = true; p.coy = 0.12; this.safe = { x: clamp(p.x, pl.x + 30, pl.x + pl.w - 30), y: pl.y };
+      p.y = pl.y; p.vy = 0; p.ground = true; p.coy = 0.12; this.safe = { pl, rel: clamp(p.x - pl.x, 30, pl.w - 30), y: pl.y }; p.on = pl;
       if (!wasGround && fallV > 250) { Sfx.play('land'); if (pl.type === 'pad') pl.bob = 1; } break;
     }
     for (const pl of this.pl) if (pl.bob > 0) pl.bob -= dt * 2;
