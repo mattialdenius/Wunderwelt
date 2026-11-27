@@ -340,6 +340,9 @@ const World = {
     const av = npcOrder().filter(id => (id !== 'dragon' || this.dragonReady()) && (Save.data.wings || !inSky(NPCS[id].x)) && (Save.data.story >= 3 || NPCS[id].y < HEDGE_Y));
     const id = av.sort((a, b) => Save.data.level[a] - Save.data.level[b])[0];   // wer hat die niedrigste Stufe?
     if (id && Save.data.level[id] < 3) { const s = id === 'dragon' ? this.dragonSpot() : this.npcSpot(NPCS[id]); return { x: s.x, y: s.y, npc: id }; }
+    const S = Save.data, open = Object.keys(QUESTS).filter(q => this.questAvail(q) && !S.quests[q] && NPCS[q] && (S.wings || !inSky(NPCS[q].x)) && (S.story >= 3 || NPCS[q].y < HEDGE_Y))
+      .sort((a, b) => dist(NPCS[a].x, NPCS[a].y, this.T.x, this.T.y) - dist(NPCS[b].x, NPCS[b].y, this.T.x, this.T.y));
+    if (open.length) { const s = this.npcSpot(NPCS[open[0]]); return { x: s.x, y: s.y, npc: open[0], quest: open[0] }; }
     const si = this.nearestStar(); if (si >= 0) return { x: this.glitter[si].x, y: this.glitter[si].y, star: true };
     return null;
   },

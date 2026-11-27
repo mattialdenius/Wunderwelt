@@ -1939,6 +1939,9 @@ const World = {
     const av = npcOrder().filter(id => (id !== 'dragon' || this.dragonReady()) && (Save.data.wings || !inSky(NPCS[id].x)) && (Save.data.story >= 3 || NPCS[id].y < HEDGE_Y));
     const id = av.sort((a, b) => Save.data.level[a] - Save.data.level[b])[0];   // wer hat die niedrigste Stufe?
     if (id && Save.data.level[id] < 3) { const s = id === 'dragon' ? this.dragonSpot() : this.npcSpot(NPCS[id]); return { x: s.x, y: s.y, npc: id }; }
+    const S = Save.data, open = Object.keys(QUESTS).filter(q => this.questAvail(q) && !S.quests[q] && NPCS[q] && (S.wings || !inSky(NPCS[q].x)) && (S.story >= 3 || NPCS[q].y < HEDGE_Y))
+      .sort((a, b) => dist(NPCS[a].x, NPCS[a].y, this.T.x, this.T.y) - dist(NPCS[b].x, NPCS[b].y, this.T.x, this.T.y));
+    if (open.length) { const s = this.npcSpot(NPCS[open[0]]); return { x: s.x, y: s.y, npc: open[0], quest: open[0] }; }
     const si = this.nearestStar(); if (si >= 0) return { x: this.glitter[si].x, y: this.glitter[si].y, star: true };
     return null;
   },
@@ -2892,6 +2895,10 @@ Object.assign(World, {
       drawActor(c, 't', R.x + R.w - 220, R.y + R.h - 40, { size: 110, t });
     } else if (o.kind === 'album') {
       drawThing(c, 'book', R.x + 220, R.y + 45, 50);
+      { const P = this.progress(), items = [['check', P.qDone, P.qAll], ['star', P.stars, P.starsAll], ['gem', P.gold, P.goldAll]], x0 = R.x + 290, w = Math.min(150, (R.w - 420) / 3);
+        c.font = '800 22px system-ui, sans-serif'; c.textBaseline = 'middle';
+        items.forEach((it, i) => { const x = x0 + i * (w + 10), full = it[1] >= it[2]; rr(c, x, R.y + 22, w, 46, 23); fs(c, full ? '#eafbe9' : '#fff7ea', full ? '#5fd38d' : '#f0d9a8', 3); drawThing(c, it[0], x + 26, R.y + 45, 30); c.fillStyle = '#5a4a7a'; c.fillText(it[1] + '/' + it[2], x + 62, R.y + 47); });
+        c.textBaseline = 'alphabetic'; }
       for (const q of this.albumLayout()) {
         const f = this.isFriend(q.id), gold = (Save.data.level[q.id] || 0) >= 3;
         circ(c, q.x, q.y, q.r); fs(c, f ? '#fff7ea' : '#efeaf4', gold ? '#ffd54a' : f ? '#ff8fb1' : '#e0d8ea', gold ? 6 : 4);
@@ -2918,9 +2925,14 @@ Object.assign(World, {
     }
     c.textAlign = 'left'; c.textBaseline = 'alphabetic';
   },
+  progress() {
+    const S = Save.data, qs = Object.keys(QUESTS).filter(id => !QUESTS[id].learn || S.learn), all = npcOrder();
+    return { qDone: qs.filter(id => S.quests[id] && S.quests[id].s === 'done').length, qAll: qs.length, stars: (S.stars || []).length, starsAll: GLITTER.length,
+      gold: all.filter(id => (S.level[id] || 0) >= 3).length, goldAll: all.length };
+  },
   isFriend(id) { const S = Save.data; return !!(S.crystals[id] || (S.quests[id] && S.quests[id].s === 'done')); },
-  albumLayout() { const R = this.panelRect(), cols = 7, r = clamp(Math.min((R.w - 80) / cols / 2 - 8, (R.h - 120) / 4 - 6), 30, 50), cw = (R.w - 60) / cols;
-    return ALBUM.map((id, i) => ({ id, x: R.x + 30 + cw * (i % cols + 0.5), y: R.y + 140 + Math.floor(i / cols) * (r * 2 + 26), r })); },
+  albumLayout() { const R = this.panelRect(), cols = 7, r = clamp(Math.min((R.w - 80) / cols / 2 - 8, (R.h - 150) / 3 / 2 - 12), 28, 50), cw = (R.w - 60) / cols;
+    return ALBUM.map((id, i) => ({ id, x: R.x + 30 + cw * (i % cols + 0.5), y: R.y + 100 + r + Math.floor(i / cols) * (r * 2 + 20), r })); },
   overlayDown(p) {
     const o = this.overlay, S = Save.data, X = this.ovClose();
     if (hit(p, X.x, X.y, X.r + 10)) { this.overlay = o.kind === 'album' ? { kind: 'pack', t: 0, shake: {} } : null; Sfx.play('tap'); return; }
