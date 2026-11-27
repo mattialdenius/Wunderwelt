@@ -888,6 +888,7 @@ const LAKE = { x: 3750, y: 2550, rx: 560, ry: 290 };
 const POND = { x: 1750, y: 2250, rx: 125, ry: 72 };
 const RING = { x: 620, y: 2880, r: 105 };       // Pilzkreis: jeder Pilz singt einen Ton
 const WALK_SPEED = 230, RIDE_SPEED = 420;
+const ZOOM_RIDE = 0.8, ZOOM_GALLOP = 0.68;   // Kamera zoomt beim Reiten heraus (1 = normal)
 // NPCs: Position, Figur, Symbol in der Sprechblase, Begrüßungston. Das Minispiel steht in MINIGAMES (unten).
 const NPCS = {
   owl:    { id: 'owl',    x: 1150, y: 1250, art: 'owl',    size: 92,  icon: 'gem',    lift: 30, sound: 'huhu',   hop: 0 },
@@ -1097,7 +1098,7 @@ const World = {
     this.T = { x: pos.x, y: pos.y, face: 1, walk: false, path: null, onArrive: null, hop: 0 };
     this.U = { x: pos.x - 70, y: pos.y + 14, face: 1, walk: false, hop: 0 }; this.trail = [];
     if (!this.free(this.U.x, this.U.y)) { this.U.x = pos.x; this.U.y = pos.y; }
-    this.cam = { x: 0, y: 0 }; this.camTo(1);
+    this.zoom = 1; this.cam = { x: 0, y: 0 }; this.camTo(1);
     if (o.reward) { this.lastReward = o.reward; this.queue.push(() => this.evReward(o.reward)); }
     this.storyDirty = true;
     if (o.first) Voice.say('world_intro'); else if (o.back) Voice.say('welcome_back');
@@ -1105,10 +1106,12 @@ const World = {
   leave() { Save.data.pos = { x: Math.round(this.T.x), y: Math.round(this.T.y) }; Save.store(); },
   npcSpot(n) { return { x: n.x - 64, y: n.y + 30 }; },   // T stellt sich links neben die Figur
   dragonSpot() { const D = this.dragon; return { x: D.x - 64, y: D.y + 30 }; },
-  camTo(k) { const tx = clamp(this.T.x - VW / 2, 0, WORLD.w - VW), ty = clamp(this.T.y - VH / 2 - 30, 0, WORLD.h - VH); this.cam.x = lerp(this.cam.x, tx, k); this.cam.y = lerp(this.cam.y, ty, k); },
+  vw() { return VW / this.zoom; }, vh() { return VH / this.zoom; },
+  toWorld(p) { return { x: p.x / this.zoom + this.cam.x, y: p.y / this.zoom + this.cam.y }; },
+  camTo(k) { const tx = clamp(this.T.x - this.vw() / 2, 0, WORLD.w - this.vw()), ty = clamp(this.T.y - this.vh() / 2 - 30 / this.zoom, 0, WORLD.h - this.vh()); this.cam.x = lerp(this.cam.x, tx, k); this.cam.y = lerp(this.cam.y, ty, k); },
   hud() { const r = Math.max(View.btn / 2, 48); return { pack: { x: VW - 16 - r, y: 16 + r, r }, hint: { x: 16 + r, y: 16 + r, r }, map: { x: VW - 16 - r, y: VH - 16 - r, r } }; },
   slotScreen(id) { const h = this.hud(), n = NPC_ORDER.length, i = NPC_ORDER.indexOf(id); return { x: h.pack.x - h.pack.r - 30 - (n - 1 - i) * 46, y: h.pack.y }; },
-  slotWorld(id) { const s = this.slotScreen(id); return { x: s.x + this.cam.x, y: s.y + this.cam.y }; },
+  slotWorld(id) { return this.toWorld(this.slotScreen(id)); },
   // Stufe des Kristalls, wie er gerade im Rucksack liegt (0 = nicht da, 1–3 = klein, groß, golden)
   packLv(id) { const d = Save.data.dragon; if (d.state === 'dropped' && d.who === id && this.grabbed) return 0; return Math.max(0, (Save.data.level[id] || 0) - (this.pending === id ? 1 : 0)); },
   inPack(id) { return this.packLv(id) > 0; },
@@ -1154,7 +1157,7 @@ const World = {
     const T = this.T, cam = this.cam;
     for (const d of [230, 180, 290, 130]) for (const a of [0.35, 2.75, -0.6, 3.7, 1.3, -1.4, 2.0, 0, Math.PI]) {
       const x = T.x + Math.cos(a) * d, y = T.y + Math.sin(a) * d * 0.7;
-      if (x < cam.x + 130 || x > cam.x + VW - 130 || y < cam.y + 170 || y > cam.y + VH - 70 || !this.free(x, y) || !this.free(x, y - 20)) continue;
+      if (x < cam.x + 130 || x > cam.x + this.vw() - 130 || y < cam.y + 170 || y > cam.y + this.vh() - 70 || !this.free(x, y) || !this.free(x, y - 20)) continue;
       const p = this.findPath(T.x, T.y, x, y); if (p && this.pathLen(p, T.x, T.y) < d * 2.2) return { x, y };
     }
     return { x: T.x + 50, y: T.y + 10 };
@@ -1194,7 +1197,7 @@ const World = {
     const who = !again && W.lastReward && got.includes(W.lastReward) ? W.lastReward : again ? pick(got) : got[got.length - 1];
     const spot = W.pickDropSpot();
     Save.data.dragon = { state: 'dropped', x: Math.round(spot.x), y: Math.round(spot.y), who }; Save.store();
-    W.grabbed = false; D.vis = true; D.fly = true; D.mode = 'away'; D.carry = null; D.x = W.cam.x + VW + 140; D.y = W.cam.y - 40; Sfx.play('whoosh');
+    W.grabbed = false; D.vis = true; D.fly = true; D.mode = 'away'; D.carry = null; D.x = W.cam.x + W.vw() + 140; D.y = W.cam.y - 40; Sfx.play('whoosh');
     const e = { block: true, t: 0, ph: 0, from: { x: D.x, y: D.y }, fall: null };
     const next = () => { e.ph++; e.t = 0; e.from = { x: D.x, y: D.y }; };
     const fly = (x, y) => { if (Math.abs(x - D.x) > 0.5) D.flip = x < D.x; D.x = x; D.y = y; };
@@ -1256,7 +1259,7 @@ const World = {
     if (Math.random() < dt * 8) this.fx.add({ x: D.x, y: D.y - 20, vy: 20, life: 0.6, size: rnd(4, 8), color: pick(PASTEL) });
     return false;
   },
-  offscreen() { return { x: this.cam.x + VW + 160, y: this.cam.y + 60 }; },
+  offscreen() { return { x: this.cam.x + this.vw() + 160, y: this.cam.y + 60 }; },
   dragonHome() { const D = this.dragon; D.x = DRAGON_HOME.x; D.y = DRAGON_HOME.y; D.fly = false; D.vis = true; D.mode = 'home'; D.flip = true; D.sc = 1; D.carry = null; this.prank = null; this.prankCool = rnd(50, 85); },
   startPrank() {
     const D = this.dragon, kinds = ['paint', 'paint', 'hide', 'hide', 'hide', 'visit', 'visit'];
@@ -1289,7 +1292,7 @@ const World = {
   },
   prankHide() {
     const W = this, D = W.dragon, T = W.T, cam = W.cam;
-    const cands = W.bushes.filter(b => b.x > cam.x + 90 && b.x < cam.x + VW - 90 && b.y > cam.y + 150 && b.y < cam.y + VH - 40 && dist(b.x, b.y, T.x, T.y) > 140
+    const cands = W.bushes.filter(b => b.x > cam.x + 90 && b.x < cam.x + W.vw() - 90 && b.y > cam.y + 150 && b.y < cam.y + W.vh() - 40 && dist(b.x, b.y, T.x, T.y) > 140
       && !W.trees.some(tr => tr.y > b.y - 10 && tr.y - b.y < 115 && Math.abs(tr.x - b.x) < 60));   // nicht hinter einem Baum
     if (!cands.length) return W.prankPaint();
     const b = pick(cands); let ph = 0, t = 0, wig = 0;
@@ -1374,6 +1377,12 @@ const World = {
       if (!U.walk && !T.walk && Math.abs(T.x - U.x) > 12) U.face = T.x > U.x ? 1 : -1;
     }
     for (const o of [T, U, D, NPCS.owl, NPCS.fox, NPCS.frog]) if (o.hop > 0) o.hop -= dt * 2;
+    const zt = this.ride ? (T.walk ? ZOOM_GALLOP : ZOOM_RIDE) : 1;
+    if (Math.abs(this.zoom - zt) > 0.001) {   // Zoom um T herum ändern, damit T an derselben Stelle bleibt
+      const sx = (T.x - this.cam.x) * this.zoom, sy = (T.y - this.cam.y) * this.zoom;
+      this.zoom = lerp(this.zoom, zt, Math.min(1, dt * 1.6));
+      this.cam.x = T.x - sx / this.zoom; this.cam.y = T.y - sy / this.zoom;
+    } else this.zoom = zt;
     this.camTo(Math.min(1, dt * 5));
 
     for (const t of this.trees) if (t.shake > 0) t.shake -= dt * 2;
@@ -1412,9 +1421,10 @@ const World = {
   },
   draw(c) {
     const cam = this.cam, t = this.time, T = this.T, U = this.U, D = this.dragon;
-    const inView = (x, y, m) => x > cam.x - m && x < cam.x + VW + m && y > cam.y - m && y < cam.y + VH + m + 60;
+    const z = this.zoom, VWz = this.vw(), VHz = this.vh();
+    const inView = (x, y, m) => x > cam.x - m && x < cam.x + VWz + m && y > cam.y - m && y < cam.y + VHz + m + 60;
     c.fillStyle = '#a9e2a2'; c.fillRect(0, 0, VW, VH);
-    c.save(); c.translate(-cam.x, -cam.y);
+    c.save(); c.scale(z, z); c.translate(-cam.x, -cam.y);
     // Bodenzonen: Blumenwiese etwas heller, Felsen etwas grauer, Hügel im Norden
     c.fillStyle = 'rgba(255,240,200,0.35)'; rr(c, 60, 2620, 2200, 960, 200); c.fill();
     c.fillStyle = 'rgba(200,200,215,0.35)'; rr(c, 4380, 380, 1150, 3000, 260); c.fill();
@@ -1424,8 +1434,8 @@ const World = {
     c.lineCap = 'round'; c.lineJoin = 'round';
     for (const pass of [0, 1]) for (const P of PATHS) { c.strokeStyle = pass ? '#f6e8c4' : '#e3d2a4'; c.lineWidth = pass ? 40 : 50; c.beginPath(); c.moveTo(P[0][0], P[0][1]); for (let i = 1; i < P.length - 1; i++) c.quadraticCurveTo(P[i][0], P[i][1], (P[i][0] + P[i + 1][0]) / 2, (P[i][1] + P[i + 1][1]) / 2); c.lineTo(P[P.length - 1][0], P[P.length - 1][1]); c.stroke(); }
     // Fluss
-    const y0 = Math.floor((cam.y - 60) / 20) * 20, y1 = cam.y + VH + 60;
-    if (riverX(cam.y) > cam.x - 200 && riverX(cam.y) < cam.x + VW + 200 || riverX(cam.y + VH) > cam.x - 200 && riverX(cam.y + VH) < cam.x + VW + 200) {
+    const y0 = Math.floor((cam.y - 60) / 20) * 20, y1 = cam.y + VHz + 60;
+    if (riverX(cam.y) > cam.x - 200 && riverX(cam.y) < cam.x + VWz + 200 || riverX(cam.y + VHz) > cam.x - 200 && riverX(cam.y + VHz) < cam.x + VWz + 200) {
       for (const s of [['#86c98a', 120], ['#8fd0f0', 104], ['#a9e1fb', 90]]) { c.strokeStyle = s[0]; c.lineWidth = s[1]; c.beginPath(); for (let y = y0; y <= y1; y += 20) c.lineTo(riverX(y), y); c.stroke(); }
       c.strokeStyle = 'rgba(255,255,255,0.65)'; c.lineWidth = 3;
       for (let y = Math.floor((cam.y - 60) / 70) * 70; y < y1; y += 70) { const yy = y + (t * 34) % 70, xx = riverX(yy) + Math.sin(y * 1.7) * 24; c.beginPath(); c.arc(xx, yy, 9, Math.PI * 1.15, Math.PI * 1.85); c.stroke(); }
@@ -1503,7 +1513,7 @@ const World = {
 
     // Pfeil am Bildschirmrand, wenn das Hinweis-Ziel nicht zu sehen ist
     if (this.hint) {
-      const hx = this.hint.target.x - cam.x, hy = this.hint.target.y - cam.y;
+      const hx = (this.hint.target.x - cam.x) * z, hy = (this.hint.target.y - cam.y) * z;
       if (hx < 30 || hx > VW - 30 || hy < 30 || hy > VH - 30) {
         const ax = clamp(hx, 70, VW - 70), ay = clamp(hy, 150, VH - 70), a = Math.atan2(hy - ay, hx - ax), b = Math.sin(t * 7) * 8;
         c.save(); c.translate(ax + Math.cos(a) * b, ay + Math.sin(a) * b); circ(c, 0, 0, 30); fs(c, '#ffd54a', '#fff', 4); c.rotate(a); drawIcon(c, 'right', 0, 0, 34); c.restore();
@@ -1563,7 +1573,7 @@ const World = {
     this.idle = 0;
     if (hit(p, H.hint.x, H.hint.y, H.hint.r + 6)) { this.showHint(); return; }
     if (hit(p, H.map.x, H.map.y, H.map.r + 6)) { this.mapOpen = true; this.T.path = null; Sfx.play('pop'); Voice.say('map_open'); return; }
-    const x = p.x + this.cam.x, y = p.y + this.cam.y, T = this.T, U = this.U, t = this.time, D = this.dragon;
+    const w0 = this.toWorld(p), x = w0.x, y = w0.y, T = this.T, U = this.U, t = this.time, D = this.dragon;
     this.dragTap = false;
     const g = this.crystalGround; if (g && dist(x, y, g.x, g.y - 16) < 62) { Sfx.play('tap'); this.walkTo(g.x, g.y); return; }
     for (const id of ['owl', 'fox', 'frog']) { const n = NPCS[id]; if (dist(x, y, n.x, n.y - 45 - n.lift) < 78 || dist(x, y, n.x, n.y - n.size - n.lift - 44) < 48) { n.hop = 1; Sfx.play('tap'); const s = this.npcSpot(n); this.walkTo(s.x, s.y, () => this.startNpc(id)); return; } }
@@ -1598,7 +1608,7 @@ const World = {
   move(p) {
     // Finger gedrückt halten und ziehen: T läuft dem Finger nach
     if (this.mapOpen || !this.dragTap || this.blocked() || this.time - this.lastPathT < 0.22 || dist(p.x, p.y, p.sx, p.sy) < 30) return;
-    this.lastPathT = this.time; this.idle = 0; this.walkTo(p.x + this.cam.x, p.y + this.cam.y);
+    this.lastPathT = this.time; this.idle = 0; const w0 = this.toWorld(p); this.walkTo(w0.x, w0.y);
   },
   up() { this.dragTap = false; },
   key(k) {
