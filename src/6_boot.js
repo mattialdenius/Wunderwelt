@@ -34,7 +34,13 @@ function boot() {
   View.resize();
   window.addEventListener('resize', () => View.resize());
   window.addEventListener('orientationchange', () => setTimeout(() => View.resize(), 200));
-  document.addEventListener('visibilitychange', () => { if (document.hidden) Voice.stop(); lastFrame = performance.now(); });
+  // Spielstand sichern, sobald der Tab verlassen, gewechselt oder geschlossen wird (alles bleibt auf dem Gerät)
+  const saveNow = () => { if (Game.scene === World && World.T) Save.data.pos = { x: Math.round(World.T.x), y: Math.round(World.T.y) }; Save.store(); };
+  document.addEventListener('visibilitychange', () => { if (document.hidden) { Voice.stop(); saveNow(); } lastFrame = performance.now(); });
+  window.addEventListener('pagehide', saveNow);
+  window.addEventListener('beforeunload', saveNow);
+  // den Browser bitten, den Spielstand nicht bei Speicherplatzmangel zu löschen
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) {}
   window.ZW = { CONFIG, SPEECH, Game, Save, View, Input, World, StartScene, NamingScene, OwlGame, FoxGame, FrogGame, DragonGame, ReadGame, MathGame, CountGame, MemoryGame, CharScene, NPCS, Voice }; // zum Testen in der Konsole
   lastFrame = performance.now(); requestAnimationFrame(frame);
 }

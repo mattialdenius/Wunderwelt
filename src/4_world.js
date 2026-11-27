@@ -509,6 +509,7 @@ const World = {
 
   /* ---- Ablauf ---- */
   update(dt) {
+    this.autoSave = (this.autoSave || 0) + dt; if (this.autoSave > 5) { this.autoSave = 0; Save.data.pos = { x: Math.round(this.T.x), y: Math.round(this.T.y) }; Save.store(); }   // alle 5 s Standort sichern
     this.time += dt; const T = this.T, U = this.U, D = this.dragon;
     // Eltern-Menü: drei Punkte unten links 1,5 s gedrückt halten
     if (this.menuHold != null) { this.menuT += dt; if (this.menuT > 1.5) { this.menuHold = null; Sfx.play('pop'); Game.go(StartScene, { panel: true }); } }
