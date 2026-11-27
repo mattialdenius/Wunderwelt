@@ -603,6 +603,8 @@ function drawThing(c, name, x, y, s) {
     case 'cloudhat': drawHat(c, 'cloud', 0, 18, 1.2); break;
     case 'stars': for (let i = 0; i < 5; i++) { const a = Math.PI * (1.05 + i * 0.22); starPath(c, Math.cos(a) * 20, 10 + Math.sin(a) * 20, 7); fs(c, ['#ffe066', '#ff9ecb', '#7db8ff', '#9be7a0', '#c9a5ff'][i], '#fff', 1); } break;
     case 'pad': drawSkyPad(c, 0, 14, Game.time, true); break;
+    case 'scroll': rr(c, -18, -20, 36, 40, 4); fs(c, '#fff3d6', '#d9b98a', 2); rr(c, -22, -24, 44, 9, 4); fs(c, '#f0d9a8', '#c9a46e', 2); rr(c, -22, 16, 44, 9, 4); fs(c, '#f0d9a8', '#c9a46e', 2); c.strokeStyle = '#c9a46e'; c.lineWidth = 2; line(c, -10, -6, 10, -6); line(c, -10, 2, 6, 2); circ(c, 8, 10, 6); fs(c, '#ff6b6b', '#d9435e', 1.5); break;
+    case 'gem': drawCrystal(c, 0, 0, 22, '#ffd23f'); break;
     default: drawIcon(c, name, 0, 0, 50);
   }
   c.restore();
@@ -788,3 +790,32 @@ function drawSkyPad(c, x, y, t, on) {   // Startplatz zum Fliegen
   c.save(); c.globalAlpha = on ? 1 : 0.55; drawThing(c, 'wings', x, y - 80 + b, 40); c.restore();
 }
 Object.assign(ART, { sheep: (c, t, o) => drawSheep(c, t, o), bird: (c, t, o) => drawBird(c, t, o), cloudkid: (c, t, o) => drawCloudKid(c, t, o) });
+
+/* ---- Drachenberg (Finale): Berg, Kristallstein, großer Regenbogen ---- */
+function drawMountain(c, x, y, t) {
+  c.save(); c.translate(x, y); c.scale(0.62, 0.62); c.translate(-x, -y);
+  c.fillStyle = 'rgba(60,50,90,0.15)'; ell(c, x, y + 4, 260, 40); c.fill();
+  c.beginPath(); c.moveTo(x - 270, y); c.quadraticCurveTo(x - 190, y - 170, x - 110, y - 250); c.quadraticCurveTo(x - 70, y - 290, x - 30, y - 240); c.quadraticCurveTo(x + 10, y - 330, x + 60, y - 360); c.quadraticCurveTo(x + 110, y - 330, x + 150, y - 260); c.quadraticCurveTo(x + 220, y - 150, x + 270, y); c.closePath();
+  fs(c, '#b7aed6', '#9a8fc0', 4);
+  c.fillStyle = 'rgba(255,255,255,0.18)'; c.beginPath(); c.moveTo(x - 110, y - 250); c.quadraticCurveTo(x - 150, y - 120, x - 200, y - 10); c.lineTo(x - 150, y - 10); c.quadraticCurveTo(x - 110, y - 130, x - 110, y - 250); c.fill();
+  c.beginPath(); c.moveTo(x + 18, y - 318); c.quadraticCurveTo(x + 60, y - 368, x + 102, y - 318); c.lineTo(x + 86, y - 300); c.lineTo(x + 70, y - 314); c.lineTo(x + 52, y - 296); c.lineTo(x + 36, y - 312); c.closePath(); fs(c, '#fff');
+  c.beginPath(); c.moveTo(x - 96, y - 258); c.quadraticCurveTo(x - 70, y - 290, x - 44, y - 256); c.lineTo(x - 58, y - 246); c.lineTo(x - 70, y - 258); c.lineTo(x - 84, y - 244); c.closePath(); fs(c, '#fff');
+  c.restore();
+}
+function drawAltar(c, x, y, t, full) {
+  c.fillStyle = 'rgba(40,40,70,0.2)'; ell(c, x, y + 4, 56, 15); c.fill();
+  rr(c, x - 44, y - 36, 88, 38, 10); fs(c, '#d8d1ee', '#a99fcf', 3);
+  rr(c, x - 54, y - 48, 108, 16, 8); fs(c, '#e8e2f8', '#a99fcf', 3);
+  const cx = x, cy = y - 96, R = 38;
+  if (full) { c.fillStyle = 'rgba(255,247,170,' + (0.35 + Math.sin(t * 3) * 0.15) + ')'; circ(c, cx, cy, 70); c.fill(); }
+  for (let i = 0; i < 8; i++) {
+    const a1 = -Math.PI / 2 + i * TAU / 8, a2 = a1 + TAU / 8;
+    c.beginPath(); c.moveTo(cx, cy); c.lineTo(cx + Math.cos(a1) * R, cy + Math.sin(a1) * R * 1.25); c.lineTo(cx + Math.cos(a2) * R, cy + Math.sin(a2) * R * 1.25); c.closePath();
+    if (full) fs(c, ['#ff7b9c', '#ff9f5a', '#ffd23f', '#9be7a0', '#5fd3c7', '#7db8ff', '#a98bff', '#e59bff'][i], '#fff', 1.5);
+    else { c.setLineDash([4, 4]); fs(c, 'rgba(255,255,255,0.35)', '#9a8fc0', 2); c.setLineDash([]); }
+  }
+  if (full) { c.fillStyle = '#fff'; for (let i = 0; i < 4; i++) { const tw = Math.max(0, Math.sin(t * 4 + i * 1.6)); sparklePath(c, cx + Math.cos(i * 1.7) * 52, cy + Math.sin(i * 2.3) * 52, 2 + tw * 7); c.fill(); } }
+}
+function drawBigRainbow(c, x, y, r, k) {   // k: 0..1 wie weit der Bogen schon gewachsen ist
+  ['#ff7b9c', '#ff9f5a', '#ffd23f', '#9be7a0', '#5fd3c7', '#7db8ff', '#a98bff', '#e59bff'].forEach((col, i) => { c.strokeStyle = col; c.lineWidth = r * 0.06; c.lineCap = 'round'; c.beginPath(); c.arc(x, y, r - i * r * 0.06, Math.PI, Math.PI + Math.PI * k); c.stroke(); });
+}

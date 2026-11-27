@@ -972,4 +972,116 @@ const MelodyGame = {
   }
 };
 
+/* ---------- Finale: Regenbogenkristall zusammensetzen, Sternenfest, Urkunde ----------
+   Phasen: build (Splitter antippen) → shine (Kristall leuchtet, Regenbogen wächst) → fest (Feuerwerk, alle Freunde) → cert (Urkunde).
+   Mit { cert: true } (aus dem Rucksack) geht es direkt zum Fest mit Urkunde. */
+const RB8 = ['#ff7b9c', '#ff9f5a', '#ffd23f', '#9be7a0', '#5fd3c7', '#7db8ff', '#a98bff', '#e59bff'];
+const FinaleScene = {
+  id: 'finale',
+  enter(o) {
+    this.again = !!(o && o.cert); this.t = 0; this.pt = 0; this.idle = 0; this.hintT = 0; this.fx = new Fx(); this.sparks = []; this.rockT = 0; this.shown = false;
+    this.pieces = RB8.map((col, i) => ({ col, i, x: i < 4 ? 150 + (i % 2) * 60 : VW - 150 - (i % 2) * 60, y: 95 + (i % 4) * (VH - 270) / 3, fly: 0, done: false, ph: i * 0.8 }));
+    if (this.again) { this.pieces.forEach(p => { p.done = true; }); this.phase = 'fest'; Voice.say('fest_hello', { pitch: 1.3 }); }
+    else { this.phase = 'build'; Voice.say('fin_intro', { pitch: 1.7 }); }
+  },
+  center() { return { x: VW / 2, y: VH * 0.46, R: Math.min(120, VH * 0.24) }; },
+  tri(i, C) { const a1 = -Math.PI / 2 + i * TAU / 8, a2 = a1 + TAU / 8, R = C.R; return [[C.x, C.y], [C.x + Math.cos(a1) * R, C.y + Math.sin(a1) * R * 1.25], [C.x + Math.cos(a2) * R, C.y + Math.sin(a2) * R * 1.25]]; },
+  slotPos(i, C) { const q = this.tri(i, C); return { x: (q[0][0] + q[1][0] + q[2][0]) / 3, y: (q[0][1] + q[1][1] + q[2][1]) / 3 }; },
+  go(ph) { this.phase = ph; this.pt = 0; },
+  firework(x, y) { Sfx.play('pop'); const col = pick(RB8); for (let i = 0; i < 34; i++) { const a = i / 34 * TAU, v = rnd(140, 260); this.sparks.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: rnd(0.9, 1.4), col: Math.random() < 0.2 ? '#fff' : col }); } },
+  update(dt) {
+    this.t += dt; this.pt += dt; this.fx.update(dt); if (this.hintT > 0) this.hintT -= dt;
+    for (const s of this.sparks) { s.x += s.vx * dt; s.y += s.vy * dt; s.vy += 160 * dt; s.vx *= 0.985; s.life -= dt; } this.sparks = this.sparks.filter(s => s.life > 0);
+    const C = this.center();
+    for (const p of this.pieces) if (p.fly > 0 && !p.done) { p.fly = Math.min(1, p.fly + dt * 1.6); if (p.fly >= 1) { p.done = true; Sfx.play('note', 520 + this.pieces.filter(q => q.done).length * 70); const s = this.slotPos(p.i, C); this.fx.burst(s.x, s.y, 12, { g: 60, color: p.col }); if (this.pieces.every(q => q.done)) { this.go('shine'); Sfx.play('fanfare'); Voice.say('fin_done', { pitch: 1.3 }); Voice.say('fin_uni', { pitch: 1.3, queue: true }); ScreenFx.confetti(VW, 90); } } }
+    if (this.phase === 'build') { this.idle += dt; if (this.idle > CONFIG.hintDelay) { this.idle = 0; this.hintT = 4; Sfx.play('hint'); Voice.say('fin_hint', { pitch: 1.3 }); } }
+    if (this.phase === 'shine' && this.pt > 7) { this.go('fest'); Voice.say('fest_hello', { pitch: 1.3 }); }
+    if (this.phase === 'fest') {
+      this.rockT -= dt; if (this.rockT <= 0) { this.rockT = rnd(0.7, 1.4); this.firework(rnd(VW * 0.15, VW * 0.85), rnd(50, VH * 0.4)); }
+      if (this.pt > 5 && !this.funkiSaid) { this.funkiSaid = true; Voice.say('fest_funki', { pitch: 1.7 }); }
+      if (this.pt > (this.again ? 3 : 11)) this.go('cert'), this.readCert();
+    }
+    if (this.phase === 'cert') { this.rockT -= dt; if (this.rockT <= 0) { this.rockT = rnd(1.2, 2.2); this.firework(rnd(40, VW - 40), rnd(30, 120)); } }
+  },
+  held() { const pl = Save.data.player; return pl && pl.gender === 'boy' ? 'Regenbogen-Held' : 'Regenbogen-Heldin'; },
+  readCert() { Sfx.play('win'); Voice.say('cert_read', { vars: { held: this.held() }, pitch: 1.1 }); },
+  finish() {
+    if (Game.pending) return; const S = Save.data;
+    if (!this.again && S.story < 9) { S.story = 9; S.wallet = (S.wallet || 0) + 10; Save.store(); Voice.say('fest_free', { pitch: 1.3 }); }
+    Game.go(World, {});
+  },
+  homeBtn() { const r = Math.max(View.btn / 2, 50); return { x: VW - 16 - r, y: VH - 16 - r, r }; },
+  draw(c) {
+    const t = this.t, C = this.center(), night = this.phase === 'fest' || this.phase === 'cert';
+    const g = c.createLinearGradient(0, 0, 0, VH);
+    if (night) { g.addColorStop(0, '#1f2160'); g.addColorStop(1, '#5a4a9a'); } else { g.addColorStop(0, '#b7aed6'); g.addColorStop(1, '#f3e4ff'); }
+    c.fillStyle = g; c.fillRect(0, 0, VW, VH);
+    if (night) { c.fillStyle = 'rgba(255,255,255,0.85)'; for (let i = 0; i < 40; i++) { sparklePath(c, (i * 197 + 40) % VW, 10 + (i * 83) % (VH * 0.6), 1.5 + (Math.sin(t * 2 + i) + 1) * 1.5); c.fill(); } }
+    const rk = this.phase === 'build' ? 0 : this.phase === 'shine' ? clamp((this.pt - 0.8) / 2.5, 0, 1) : 1;
+    if (rk > 0) drawBigRainbow(c, VW / 2, VH * 0.95, Math.min(VW * 0.48, VH * 1.05), rk);
+    if (!night) {
+      // Bergspitze mit Kristallstein
+      c.fillStyle = '#c9c0e6'; c.beginPath(); c.moveTo(VW / 2 - 300, VH); c.quadraticCurveTo(VW / 2, VH * 0.55, VW / 2 + 300, VH); c.closePath(); c.fill();
+      rr(c, C.x - 70, C.y + C.R * 1.25 + 6, 140, 40, 12); fs(c, '#e8e2f8', '#a99fcf', 3);
+      if (this.phase === 'shine') { c.fillStyle = 'rgba(255,247,170,' + (0.5 + Math.sin(t * 5) * 0.2) + ')'; circ(c, C.x, C.y, C.R * 1.6 + Math.sin(t * 3) * 10); c.fill(); }
+      for (let i = 0; i < 8; i++) {
+        const q = this.tri(i, C), p = this.pieces[i];
+        c.beginPath(); c.moveTo(q[0][0], q[0][1]); c.lineTo(q[1][0], q[1][1]); c.lineTo(q[2][0], q[2][1]); c.closePath();
+        if (p.done) fs(c, p.col, '#fff', 3); else { c.setLineDash([7, 6]); fs(c, 'rgba(255,255,255,0.45)', '#9a8fc0', 3); c.setLineDash([]); }
+      }
+      for (const p of this.pieces) if (!p.done) {
+        let x = p.x, y = p.y + Math.sin(t * 2 + p.ph) * 8;
+        if (p.fly > 0) { const s = this.slotPos(p.i, C), k = p.fly * p.fly * (3 - 2 * p.fly); x = lerp(p.x, s.x, k); y = lerp(p.y, s.y, k) - Math.sin(k * Math.PI) * 80; }
+        if (this.hintT > 0 && p.fly === 0) { c.fillStyle = 'rgba(255,225,90,' + (0.45 + Math.sin(t * 8) * 0.2) + ')'; circ(c, x, y, 46); c.fill(); }
+        c.fillStyle = 'rgba(255,255,255,0.5)'; circ(c, x, y, 36); c.fill(); drawCrystal(c, x, y, 26, p.col);
+      }
+      drawActor(c, 'unicorn', 70, VH - 10, { size: 100, t, mark: uniMark(), wings: true, lift: this.phase === 'shine' ? Math.abs(Math.sin(t * 8)) * 24 : 0 });
+      drawActor(c, 'dragon', VW - 80, VH - 14, { size: 90, t, flip: true, lift: this.phase === 'shine' ? Math.abs(Math.sin(t * 9)) * 24 : 0 });
+    } else {
+      // Sternenfest: alle Freunde auf der Wiese
+      c.fillStyle = '#3f6e5a'; ell(c, VW / 2, VH + 60, VW * 0.75, 170); c.fill();
+      const back = ALBUM.filter(id => id !== 'dragon'), n = back.length;
+      back.forEach((id, i) => { const row = i % 2, x = 60 + (VW - 120) * (i + 0.5) / n, y = VH - 118 + row * 34, nn = NPCS[id];
+        drawActor(c, nn.art, x, y, { size: Math.min(58, nn.size * 0.62), t: t + i, lift: Math.abs(Math.sin(t * 5 + i)) * 14, happy: true }); });
+      drawActor(c, 'unicorn', VW / 2 - 70, VH - 12, { size: 108, t, mark: uniMark(), wings: true, lift: Math.abs(Math.sin(t * 6)) * 16 });
+      drawActor(c, 't', VW / 2 + 20, VH - 12, { size: 96, t, lift: Math.abs(Math.sin(t * 6 + 1)) * 16 });
+      drawActor(c, 'dragon', VW / 2 + Math.cos(t * 0.8) * VW * 0.32, 150 + Math.sin(t * 1.6) * 30, { size: 74, t, flip: Math.sin(t * 0.8) > 0, noShadow: true });
+    }
+    for (const s of this.sparks) { c.globalAlpha = clamp(s.life, 0, 1); c.fillStyle = s.col; circ(c, s.x, s.y, 3.5); c.fill(); } c.globalAlpha = 1;
+    this.fx.draw(c);
+    if (this.phase === 'cert') this.drawCert(c, t);
+    if (this.phase === 'fest' || this.phase === 'cert') { const H = this.homeBtn(); drawRoundBtn(c, H.x, H.y, H.r, { color: '#c9f2d6', icon: 'check', pulse: this.phase === 'cert' }); }
+    if (this.phase === 'build') drawMiniExit(c);
+  },
+  certRect() { const w = Math.min(560, VW - 260), h = VH - 70; return { x: VW / 2 - w / 2, y: 30, w, h }; },
+  drawCert(c, t) {
+    const R = this.certRect(), S = Save.data, pl = S.player || {};
+    c.fillStyle = 'rgba(20,20,50,0.35)'; c.fillRect(0, 0, VW, VH);
+    rr(c, R.x, R.y, R.w, R.h, 18); fs(c, '#fff8e6', '#d9b98a', 6); rr(c, R.x + 12, R.y + 12, R.w - 24, R.h - 24, 12); c.strokeStyle = '#f0d9a8'; c.lineWidth = 3; c.stroke();
+    c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = '#7b5cd6';
+    c.font = '800 38px system-ui, sans-serif'; c.fillText('Urkunde', VW / 2, R.y + 50);
+    c.fillStyle = '#5a4a7a'; c.font = '800 30px system-ui, sans-serif'; c.fillText(pl.name || 'Du', VW / 2, R.y + 112);
+    c.font = '600 18px system-ui, sans-serif'; c.fillText('hat zusammen mit dem Einhorn ' + (S.name || ''), VW / 2, R.y + 148); c.fillText('den Regenbogenkristall gerettet!', VW / 2, R.y + 172);
+    c.fillStyle = '#d9435e'; c.font = '800 24px system-ui, sans-serif'; c.fillText(this.held(), VW / 2, R.y + 210);
+    RB8.forEach((col, i) => drawCrystal(c, VW / 2 + (i - 3.5) * 30, R.y + 250, 11, col));
+    c.fillStyle = '#9a8fb5'; c.font = '600 15px system-ui, sans-serif'; c.fillText(new Date().toLocaleDateString('de-DE'), VW / 2, R.y + R.h - 30);
+    c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+    drawActor(c, 't', R.x + 70, R.y + R.h - 26, { size: 96, t, noShadow: true }); drawActor(c, 'unicorn', R.x + R.w - 80, R.y + R.h - 24, { size: 92, t, flip: true, mark: uniMark(), wings: true, noShadow: true });
+    c.fillStyle = '#ffd54a'; for (let i = 0; i < 4; i++) { starPath(c, R.x + 40 + (i % 2) * (R.w - 80), R.y + 40 + Math.floor(i / 2) * 0 + (i > 1 ? 0 : 0), 10); fs(c, '#ffe066', '#f0b429', 2); }
+  },
+  down(p) {
+    if (this.phase === 'build') {
+      const e = miniExit(); if (hit(p, e.x, e.y, e.r + 6)) { Sfx.play('tap'); Game.go(World, {}); return; }
+      this.idle = 0; this.hintT = 0;
+      for (const q of this.pieces) if (!q.done && q.fly === 0 && dist(p.x, p.y, q.x, q.y + Math.sin(this.t * 2 + q.ph) * 8) < 54) { q.fly = 0.001; Sfx.play('whoosh'); if (Math.random() < 0.5) Voice.say('fin_piece', { pitch: 1.4 }); return; }
+      return;
+    }
+    if (this.phase === 'fest' || this.phase === 'cert') {
+      const H = this.homeBtn(); if (hit(p, H.x, H.y, H.r + 8)) { Sfx.play('tap'); this.finish(); return; }
+      if (this.phase === 'cert') { const R = this.certRect(); if (p.x > R.x && p.x < R.x + R.w && p.y > R.y && p.y < R.y + R.h) { this.readCert(); return; } }
+      this.firework(p.x, p.y);
+    }
+  }
+};
+
 const MINIGAMES = { owl: OwlGame, fox: FoxGame, frog: FrogGame, dragon: DragonGame, snail: ReadGame, squirrel: MathGame, mouse: CountGame, hedgehog: MemoryGame, sheep: SizeGame, bird: MelodyGame };

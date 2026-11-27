@@ -189,6 +189,20 @@ const SPEECH = {
   q_sheep_remind:  { text: 'Drei Lämmchen. Lauf einfach zu ihnen hin, dann hüpfen sie nach Hause.', audio: null },
   q_lamb_item:     { text: ['Mäh!', 'Ein Lämmchen!'], audio: null },
   q_sheep_done:    { text: 'Alle Lämmchen sind wieder da! Danke! Hier ist eine Wolkenmütze für dich, ganz flauschig.', audio: null },
+  /* --- Kapitel 4: Drachenberg und Sternenfest --- */
+  area_berg:       { text: 'Der Drachenberg!', audio: null },
+  story_funki4:    { text: 'Wow, du hast alle acht Splitter! Komm mit auf den Drachenberg, da setzen wir den Kristall wieder zusammen. Ich fliege schon mal vor!', audio: null },
+  story_funki5:    { text: 'Hier oben auf dem Drachenberg stand der Regenbogenkristall. Das ist sein Kristallstein.', audio: null },
+  story_funki6:    { text: 'Setz die Splitter wieder ein! Und danke, dass du mir verziehen hast.', audio: null },
+  fin_intro:       { text: 'Tippe die Splitter an, dann fliegen sie an ihren Platz!', audio: null },
+  fin_piece:       { text: ['Passt!', 'Klick!', 'Noch einer!', 'Super!'], audio: null },
+  fin_hint:        { text: 'Tippe auf einen glitzernden Splitter!', audio: null },
+  fin_done:        { text: 'Der Regenbogenkristall ist wieder ganz!', audio: null },
+  fin_uni:         { text: 'Schau, der Regenbogen ist zurück! Alle Freunde kommen zum Sternenfest!', audio: null },
+  fest_hello:      { text: 'Willkommen beim Sternenfest! Danke, {spieler}! Tippe in den Himmel, dann gibt es Feuerwerk!', audio: null },
+  fest_funki:      { text: 'Wir sind jetzt Freunde für immer!', audio: null },
+  cert_read:       { text: 'Urkunde! {spieler} hat zusammen mit {name} den Regenbogenkristall gerettet. Danke, {held}!', audio: null },
+  fest_free:       { text: 'Du kannst jetzt weiterspielen, alle Glitzersterne sammeln und alle Spiele golden machen!', audio: null },
   /* --- Nebenaufgaben --- */
   q_duck_offer:    { text: 'Quak quak! Oh je, meine drei Küken sind weggelaufen. Hilfst du mir, sie zu finden?', audio: null },
   q_duck_remind:   { text: 'Hast du meine Küken gesehen? Es sind drei!', audio: null },
@@ -1117,6 +1131,8 @@ function drawThing(c, name, x, y, s) {
     case 'cloudhat': drawHat(c, 'cloud', 0, 18, 1.2); break;
     case 'stars': for (let i = 0; i < 5; i++) { const a = Math.PI * (1.05 + i * 0.22); starPath(c, Math.cos(a) * 20, 10 + Math.sin(a) * 20, 7); fs(c, ['#ffe066', '#ff9ecb', '#7db8ff', '#9be7a0', '#c9a5ff'][i], '#fff', 1); } break;
     case 'pad': drawSkyPad(c, 0, 14, Game.time, true); break;
+    case 'scroll': rr(c, -18, -20, 36, 40, 4); fs(c, '#fff3d6', '#d9b98a', 2); rr(c, -22, -24, 44, 9, 4); fs(c, '#f0d9a8', '#c9a46e', 2); rr(c, -22, 16, 44, 9, 4); fs(c, '#f0d9a8', '#c9a46e', 2); c.strokeStyle = '#c9a46e'; c.lineWidth = 2; line(c, -10, -6, 10, -6); line(c, -10, 2, 6, 2); circ(c, 8, 10, 6); fs(c, '#ff6b6b', '#d9435e', 1.5); break;
+    case 'gem': drawCrystal(c, 0, 0, 22, '#ffd23f'); break;
     default: drawIcon(c, name, 0, 0, 50);
   }
   c.restore();
@@ -1302,6 +1318,35 @@ function drawSkyPad(c, x, y, t, on) {   // Startplatz zum Fliegen
   c.save(); c.globalAlpha = on ? 1 : 0.55; drawThing(c, 'wings', x, y - 80 + b, 40); c.restore();
 }
 Object.assign(ART, { sheep: (c, t, o) => drawSheep(c, t, o), bird: (c, t, o) => drawBird(c, t, o), cloudkid: (c, t, o) => drawCloudKid(c, t, o) });
+
+/* ---- Drachenberg (Finale): Berg, Kristallstein, großer Regenbogen ---- */
+function drawMountain(c, x, y, t) {
+  c.save(); c.translate(x, y); c.scale(0.62, 0.62); c.translate(-x, -y);
+  c.fillStyle = 'rgba(60,50,90,0.15)'; ell(c, x, y + 4, 260, 40); c.fill();
+  c.beginPath(); c.moveTo(x - 270, y); c.quadraticCurveTo(x - 190, y - 170, x - 110, y - 250); c.quadraticCurveTo(x - 70, y - 290, x - 30, y - 240); c.quadraticCurveTo(x + 10, y - 330, x + 60, y - 360); c.quadraticCurveTo(x + 110, y - 330, x + 150, y - 260); c.quadraticCurveTo(x + 220, y - 150, x + 270, y); c.closePath();
+  fs(c, '#b7aed6', '#9a8fc0', 4);
+  c.fillStyle = 'rgba(255,255,255,0.18)'; c.beginPath(); c.moveTo(x - 110, y - 250); c.quadraticCurveTo(x - 150, y - 120, x - 200, y - 10); c.lineTo(x - 150, y - 10); c.quadraticCurveTo(x - 110, y - 130, x - 110, y - 250); c.fill();
+  c.beginPath(); c.moveTo(x + 18, y - 318); c.quadraticCurveTo(x + 60, y - 368, x + 102, y - 318); c.lineTo(x + 86, y - 300); c.lineTo(x + 70, y - 314); c.lineTo(x + 52, y - 296); c.lineTo(x + 36, y - 312); c.closePath(); fs(c, '#fff');
+  c.beginPath(); c.moveTo(x - 96, y - 258); c.quadraticCurveTo(x - 70, y - 290, x - 44, y - 256); c.lineTo(x - 58, y - 246); c.lineTo(x - 70, y - 258); c.lineTo(x - 84, y - 244); c.closePath(); fs(c, '#fff');
+  c.restore();
+}
+function drawAltar(c, x, y, t, full) {
+  c.fillStyle = 'rgba(40,40,70,0.2)'; ell(c, x, y + 4, 56, 15); c.fill();
+  rr(c, x - 44, y - 36, 88, 38, 10); fs(c, '#d8d1ee', '#a99fcf', 3);
+  rr(c, x - 54, y - 48, 108, 16, 8); fs(c, '#e8e2f8', '#a99fcf', 3);
+  const cx = x, cy = y - 96, R = 38;
+  if (full) { c.fillStyle = 'rgba(255,247,170,' + (0.35 + Math.sin(t * 3) * 0.15) + ')'; circ(c, cx, cy, 70); c.fill(); }
+  for (let i = 0; i < 8; i++) {
+    const a1 = -Math.PI / 2 + i * TAU / 8, a2 = a1 + TAU / 8;
+    c.beginPath(); c.moveTo(cx, cy); c.lineTo(cx + Math.cos(a1) * R, cy + Math.sin(a1) * R * 1.25); c.lineTo(cx + Math.cos(a2) * R, cy + Math.sin(a2) * R * 1.25); c.closePath();
+    if (full) fs(c, ['#ff7b9c', '#ff9f5a', '#ffd23f', '#9be7a0', '#5fd3c7', '#7db8ff', '#a98bff', '#e59bff'][i], '#fff', 1.5);
+    else { c.setLineDash([4, 4]); fs(c, 'rgba(255,255,255,0.35)', '#9a8fc0', 2); c.setLineDash([]); }
+  }
+  if (full) { c.fillStyle = '#fff'; for (let i = 0; i < 4; i++) { const tw = Math.max(0, Math.sin(t * 4 + i * 1.6)); sparklePath(c, cx + Math.cos(i * 1.7) * 52, cy + Math.sin(i * 2.3) * 52, 2 + tw * 7); c.fill(); } }
+}
+function drawBigRainbow(c, x, y, r, k) {   // k: 0..1 wie weit der Bogen schon gewachsen ist
+  ['#ff7b9c', '#ff9f5a', '#ffd23f', '#9be7a0', '#5fd3c7', '#7db8ff', '#a98bff', '#e59bff'].forEach((col, i) => { c.strokeStyle = col; c.lineWidth = r * 0.06; c.lineCap = 'round'; c.beginPath(); c.arc(x, y, r - i * r * 0.06, Math.PI, Math.PI + Math.PI * k); c.stroke(); });
+}
 
 /* ============ 4. SZENEN: START + EINHORN BENENNEN ============
    Jede Szene hat: enter(opts), update(dt), draw(c) und optional down/move/up/key/resize/leave. */
@@ -1564,6 +1609,7 @@ const ISLES = [{ x: 6080, y: 1650, rx: 300, ry: 190 }, { x: 6820, y: 1000, rx: 3
   { x: 6780, y: 2620, rx: 310, ry: 200 }, { x: 7420, y: 3420, rx: 290, ry: 190 }, { x: 6300, y: 3500, rx: 270, ry: 180 }];
 const SKY_LINKS = [[0, 1], [1, 2], [0, 3], [3, 2], [3, 4], [3, 5]];        // Regenbogenbrücken
 const SKY_PAD = { x: 5390, y: 1650 }, LAND_PAD = { x: 5900, y: 1660 };    // Startplatz im Wald, Landeplatz auf der ersten Insel
+const ALTAR = { x: 4980, y: 640 };                                          // Kristallstein auf dem Drachenberg (Finale)
 const LAMB_SPOTS = [[7380, 3500], [6360, 3560], [7580, 1960]];
 const DROP_SPOTS = [[6020, 1580], [7000, 1090], [7350, 1720], [6900, 2700], [6200, 3450]];
 const skyWalk = (x, y) => x > SKY_X && (ISLES.some(I => inEll(x, y, I, -14)) || SKY_LINKS.some(L => segDist(x, y, ISLES[L[0]].x, ISLES[L[0]].y, ISLES[L[1]].x, ISLES[L[1]].y) < 40));
@@ -1674,7 +1720,7 @@ const World = {
     const occOK = (x, y, s) => { const i0 = Math.floor(x / BK), j0 = Math.floor(y / BK); for (let i = i0 - 2; i <= i0 + 2; i++) for (let j = j0 - 2; j <= j0 + 2; j++) { const a = occ.get(key(i, j)); if (a) for (const o of a) if (dist(x, y, o.x, o.y) < (s + o.s) / 2) return false; } return true; };
     const keep = [[START_POS.x, START_POS.y, 190], [RING.x, RING.y, 210], [DRAGON_HOME.x, DRAGON_HOME.y, 260], [NPCS.fox.x, NPCS.fox.y, 330]];
     for (const k in NPCS) keep.push([NPCS[k].x, NPCS[k].y, 200]);
-    keep.push([SKY_PAD.x, SKY_PAD.y, 170], [GATE.x, GATE.y, 150], [PLAZA.x, PLAZA.y, PLAZA.r + 60]); for (const h of HOUSES) keep.push([h.x, h.y - h.r, h.r + 80]); for (const l of LANTERNS) keep.push([l[0], l[1], 50]); for (const q of CAKE_SPOTS) keep.push([q[0], q[1], 60]); for (const f of BEE_FLOWERS) keep.push([f.x, f.y, 90]); for (const q of QUEST_BUSHES) keep.push([q[0], q[1], 80]);
+    keep.push([SKY_PAD.x, SKY_PAD.y, 170], [ALTAR.x, ALTAR.y - 120, 300], [GATE.x, GATE.y, 150], [PLAZA.x, PLAZA.y, PLAZA.r + 60]); for (const h of HOUSES) keep.push([h.x, h.y - h.r, h.r + 80]); for (const l of LANTERNS) keep.push([l[0], l[1], 50]); for (const q of CAKE_SPOTS) keep.push([q[0], q[1], 60]); for (const f of BEE_FLOWERS) keep.push([f.x, f.y, 90]); for (const q of QUEST_BUSHES) keep.push([q[0], q[1], 80]);
     for (const b of BRIDGES) { keep.push([b.x - 200, b.y, 170]); keep.push([b.x + 200, b.y, 170]); }
     const free0 = (x, y, m, pm) => this.terrainOK(x, y, m) && pathDist(x, y) > pm && keep.every(k => dist(x, y, k[0], k[1]) > k[2]);
     const tree = (x, y, s, sp) => { this.trees.push({ x, y, s: s || 0.95 + R() * 0.3, kind: R() < 0.22 ? 1 : R() < 0.5 ? 2 : 0, shake: 0 }); addOcc(x, y, sp || 100); };
@@ -1727,6 +1773,7 @@ const World = {
     for (const r of this.rocks) this.stamp(r.x, r.y - r.r * 0.3, r.r * 0.9);
     for (const k in NPCS) if (!NPCS[k].learn) this.stamp(NPCS[k].x, NPCS[k].y - 6, k === 'dragon' ? 44 : 36);
     this.stamp(NPCS.fox.x + 86, NPCS.fox.y - 8, 40);     // Fuchsbau
+    this.stamp(ALTAR.x, ALTAR.y - 170, 115); this.stamp(ALTAR.x, ALTAR.y - 16, 40);   // Drachenberg und Kristallstein
     this.stamp(GATE.x - 62, GATE.y - 10, 30); this.stamp(GATE.x + 62, GATE.y - 10, 30);   // Pfeiler vom Pilztor
     for (const h of HOUSES) this.stamp(h.x, h.y - h.r * 0.3, h.r * 0.62);
     this.setGate(Save.data.story >= 3);
@@ -1768,6 +1815,7 @@ const World = {
     c.fillStyle = '#cfe8ff'; c.fillRect(WOOD_W - 10, 0, WORLD.w, WORLD.h);
     c.lineCap = 'round'; c.lineWidth = 80; c.strokeStyle = '#ffc2d6'; for (const L of SKY_LINKS) { const A = ISLES[L[0]], B = ISLES[L[1]]; line(c, A.x, A.y, B.x, B.y); }
     c.fillStyle = '#fff'; for (const I of ISLES) { ell(c, I.x, I.y, I.rx, I.ry); c.fill(); }
+    c.fillStyle = '#b7aed6'; c.beginPath(); c.moveTo(ALTAR.x - 270, ALTAR.y - 70); c.lineTo(ALTAR.x + 60, ALTAR.y - 430); c.lineTo(ALTAR.x + 270, ALTAR.y - 70); c.closePath(); c.fill();
     c.fillStyle = '#c9a5ff'; circ(c, SKY_PAD.x, SKY_PAD.y, 60); c.fill(); circ(c, LAND_PAD.x, LAND_PAD.y, 60); c.fill();
     c.fillStyle = '#e8d6b0'; circ(c, PLAZA.x, PLAZA.y, PLAZA.r); c.fill();
     for (const h of HOUSES) { c.fillStyle = h.col; circ(c, h.x, h.y - h.r * 0.9, h.r * 1.05); c.fill(); }
@@ -1835,6 +1883,7 @@ const World = {
     const d = S.dragon;
     this.grabbed = d.state === 'dropped'; this.crystalGround = d.state === 'dropped' ? { x: d.x, y: d.y, who: d.who } : null;
     this.dragon = { x: DRAGON_HOME.x, y: DRAGON_HOME.y, vis: d.state !== 'waiting', fly: false, carry: null, flip: true, hop: 0, mode: 'home', sc: 1 };
+    if (S.story === 8) Object.assign(this.dragon, { x: ALTAR.x + 110, y: ALTAR.y + 30, mode: 'visit' });
     let pos = START_POS;
     if (S.pos && this.free(S.pos.x, S.pos.y)) pos = S.pos; else if (o.from && NPCS[o.from]) pos = this.npcSpot(NPCS[o.from]);
     this.T = { x: pos.x, y: pos.y, face: 1, walk: false, path: null, onArrive: null, hop: 0 };
@@ -1921,6 +1970,12 @@ const World = {
     T.hop = 1; this.trail.length = 0; Sfx.play('hop'); Voice.say('uni_ride_off');
   },
 
+  evDragonToAltar() {
+    const D = this.dragon, W = this; this.prank = null; D.carry = null; D.fly = true; D.vis = true; D.mode = 'away'; Sfx.play('whoosh');
+    const e = { block: false, t: 0 };
+    e.update = dt => { e.t += dt; if (W.dFly(D, ALTAR.x + 110, ALTAR.y + 30, dt, 360)) { D.fly = false; D.mode = 'visit'; D.hop = 1; D.flip = true; Sfx.play('land'); return true; } return false; };
+    return e;
+  },
   /* ---- Fliegen zu den Wolkeninseln ---- */
   usePad(P) {
     if (!Save.data.wings) { this.U.hop = 1; Voice.say('sky_need_wings'); return; }
@@ -2121,7 +2176,7 @@ const World = {
     else if (this.queue.length) this.ev = this.queue.shift()();
     else if (this.storyDirty) { this.storyDirty = false; this.checkStory(); }
     if (this.prank && this.prank.update(dt)) this.prank = null;
-    else if (!this.prank && !this.ev && !this.dlg && !this.overlay && !this.queue.length && Save.data.dragonFriend && Save.data.dragon.state === 'done' && !this.mapOpen) {
+    else if (!this.prank && !this.ev && !this.dlg && !this.overlay && !this.queue.length && Save.data.dragonFriend && Save.data.dragon.state === 'done' && !this.mapOpen && Save.data.story !== 8 && Save.data.story !== 7) {
       this.prankCool -= dt;
       if (this.prankCool <= 0) { if (dist(T.x, T.y, DRAGON_HOME.x, DRAGON_HOME.y) < 700 || inSky(T.x)) this.prankCool = 12; else this.startPrank(); }
     }
@@ -2156,7 +2211,7 @@ const World = {
     }
     for (const o of [T, U, D].concat(visibleNpcs().map(k => NPCS[k]))) if (o.hop > 0) o.hop -= dt * 2;
     this.updateQuests(dt);
-    const area = inSky(T.x) ? 'wolken' : T.y > HEDGE_Y ? 'dorf' : 'wald';
+    const area = inSky(T.x) ? 'wolken' : dist(T.x, T.y, ALTAR.x, ALTAR.y) < 480 ? 'berg' : T.y > HEDGE_Y ? 'dorf' : 'wald';
     if (this.area && area !== this.area) { this.banner = { name: area, t: 0 }; Sfx.play('win'); Voice.say('area_' + area); }
     const P = inSky(T.x) ? LAND_PAD : SKY_PAD, onP = dist(T.x, T.y, P.x, P.y) < 48;   // auf den Startplatz gelaufen?
     if (onP && !this.onPad && !this.blocked() && !this.ev) this.usePad(P);
@@ -2310,6 +2365,10 @@ const World = {
         c.fillStyle = '#4fa766'; circ(c, x, HEDGE_Y - 8 + k * 6, 30); c.fill(); c.fillStyle = '#5fb873'; circ(c, x + 10, HEDGE_Y - 24 + k * 6, 22); c.fill(); c.fillStyle = '#74c985'; circ(c, x - 6, HEDGE_Y - 32 + k * 6, 13); c.fill();
       }
     });
+    if (inView(ALTAR.x, ALTAR.y - 200, 420)) {
+      add(ALTAR.y - 60, () => { if (Save.data.story >= 9) drawBigRainbow(c, ALTAR.x, ALTAR.y - 60, 330, 1); drawMountain(c, ALTAR.x, ALTAR.y - 70, t); });
+      add(ALTAR.y, () => drawAltar(c, ALTAR.x, ALTAR.y, t, Save.data.story >= 9));
+    }
     for (const P of [SKY_PAD, LAND_PAD]) if (inView(P.x, P.y, 120)) add(P.y, () => drawSkyPad(c, P.x, P.y, t, !!Save.data.wings));
     const lit = Save.data.story >= 5, mq = this.qs('mouse');
     for (const h of HOUSES) if (inView(h.x, h.y - h.r, h.r * 2.4)) add(h.y, () => drawShroomHouse(c, Object.assign(h, { lit }), t));
@@ -2345,7 +2404,7 @@ const World = {
     }
     if (this.ev && this.ev.drawScreen) this.ev.drawScreen(c);
     if (this.banner) {   // Gebietsname beim Betreten (nur zur Freude, nicht zum Spielen nötig)
-      const b = this.banner, a = clamp(Math.min(b.t / 0.4, (3 - b.t) / 0.6), 0, 1), B = { dorf: ['Pilzdorf', '#ff6b6b', 'shroom'], wald: ['Zauberwald', '#5fbf57', 'BAUM'], wolken: ['Wolkeninseln', '#7db8ff', 'cloud'] }[b.name];
+      const b = this.banner, a = clamp(Math.min(b.t / 0.4, (3 - b.t) / 0.6), 0, 1), B = { dorf: ['Pilzdorf', '#ff6b6b', 'shroom'], wald: ['Zauberwald', '#5fbf57', 'BAUM'], wolken: ['Wolkeninseln', '#7db8ff', 'cloud'], berg: ['Drachenberg', '#a98bff', 'dragon'] }[b.name];
       c.save(); c.globalAlpha = a; c.font = '800 34px system-ui, sans-serif'; const w = c.measureText(B[0]).width + 110;
       rr(c, VW / 2 - w / 2, 22, w, 64, 32); fs(c, 'rgba(255,255,255,0.9)', B[1], 4);
       drawThing(c, B[2], VW / 2 - w / 2 + 38, 54, 40);
@@ -2385,6 +2444,7 @@ const World = {
     if (Save.data.tools && Save.data.tools.compass) this.glitter.forEach((s, i) => { if ((Save.data.stars || []).includes(i)) return; const [x, y] = P(s.x, s.y); starPath(c, x, y, 7 + Math.sin(t * 5 + i) * 1.5); fs(c, '#ffe066', '#fff', 1.5); });   // Glitzer-Kompass
     { const [gx, gy] = P(GATE.x, GATE.y); drawThing(c, 'gate', gx, gy - 6, 30); }
     for (const Q of [SKY_PAD, LAND_PAD]) { const [px, py] = P(Q.x, Q.y); drawThing(c, 'wings', px, py - 8, 26); }
+    { const [ax, ay] = P(ALTAR.x, ALTAR.y); drawCrystal(c, ax, ay - 12, 10, Save.data.story >= 9 ? '#ffd23f' : '#c9c0e6'); }
     visibleNpcs().forEach((id, i) => { const [x, y] = P(NPCS[id].x, NPCS[id].y); c.save(); c.translate(x, y - 18); c.scale(0.62, 0.62); this.npcBubble(c, id, 0, 0, i, t, true); c.restore(); });
     const D = this.dragon;
     if (D.vis) { const [x, y] = P(D.x, D.y); drawActor(c, 'dragon', x, y + 6, { size: 34, t, noShadow: true, flip: true }); }
@@ -2524,6 +2584,10 @@ Object.assign(World, {
       after: () => { S.story = 6; Save.store(); this.startNpc('sheep'); } };
     if (S.story === 6 && S.crystals.sheep && S.crystals.bird) return { npc: 'bird', lines: [['bird', 'story_stella1', ['rainbow', 'note']], ['bird', 'story_stella2', ['splitter', 'dragon']]],
       after: () => { S.story = 7; Save.store(); Sfx.play('fanfare'); ScreenFx.confetti(VW, 90); this.U.hop = 1; } };
+    if (S.story === 7) return { npc: 'dragon', lines: [['dragon', 'story_funki4', ['splitter', 'dragon', 'gem']]],
+      after: () => { S.story = 8; Save.store(); this.queue.push(() => this.evDragonToAltar()); } };
+    if (S.story === 8 && this.dragon && this.dragon.mode === 'visit' && dist(this.dragon.x, this.dragon.y, ALTAR.x, ALTAR.y) < 200) return { npc: 'dragon', lines: [['dragon', 'story_funki5', ['gem', 'rainbow']], ['dragon', 'story_funki6', ['splitter', 'heart']]],
+      after: () => { Save.data.pos = { x: ALTAR.x, y: ALTAR.y + 90 }; Game.go(FinaleScene, {}); } };
     return null;
   },
   storyQuestTarget() {
@@ -2789,7 +2853,7 @@ Object.assign(World, {
     const R = this.panelRect(), S = Save.data, r = clamp(R.h / 11, 34, 46), row = k => R.y + 92 + k * (R.h - 120) / 3 + 20;
     const helpers = ['feather', 'lens', 'lily', 'slow', 'eye'].map((h, i) => ({ id: h, x: R.x + 150 + i * (r * 2 + 40), y: row(1), r }));
     const cos = S.cos.map((cid, i) => ({ id: cid, x: R.x + 150 + i * (r * 2 + 40), y: row(2), r }));
-    return { R, r, rowY: row, helpers, cos, album: { x: R.x + 320, y: R.y + 45, r: Math.max(View.btn / 2 - 4, 40) } };
+    return { R, r, rowY: row, helpers, cos, album: { x: R.x + 320, y: R.y + 45, r: Math.max(View.btn / 2 - 4, 40) }, cert: S.story >= 9 ? { x: R.x + 420, y: R.y + 45, r: Math.max(View.btn / 2 - 4, 40) } : null };
   },
   shopLayout() {
     const R = this.panelRect(), r = clamp(R.h / 10, 36, 50), cols = 4, cw = (R.w - 140) / cols;
@@ -2808,6 +2872,7 @@ Object.assign(World, {
       const L = this.packLayout();
       drawBackpack(c, R.x + 220, R.y + 45, 46);
       drawRoundBtn(c, L.album.x, L.album.y, L.album.r, { color: '#f3e8ff', pulse: true }); drawThing(c, 'book', L.album.x, L.album.y, L.album.r * 1.15);
+      if (L.cert) { drawRoundBtn(c, L.cert.x, L.cert.y, L.cert.r, { color: '#fff3c4', pulse: true }); drawThing(c, 'scroll', L.cert.x, L.cert.y, L.cert.r * 1.15); }
       // Kristalle
       drawCrystal(c, R.x + 60, L.rowY(0), 16, '#d6cfe6');
       npcOrder().forEach((id, i) => { const x = R.x + 150 + i * 80, y = L.rowY(0), lv = this.packLv(id);
@@ -2861,6 +2926,7 @@ Object.assign(World, {
     if (hit(p, X.x, X.y, X.r + 10)) { this.overlay = o.kind === 'album' ? { kind: 'pack', t: 0, shake: {} } : null; Sfx.play('tap'); return; }
     if (o.kind === 'album') { for (const q of this.albumLayout()) if (hit(p, q.x, q.y, q.r + 6)) { const f = this.isFriend(q.id); Sfx.play(f ? 'pop' : 'tap'); Voice.say(f ? 'npc_thanks' : 'album_unknown', { pitch: f ? NPC_PITCH[q.id] : 1.15 }); if (f) ScreenFx.burst(q.x, q.y, 12, { shape: 'heart', color: '#ff8fb1', g: -40 }); return; } return; }
     if (o.kind === 'pack') {
+      const CB = this.packLayout().cert; if (CB && hit(p, CB.x, CB.y, CB.r + 8)) { this.overlay = null; Sfx.play('pop'); Save.data.pos = { x: Math.round(this.T.x), y: Math.round(this.T.y) }; Game.go(FinaleScene, { cert: true }); return; }
       const AB = this.packLayout().album; if (hit(p, AB.x, AB.y, AB.r + 8)) { this.overlay = { kind: 'album', t: 0, shake: {} }; Sfx.play('pop'); Voice.say('album_open'); return; }
       for (const q of this.packLayout().cos) if (hit(p, q.x, q.y, q.r + 8)) { const slot = COS[q.id]; S.wear[slot] = S.wear[slot] === q.id ? null : q.id; Save.store(); delete SIL.t; delete SIL.unicorn; Sfx.play('pop'); if (S.wear[slot]) Voice.say('wear_on'); return; }
       return;
@@ -3850,6 +3916,118 @@ const MelodyGame = {
   }
 };
 
+/* ---------- Finale: Regenbogenkristall zusammensetzen, Sternenfest, Urkunde ----------
+   Phasen: build (Splitter antippen) → shine (Kristall leuchtet, Regenbogen wächst) → fest (Feuerwerk, alle Freunde) → cert (Urkunde).
+   Mit { cert: true } (aus dem Rucksack) geht es direkt zum Fest mit Urkunde. */
+const RB8 = ['#ff7b9c', '#ff9f5a', '#ffd23f', '#9be7a0', '#5fd3c7', '#7db8ff', '#a98bff', '#e59bff'];
+const FinaleScene = {
+  id: 'finale',
+  enter(o) {
+    this.again = !!(o && o.cert); this.t = 0; this.pt = 0; this.idle = 0; this.hintT = 0; this.fx = new Fx(); this.sparks = []; this.rockT = 0; this.shown = false;
+    this.pieces = RB8.map((col, i) => ({ col, i, x: i < 4 ? 150 + (i % 2) * 60 : VW - 150 - (i % 2) * 60, y: 95 + (i % 4) * (VH - 270) / 3, fly: 0, done: false, ph: i * 0.8 }));
+    if (this.again) { this.pieces.forEach(p => { p.done = true; }); this.phase = 'fest'; Voice.say('fest_hello', { pitch: 1.3 }); }
+    else { this.phase = 'build'; Voice.say('fin_intro', { pitch: 1.7 }); }
+  },
+  center() { return { x: VW / 2, y: VH * 0.46, R: Math.min(120, VH * 0.24) }; },
+  tri(i, C) { const a1 = -Math.PI / 2 + i * TAU / 8, a2 = a1 + TAU / 8, R = C.R; return [[C.x, C.y], [C.x + Math.cos(a1) * R, C.y + Math.sin(a1) * R * 1.25], [C.x + Math.cos(a2) * R, C.y + Math.sin(a2) * R * 1.25]]; },
+  slotPos(i, C) { const q = this.tri(i, C); return { x: (q[0][0] + q[1][0] + q[2][0]) / 3, y: (q[0][1] + q[1][1] + q[2][1]) / 3 }; },
+  go(ph) { this.phase = ph; this.pt = 0; },
+  firework(x, y) { Sfx.play('pop'); const col = pick(RB8); for (let i = 0; i < 34; i++) { const a = i / 34 * TAU, v = rnd(140, 260); this.sparks.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: rnd(0.9, 1.4), col: Math.random() < 0.2 ? '#fff' : col }); } },
+  update(dt) {
+    this.t += dt; this.pt += dt; this.fx.update(dt); if (this.hintT > 0) this.hintT -= dt;
+    for (const s of this.sparks) { s.x += s.vx * dt; s.y += s.vy * dt; s.vy += 160 * dt; s.vx *= 0.985; s.life -= dt; } this.sparks = this.sparks.filter(s => s.life > 0);
+    const C = this.center();
+    for (const p of this.pieces) if (p.fly > 0 && !p.done) { p.fly = Math.min(1, p.fly + dt * 1.6); if (p.fly >= 1) { p.done = true; Sfx.play('note', 520 + this.pieces.filter(q => q.done).length * 70); const s = this.slotPos(p.i, C); this.fx.burst(s.x, s.y, 12, { g: 60, color: p.col }); if (this.pieces.every(q => q.done)) { this.go('shine'); Sfx.play('fanfare'); Voice.say('fin_done', { pitch: 1.3 }); Voice.say('fin_uni', { pitch: 1.3, queue: true }); ScreenFx.confetti(VW, 90); } } }
+    if (this.phase === 'build') { this.idle += dt; if (this.idle > CONFIG.hintDelay) { this.idle = 0; this.hintT = 4; Sfx.play('hint'); Voice.say('fin_hint', { pitch: 1.3 }); } }
+    if (this.phase === 'shine' && this.pt > 7) { this.go('fest'); Voice.say('fest_hello', { pitch: 1.3 }); }
+    if (this.phase === 'fest') {
+      this.rockT -= dt; if (this.rockT <= 0) { this.rockT = rnd(0.7, 1.4); this.firework(rnd(VW * 0.15, VW * 0.85), rnd(50, VH * 0.4)); }
+      if (this.pt > 5 && !this.funkiSaid) { this.funkiSaid = true; Voice.say('fest_funki', { pitch: 1.7 }); }
+      if (this.pt > (this.again ? 3 : 11)) this.go('cert'), this.readCert();
+    }
+    if (this.phase === 'cert') { this.rockT -= dt; if (this.rockT <= 0) { this.rockT = rnd(1.2, 2.2); this.firework(rnd(40, VW - 40), rnd(30, 120)); } }
+  },
+  held() { const pl = Save.data.player; return pl && pl.gender === 'boy' ? 'Regenbogen-Held' : 'Regenbogen-Heldin'; },
+  readCert() { Sfx.play('win'); Voice.say('cert_read', { vars: { held: this.held() }, pitch: 1.1 }); },
+  finish() {
+    if (Game.pending) return; const S = Save.data;
+    if (!this.again && S.story < 9) { S.story = 9; S.wallet = (S.wallet || 0) + 10; Save.store(); Voice.say('fest_free', { pitch: 1.3 }); }
+    Game.go(World, {});
+  },
+  homeBtn() { const r = Math.max(View.btn / 2, 50); return { x: VW - 16 - r, y: VH - 16 - r, r }; },
+  draw(c) {
+    const t = this.t, C = this.center(), night = this.phase === 'fest' || this.phase === 'cert';
+    const g = c.createLinearGradient(0, 0, 0, VH);
+    if (night) { g.addColorStop(0, '#1f2160'); g.addColorStop(1, '#5a4a9a'); } else { g.addColorStop(0, '#b7aed6'); g.addColorStop(1, '#f3e4ff'); }
+    c.fillStyle = g; c.fillRect(0, 0, VW, VH);
+    if (night) { c.fillStyle = 'rgba(255,255,255,0.85)'; for (let i = 0; i < 40; i++) { sparklePath(c, (i * 197 + 40) % VW, 10 + (i * 83) % (VH * 0.6), 1.5 + (Math.sin(t * 2 + i) + 1) * 1.5); c.fill(); } }
+    const rk = this.phase === 'build' ? 0 : this.phase === 'shine' ? clamp((this.pt - 0.8) / 2.5, 0, 1) : 1;
+    if (rk > 0) drawBigRainbow(c, VW / 2, VH * 0.95, Math.min(VW * 0.48, VH * 1.05), rk);
+    if (!night) {
+      // Bergspitze mit Kristallstein
+      c.fillStyle = '#c9c0e6'; c.beginPath(); c.moveTo(VW / 2 - 300, VH); c.quadraticCurveTo(VW / 2, VH * 0.55, VW / 2 + 300, VH); c.closePath(); c.fill();
+      rr(c, C.x - 70, C.y + C.R * 1.25 + 6, 140, 40, 12); fs(c, '#e8e2f8', '#a99fcf', 3);
+      if (this.phase === 'shine') { c.fillStyle = 'rgba(255,247,170,' + (0.5 + Math.sin(t * 5) * 0.2) + ')'; circ(c, C.x, C.y, C.R * 1.6 + Math.sin(t * 3) * 10); c.fill(); }
+      for (let i = 0; i < 8; i++) {
+        const q = this.tri(i, C), p = this.pieces[i];
+        c.beginPath(); c.moveTo(q[0][0], q[0][1]); c.lineTo(q[1][0], q[1][1]); c.lineTo(q[2][0], q[2][1]); c.closePath();
+        if (p.done) fs(c, p.col, '#fff', 3); else { c.setLineDash([7, 6]); fs(c, 'rgba(255,255,255,0.45)', '#9a8fc0', 3); c.setLineDash([]); }
+      }
+      for (const p of this.pieces) if (!p.done) {
+        let x = p.x, y = p.y + Math.sin(t * 2 + p.ph) * 8;
+        if (p.fly > 0) { const s = this.slotPos(p.i, C), k = p.fly * p.fly * (3 - 2 * p.fly); x = lerp(p.x, s.x, k); y = lerp(p.y, s.y, k) - Math.sin(k * Math.PI) * 80; }
+        if (this.hintT > 0 && p.fly === 0) { c.fillStyle = 'rgba(255,225,90,' + (0.45 + Math.sin(t * 8) * 0.2) + ')'; circ(c, x, y, 46); c.fill(); }
+        c.fillStyle = 'rgba(255,255,255,0.5)'; circ(c, x, y, 36); c.fill(); drawCrystal(c, x, y, 26, p.col);
+      }
+      drawActor(c, 'unicorn', 70, VH - 10, { size: 100, t, mark: uniMark(), wings: true, lift: this.phase === 'shine' ? Math.abs(Math.sin(t * 8)) * 24 : 0 });
+      drawActor(c, 'dragon', VW - 80, VH - 14, { size: 90, t, flip: true, lift: this.phase === 'shine' ? Math.abs(Math.sin(t * 9)) * 24 : 0 });
+    } else {
+      // Sternenfest: alle Freunde auf der Wiese
+      c.fillStyle = '#3f6e5a'; ell(c, VW / 2, VH + 60, VW * 0.75, 170); c.fill();
+      const back = ALBUM.filter(id => id !== 'dragon'), n = back.length;
+      back.forEach((id, i) => { const row = i % 2, x = 60 + (VW - 120) * (i + 0.5) / n, y = VH - 118 + row * 34, nn = NPCS[id];
+        drawActor(c, nn.art, x, y, { size: Math.min(58, nn.size * 0.62), t: t + i, lift: Math.abs(Math.sin(t * 5 + i)) * 14, happy: true }); });
+      drawActor(c, 'unicorn', VW / 2 - 70, VH - 12, { size: 108, t, mark: uniMark(), wings: true, lift: Math.abs(Math.sin(t * 6)) * 16 });
+      drawActor(c, 't', VW / 2 + 20, VH - 12, { size: 96, t, lift: Math.abs(Math.sin(t * 6 + 1)) * 16 });
+      drawActor(c, 'dragon', VW / 2 + Math.cos(t * 0.8) * VW * 0.32, 150 + Math.sin(t * 1.6) * 30, { size: 74, t, flip: Math.sin(t * 0.8) > 0, noShadow: true });
+    }
+    for (const s of this.sparks) { c.globalAlpha = clamp(s.life, 0, 1); c.fillStyle = s.col; circ(c, s.x, s.y, 3.5); c.fill(); } c.globalAlpha = 1;
+    this.fx.draw(c);
+    if (this.phase === 'cert') this.drawCert(c, t);
+    if (this.phase === 'fest' || this.phase === 'cert') { const H = this.homeBtn(); drawRoundBtn(c, H.x, H.y, H.r, { color: '#c9f2d6', icon: 'check', pulse: this.phase === 'cert' }); }
+    if (this.phase === 'build') drawMiniExit(c);
+  },
+  certRect() { const w = Math.min(560, VW - 260), h = VH - 70; return { x: VW / 2 - w / 2, y: 30, w, h }; },
+  drawCert(c, t) {
+    const R = this.certRect(), S = Save.data, pl = S.player || {};
+    c.fillStyle = 'rgba(20,20,50,0.35)'; c.fillRect(0, 0, VW, VH);
+    rr(c, R.x, R.y, R.w, R.h, 18); fs(c, '#fff8e6', '#d9b98a', 6); rr(c, R.x + 12, R.y + 12, R.w - 24, R.h - 24, 12); c.strokeStyle = '#f0d9a8'; c.lineWidth = 3; c.stroke();
+    c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = '#7b5cd6';
+    c.font = '800 38px system-ui, sans-serif'; c.fillText('Urkunde', VW / 2, R.y + 50);
+    c.fillStyle = '#5a4a7a'; c.font = '800 30px system-ui, sans-serif'; c.fillText(pl.name || 'Du', VW / 2, R.y + 112);
+    c.font = '600 18px system-ui, sans-serif'; c.fillText('hat zusammen mit dem Einhorn ' + (S.name || ''), VW / 2, R.y + 148); c.fillText('den Regenbogenkristall gerettet!', VW / 2, R.y + 172);
+    c.fillStyle = '#d9435e'; c.font = '800 24px system-ui, sans-serif'; c.fillText(this.held(), VW / 2, R.y + 210);
+    RB8.forEach((col, i) => drawCrystal(c, VW / 2 + (i - 3.5) * 30, R.y + 250, 11, col));
+    c.fillStyle = '#9a8fb5'; c.font = '600 15px system-ui, sans-serif'; c.fillText(new Date().toLocaleDateString('de-DE'), VW / 2, R.y + R.h - 30);
+    c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+    drawActor(c, 't', R.x + 70, R.y + R.h - 26, { size: 96, t, noShadow: true }); drawActor(c, 'unicorn', R.x + R.w - 80, R.y + R.h - 24, { size: 92, t, flip: true, mark: uniMark(), wings: true, noShadow: true });
+    c.fillStyle = '#ffd54a'; for (let i = 0; i < 4; i++) { starPath(c, R.x + 40 + (i % 2) * (R.w - 80), R.y + 40 + Math.floor(i / 2) * 0 + (i > 1 ? 0 : 0), 10); fs(c, '#ffe066', '#f0b429', 2); }
+  },
+  down(p) {
+    if (this.phase === 'build') {
+      const e = miniExit(); if (hit(p, e.x, e.y, e.r + 6)) { Sfx.play('tap'); Game.go(World, {}); return; }
+      this.idle = 0; this.hintT = 0;
+      for (const q of this.pieces) if (!q.done && q.fly === 0 && dist(p.x, p.y, q.x, q.y + Math.sin(this.t * 2 + q.ph) * 8) < 54) { q.fly = 0.001; Sfx.play('whoosh'); if (Math.random() < 0.5) Voice.say('fin_piece', { pitch: 1.4 }); return; }
+      return;
+    }
+    if (this.phase === 'fest' || this.phase === 'cert') {
+      const H = this.homeBtn(); if (hit(p, H.x, H.y, H.r + 8)) { Sfx.play('tap'); this.finish(); return; }
+      if (this.phase === 'cert') { const R = this.certRect(); if (p.x > R.x && p.x < R.x + R.w && p.y > R.y && p.y < R.y + R.h) { this.readCert(); return; } }
+      this.firework(p.x, p.y);
+    }
+  }
+};
+
 const MINIGAMES = { owl: OwlGame, fox: FoxGame, frog: FrogGame, dragon: DragonGame, snail: ReadGame, squirrel: MathGame, mouse: CountGame, hedgehog: MemoryGame, sheep: SizeGame, bird: MelodyGame };
 
 /* ============ 7. START ============ */
@@ -3894,7 +4072,7 @@ function boot() {
   window.addEventListener('beforeunload', saveNow);
   // den Browser bitten, den Spielstand nicht bei Speicherplatzmangel zu löschen
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) {}
-  window.ZW = { CONFIG, SPEECH, Game, Save, View, Input, World, StartScene, NamingScene, OwlGame, FoxGame, FrogGame, DragonGame, ReadGame, MathGame, CountGame, MemoryGame, SizeGame, MelodyGame, CharScene, NPCS, Voice }; // zum Testen in der Konsole
+  window.ZW = { CONFIG, SPEECH, Game, Save, View, Input, World, StartScene, NamingScene, OwlGame, FoxGame, FrogGame, DragonGame, ReadGame, MathGame, CountGame, MemoryGame, SizeGame, MelodyGame, FinaleScene, CharScene, NPCS, Voice }; // zum Testen in der Konsole
   lastFrame = performance.now(); requestAnimationFrame(frame);
 }
 boot();

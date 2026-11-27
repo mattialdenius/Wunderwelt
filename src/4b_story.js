@@ -56,6 +56,10 @@ Object.assign(World, {
       after: () => { S.story = 6; Save.store(); this.startNpc('sheep'); } };
     if (S.story === 6 && S.crystals.sheep && S.crystals.bird) return { npc: 'bird', lines: [['bird', 'story_stella1', ['rainbow', 'note']], ['bird', 'story_stella2', ['splitter', 'dragon']]],
       after: () => { S.story = 7; Save.store(); Sfx.play('fanfare'); ScreenFx.confetti(VW, 90); this.U.hop = 1; } };
+    if (S.story === 7) return { npc: 'dragon', lines: [['dragon', 'story_funki4', ['splitter', 'dragon', 'gem']]],
+      after: () => { S.story = 8; Save.store(); this.queue.push(() => this.evDragonToAltar()); } };
+    if (S.story === 8 && this.dragon && this.dragon.mode === 'visit' && dist(this.dragon.x, this.dragon.y, ALTAR.x, ALTAR.y) < 200) return { npc: 'dragon', lines: [['dragon', 'story_funki5', ['gem', 'rainbow']], ['dragon', 'story_funki6', ['splitter', 'heart']]],
+      after: () => { Save.data.pos = { x: ALTAR.x, y: ALTAR.y + 90 }; Game.go(FinaleScene, {}); } };
     return null;
   },
   storyQuestTarget() {
@@ -321,7 +325,7 @@ Object.assign(World, {
     const R = this.panelRect(), S = Save.data, r = clamp(R.h / 11, 34, 46), row = k => R.y + 92 + k * (R.h - 120) / 3 + 20;
     const helpers = ['feather', 'lens', 'lily', 'slow', 'eye'].map((h, i) => ({ id: h, x: R.x + 150 + i * (r * 2 + 40), y: row(1), r }));
     const cos = S.cos.map((cid, i) => ({ id: cid, x: R.x + 150 + i * (r * 2 + 40), y: row(2), r }));
-    return { R, r, rowY: row, helpers, cos, album: { x: R.x + 320, y: R.y + 45, r: Math.max(View.btn / 2 - 4, 40) } };
+    return { R, r, rowY: row, helpers, cos, album: { x: R.x + 320, y: R.y + 45, r: Math.max(View.btn / 2 - 4, 40) }, cert: S.story >= 9 ? { x: R.x + 420, y: R.y + 45, r: Math.max(View.btn / 2 - 4, 40) } : null };
   },
   shopLayout() {
     const R = this.panelRect(), r = clamp(R.h / 10, 36, 50), cols = 4, cw = (R.w - 140) / cols;
@@ -340,6 +344,7 @@ Object.assign(World, {
       const L = this.packLayout();
       drawBackpack(c, R.x + 220, R.y + 45, 46);
       drawRoundBtn(c, L.album.x, L.album.y, L.album.r, { color: '#f3e8ff', pulse: true }); drawThing(c, 'book', L.album.x, L.album.y, L.album.r * 1.15);
+      if (L.cert) { drawRoundBtn(c, L.cert.x, L.cert.y, L.cert.r, { color: '#fff3c4', pulse: true }); drawThing(c, 'scroll', L.cert.x, L.cert.y, L.cert.r * 1.15); }
       // Kristalle
       drawCrystal(c, R.x + 60, L.rowY(0), 16, '#d6cfe6');
       npcOrder().forEach((id, i) => { const x = R.x + 150 + i * 80, y = L.rowY(0), lv = this.packLv(id);
@@ -393,6 +398,7 @@ Object.assign(World, {
     if (hit(p, X.x, X.y, X.r + 10)) { this.overlay = o.kind === 'album' ? { kind: 'pack', t: 0, shake: {} } : null; Sfx.play('tap'); return; }
     if (o.kind === 'album') { for (const q of this.albumLayout()) if (hit(p, q.x, q.y, q.r + 6)) { const f = this.isFriend(q.id); Sfx.play(f ? 'pop' : 'tap'); Voice.say(f ? 'npc_thanks' : 'album_unknown', { pitch: f ? NPC_PITCH[q.id] : 1.15 }); if (f) ScreenFx.burst(q.x, q.y, 12, { shape: 'heart', color: '#ff8fb1', g: -40 }); return; } return; }
     if (o.kind === 'pack') {
+      const CB = this.packLayout().cert; if (CB && hit(p, CB.x, CB.y, CB.r + 8)) { this.overlay = null; Sfx.play('pop'); Save.data.pos = { x: Math.round(this.T.x), y: Math.round(this.T.y) }; Game.go(FinaleScene, { cert: true }); return; }
       const AB = this.packLayout().album; if (hit(p, AB.x, AB.y, AB.r + 8)) { this.overlay = { kind: 'album', t: 0, shake: {} }; Sfx.play('pop'); Voice.say('album_open'); return; }
       for (const q of this.packLayout().cos) if (hit(p, q.x, q.y, q.r + 8)) { const slot = COS[q.id]; S.wear[slot] = S.wear[slot] === q.id ? null : q.id; Save.store(); delete SIL.t; delete SIL.unicorn; Sfx.play('pop'); if (S.wear[slot]) Voice.say('wear_on'); return; }
       return;

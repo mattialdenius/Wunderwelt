@@ -10,6 +10,7 @@ const ISLES = [{ x: 6080, y: 1650, rx: 300, ry: 190 }, { x: 6820, y: 1000, rx: 3
   { x: 6780, y: 2620, rx: 310, ry: 200 }, { x: 7420, y: 3420, rx: 290, ry: 190 }, { x: 6300, y: 3500, rx: 270, ry: 180 }];
 const SKY_LINKS = [[0, 1], [1, 2], [0, 3], [3, 2], [3, 4], [3, 5]];        // Regenbogenbrücken
 const SKY_PAD = { x: 5390, y: 1650 }, LAND_PAD = { x: 5900, y: 1660 };    // Startplatz im Wald, Landeplatz auf der ersten Insel
+const ALTAR = { x: 4980, y: 640 };                                          // Kristallstein auf dem Drachenberg (Finale)
 const LAMB_SPOTS = [[7380, 3500], [6360, 3560], [7580, 1960]];
 const DROP_SPOTS = [[6020, 1580], [7000, 1090], [7350, 1720], [6900, 2700], [6200, 3450]];
 const skyWalk = (x, y) => x > SKY_X && (ISLES.some(I => inEll(x, y, I, -14)) || SKY_LINKS.some(L => segDist(x, y, ISLES[L[0]].x, ISLES[L[0]].y, ISLES[L[1]].x, ISLES[L[1]].y) < 40));
@@ -120,7 +121,7 @@ const World = {
     const occOK = (x, y, s) => { const i0 = Math.floor(x / BK), j0 = Math.floor(y / BK); for (let i = i0 - 2; i <= i0 + 2; i++) for (let j = j0 - 2; j <= j0 + 2; j++) { const a = occ.get(key(i, j)); if (a) for (const o of a) if (dist(x, y, o.x, o.y) < (s + o.s) / 2) return false; } return true; };
     const keep = [[START_POS.x, START_POS.y, 190], [RING.x, RING.y, 210], [DRAGON_HOME.x, DRAGON_HOME.y, 260], [NPCS.fox.x, NPCS.fox.y, 330]];
     for (const k in NPCS) keep.push([NPCS[k].x, NPCS[k].y, 200]);
-    keep.push([SKY_PAD.x, SKY_PAD.y, 170], [GATE.x, GATE.y, 150], [PLAZA.x, PLAZA.y, PLAZA.r + 60]); for (const h of HOUSES) keep.push([h.x, h.y - h.r, h.r + 80]); for (const l of LANTERNS) keep.push([l[0], l[1], 50]); for (const q of CAKE_SPOTS) keep.push([q[0], q[1], 60]); for (const f of BEE_FLOWERS) keep.push([f.x, f.y, 90]); for (const q of QUEST_BUSHES) keep.push([q[0], q[1], 80]);
+    keep.push([SKY_PAD.x, SKY_PAD.y, 170], [ALTAR.x, ALTAR.y - 120, 300], [GATE.x, GATE.y, 150], [PLAZA.x, PLAZA.y, PLAZA.r + 60]); for (const h of HOUSES) keep.push([h.x, h.y - h.r, h.r + 80]); for (const l of LANTERNS) keep.push([l[0], l[1], 50]); for (const q of CAKE_SPOTS) keep.push([q[0], q[1], 60]); for (const f of BEE_FLOWERS) keep.push([f.x, f.y, 90]); for (const q of QUEST_BUSHES) keep.push([q[0], q[1], 80]);
     for (const b of BRIDGES) { keep.push([b.x - 200, b.y, 170]); keep.push([b.x + 200, b.y, 170]); }
     const free0 = (x, y, m, pm) => this.terrainOK(x, y, m) && pathDist(x, y) > pm && keep.every(k => dist(x, y, k[0], k[1]) > k[2]);
     const tree = (x, y, s, sp) => { this.trees.push({ x, y, s: s || 0.95 + R() * 0.3, kind: R() < 0.22 ? 1 : R() < 0.5 ? 2 : 0, shake: 0 }); addOcc(x, y, sp || 100); };
@@ -173,6 +174,7 @@ const World = {
     for (const r of this.rocks) this.stamp(r.x, r.y - r.r * 0.3, r.r * 0.9);
     for (const k in NPCS) if (!NPCS[k].learn) this.stamp(NPCS[k].x, NPCS[k].y - 6, k === 'dragon' ? 44 : 36);
     this.stamp(NPCS.fox.x + 86, NPCS.fox.y - 8, 40);     // Fuchsbau
+    this.stamp(ALTAR.x, ALTAR.y - 170, 115); this.stamp(ALTAR.x, ALTAR.y - 16, 40);   // Drachenberg und Kristallstein
     this.stamp(GATE.x - 62, GATE.y - 10, 30); this.stamp(GATE.x + 62, GATE.y - 10, 30);   // Pfeiler vom Pilztor
     for (const h of HOUSES) this.stamp(h.x, h.y - h.r * 0.3, h.r * 0.62);
     this.setGate(Save.data.story >= 3);
@@ -214,6 +216,7 @@ const World = {
     c.fillStyle = '#cfe8ff'; c.fillRect(WOOD_W - 10, 0, WORLD.w, WORLD.h);
     c.lineCap = 'round'; c.lineWidth = 80; c.strokeStyle = '#ffc2d6'; for (const L of SKY_LINKS) { const A = ISLES[L[0]], B = ISLES[L[1]]; line(c, A.x, A.y, B.x, B.y); }
     c.fillStyle = '#fff'; for (const I of ISLES) { ell(c, I.x, I.y, I.rx, I.ry); c.fill(); }
+    c.fillStyle = '#b7aed6'; c.beginPath(); c.moveTo(ALTAR.x - 270, ALTAR.y - 70); c.lineTo(ALTAR.x + 60, ALTAR.y - 430); c.lineTo(ALTAR.x + 270, ALTAR.y - 70); c.closePath(); c.fill();
     c.fillStyle = '#c9a5ff'; circ(c, SKY_PAD.x, SKY_PAD.y, 60); c.fill(); circ(c, LAND_PAD.x, LAND_PAD.y, 60); c.fill();
     c.fillStyle = '#e8d6b0'; circ(c, PLAZA.x, PLAZA.y, PLAZA.r); c.fill();
     for (const h of HOUSES) { c.fillStyle = h.col; circ(c, h.x, h.y - h.r * 0.9, h.r * 1.05); c.fill(); }
@@ -281,6 +284,7 @@ const World = {
     const d = S.dragon;
     this.grabbed = d.state === 'dropped'; this.crystalGround = d.state === 'dropped' ? { x: d.x, y: d.y, who: d.who } : null;
     this.dragon = { x: DRAGON_HOME.x, y: DRAGON_HOME.y, vis: d.state !== 'waiting', fly: false, carry: null, flip: true, hop: 0, mode: 'home', sc: 1 };
+    if (S.story === 8) Object.assign(this.dragon, { x: ALTAR.x + 110, y: ALTAR.y + 30, mode: 'visit' });
     let pos = START_POS;
     if (S.pos && this.free(S.pos.x, S.pos.y)) pos = S.pos; else if (o.from && NPCS[o.from]) pos = this.npcSpot(NPCS[o.from]);
     this.T = { x: pos.x, y: pos.y, face: 1, walk: false, path: null, onArrive: null, hop: 0 };
@@ -367,6 +371,12 @@ const World = {
     T.hop = 1; this.trail.length = 0; Sfx.play('hop'); Voice.say('uni_ride_off');
   },
 
+  evDragonToAltar() {
+    const D = this.dragon, W = this; this.prank = null; D.carry = null; D.fly = true; D.vis = true; D.mode = 'away'; Sfx.play('whoosh');
+    const e = { block: false, t: 0 };
+    e.update = dt => { e.t += dt; if (W.dFly(D, ALTAR.x + 110, ALTAR.y + 30, dt, 360)) { D.fly = false; D.mode = 'visit'; D.hop = 1; D.flip = true; Sfx.play('land'); return true; } return false; };
+    return e;
+  },
   /* ---- Fliegen zu den Wolkeninseln ---- */
   usePad(P) {
     if (!Save.data.wings) { this.U.hop = 1; Voice.say('sky_need_wings'); return; }
@@ -567,7 +577,7 @@ const World = {
     else if (this.queue.length) this.ev = this.queue.shift()();
     else if (this.storyDirty) { this.storyDirty = false; this.checkStory(); }
     if (this.prank && this.prank.update(dt)) this.prank = null;
-    else if (!this.prank && !this.ev && !this.dlg && !this.overlay && !this.queue.length && Save.data.dragonFriend && Save.data.dragon.state === 'done' && !this.mapOpen) {
+    else if (!this.prank && !this.ev && !this.dlg && !this.overlay && !this.queue.length && Save.data.dragonFriend && Save.data.dragon.state === 'done' && !this.mapOpen && Save.data.story !== 8 && Save.data.story !== 7) {
       this.prankCool -= dt;
       if (this.prankCool <= 0) { if (dist(T.x, T.y, DRAGON_HOME.x, DRAGON_HOME.y) < 700 || inSky(T.x)) this.prankCool = 12; else this.startPrank(); }
     }
@@ -602,7 +612,7 @@ const World = {
     }
     for (const o of [T, U, D].concat(visibleNpcs().map(k => NPCS[k]))) if (o.hop > 0) o.hop -= dt * 2;
     this.updateQuests(dt);
-    const area = inSky(T.x) ? 'wolken' : T.y > HEDGE_Y ? 'dorf' : 'wald';
+    const area = inSky(T.x) ? 'wolken' : dist(T.x, T.y, ALTAR.x, ALTAR.y) < 480 ? 'berg' : T.y > HEDGE_Y ? 'dorf' : 'wald';
     if (this.area && area !== this.area) { this.banner = { name: area, t: 0 }; Sfx.play('win'); Voice.say('area_' + area); }
     const P = inSky(T.x) ? LAND_PAD : SKY_PAD, onP = dist(T.x, T.y, P.x, P.y) < 48;   // auf den Startplatz gelaufen?
     if (onP && !this.onPad && !this.blocked() && !this.ev) this.usePad(P);
@@ -756,6 +766,10 @@ const World = {
         c.fillStyle = '#4fa766'; circ(c, x, HEDGE_Y - 8 + k * 6, 30); c.fill(); c.fillStyle = '#5fb873'; circ(c, x + 10, HEDGE_Y - 24 + k * 6, 22); c.fill(); c.fillStyle = '#74c985'; circ(c, x - 6, HEDGE_Y - 32 + k * 6, 13); c.fill();
       }
     });
+    if (inView(ALTAR.x, ALTAR.y - 200, 420)) {
+      add(ALTAR.y - 60, () => { if (Save.data.story >= 9) drawBigRainbow(c, ALTAR.x, ALTAR.y - 60, 330, 1); drawMountain(c, ALTAR.x, ALTAR.y - 70, t); });
+      add(ALTAR.y, () => drawAltar(c, ALTAR.x, ALTAR.y, t, Save.data.story >= 9));
+    }
     for (const P of [SKY_PAD, LAND_PAD]) if (inView(P.x, P.y, 120)) add(P.y, () => drawSkyPad(c, P.x, P.y, t, !!Save.data.wings));
     const lit = Save.data.story >= 5, mq = this.qs('mouse');
     for (const h of HOUSES) if (inView(h.x, h.y - h.r, h.r * 2.4)) add(h.y, () => drawShroomHouse(c, Object.assign(h, { lit }), t));
@@ -791,7 +805,7 @@ const World = {
     }
     if (this.ev && this.ev.drawScreen) this.ev.drawScreen(c);
     if (this.banner) {   // Gebietsname beim Betreten (nur zur Freude, nicht zum Spielen nötig)
-      const b = this.banner, a = clamp(Math.min(b.t / 0.4, (3 - b.t) / 0.6), 0, 1), B = { dorf: ['Pilzdorf', '#ff6b6b', 'shroom'], wald: ['Zauberwald', '#5fbf57', 'BAUM'], wolken: ['Wolkeninseln', '#7db8ff', 'cloud'] }[b.name];
+      const b = this.banner, a = clamp(Math.min(b.t / 0.4, (3 - b.t) / 0.6), 0, 1), B = { dorf: ['Pilzdorf', '#ff6b6b', 'shroom'], wald: ['Zauberwald', '#5fbf57', 'BAUM'], wolken: ['Wolkeninseln', '#7db8ff', 'cloud'], berg: ['Drachenberg', '#a98bff', 'dragon'] }[b.name];
       c.save(); c.globalAlpha = a; c.font = '800 34px system-ui, sans-serif'; const w = c.measureText(B[0]).width + 110;
       rr(c, VW / 2 - w / 2, 22, w, 64, 32); fs(c, 'rgba(255,255,255,0.9)', B[1], 4);
       drawThing(c, B[2], VW / 2 - w / 2 + 38, 54, 40);
@@ -831,6 +845,7 @@ const World = {
     if (Save.data.tools && Save.data.tools.compass) this.glitter.forEach((s, i) => { if ((Save.data.stars || []).includes(i)) return; const [x, y] = P(s.x, s.y); starPath(c, x, y, 7 + Math.sin(t * 5 + i) * 1.5); fs(c, '#ffe066', '#fff', 1.5); });   // Glitzer-Kompass
     { const [gx, gy] = P(GATE.x, GATE.y); drawThing(c, 'gate', gx, gy - 6, 30); }
     for (const Q of [SKY_PAD, LAND_PAD]) { const [px, py] = P(Q.x, Q.y); drawThing(c, 'wings', px, py - 8, 26); }
+    { const [ax, ay] = P(ALTAR.x, ALTAR.y); drawCrystal(c, ax, ay - 12, 10, Save.data.story >= 9 ? '#ffd23f' : '#c9c0e6'); }
     visibleNpcs().forEach((id, i) => { const [x, y] = P(NPCS[id].x, NPCS[id].y); c.save(); c.translate(x, y - 18); c.scale(0.62, 0.62); this.npcBubble(c, id, 0, 0, i, t, true); c.restore(); });
     const D = this.dragon;
     if (D.vis) { const [x, y] = P(D.x, D.y); drawActor(c, 'dragon', x, y + 6, { size: 34, t, noShadow: true, flip: true }); }
