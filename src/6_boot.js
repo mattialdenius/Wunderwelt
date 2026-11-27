@@ -41,7 +41,7 @@ function boot() {
   window.addEventListener('beforeunload', saveNow);
   // den Browser bitten, den Spielstand nicht bei Speicherplatzmangel zu löschen
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) {}
-  window.ZW = { CONFIG, SPEECH, Game, Save, View, Input, World, StartScene, NamingScene, OwlGame, FoxGame, FrogGame, DragonGame, ReadGame, MathGame, CountGame, MemoryGame, CharScene, NPCS, Voice }; // zum Testen in der Konsole
+  window.ZW = { CONFIG, SPEECH, Game, Save, View, Input, World, StartScene, NamingScene, OwlGame, FoxGame, FrogGame, DragonGame, ReadGame, MathGame, CountGame, MemoryGame, SizeGame, MelodyGame, CharScene, NPCS, Voice }; // zum Testen in der Konsole
   lastFrame = performance.now(); requestAnimationFrame(frame);
 }
 boot();

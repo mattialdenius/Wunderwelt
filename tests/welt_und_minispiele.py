@@ -87,14 +87,14 @@ with sync_playwright() as p:
 
     page.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__file__),'..','index.html'))); time.sleep(0.6)
     # alter Spielstand (kleine Welt, Kristall gerade geklaut) wird sauber übernommen
-    ev("()=>{localStorage.setItem('zauberwald_save_v1',JSON.stringify({name:'Wolke',nameId:'wolke',crystals:{owl:true,fox:true,frog:false},level:{owl:1,fox:1,frog:0},dragon:{state:'dropped',x:300,y:400,who:'owl'},celebrated:false,pos:{x:420,y:700}}))}")
+    ev("()=>{ZW.Save.store=()=>{};localStorage.setItem('zauberwald_save_v1',JSON.stringify({name:'Wolke',nameId:'wolke',crystals:{owl:true,fox:true,frog:false},level:{owl:1,fox:1,frog:0},dragon:{state:'dropped',x:300,y:400,who:'owl'},celebrated:false,pos:{x:420,y:700}}))}")
     page.reload(); time.sleep(0.6)
     s = ev("()=>ZW.StartScene.btn()"); tap(s['x'], s['y'])
     wait("()=>ZW.Game.scene===ZW.CharScene&&ZW.Game.fade<0.05"); ok = ev("()=>ZW.CharScene.layout().ok"); tap(ok['x'], ok['y'])   # alter Stand: erst Figur anlegen
     in_world(); time.sleep(0.5)
     assert ev("()=>ZW.Save.data.dragon.state==='done'&&ZW.Save.data.dragonFriend&&!ZW.World.crystalGround&&ZW.World.T.x===1500"), 'migration'
     print('migration ok')
-    ev("()=>{ZW.Save.reset();ZW.Save.data.name='Wolke';ZW.Save.data.nameId='wolke';ZW.Save.data.worldV=2;ZW.Save.data.learn=false;ZW.Save.data.story=5;ZW.Save.data.wings=true;for(const k of ['mouse','hedgehog']){ZW.Save.data.crystals[k]=true;ZW.Save.data.level[k]=3};ZW.Save.data.player={gender:'girl',skin:2,hair:0,style:5,cloth:2,name:'Test'};ZW.Save.store()}")
+    ev("()=>{ZW.Save.reset();ZW.Save.data.name='Wolke';ZW.Save.data.nameId='wolke';ZW.Save.data.worldV=2;ZW.Save.data.learn=false;ZW.Save.data.story=5;ZW.Save.data.wings=true;for(const k of ['mouse','hedgehog','sheep','bird']){ZW.Save.data.crystals[k]=true;ZW.Save.data.level[k]=3};ZW.Save.data.player={gender:'girl',skin:2,hair:0,style:5,cloth:2,name:'Test'};ZW.Save.store()}")
     page.reload(); time.sleep(0.5); s = ev("()=>ZW.StartScene.btn()"); tap(s['x'], s['y']); in_world()
 
     # Reiten, Karte, Glitzerstern
@@ -136,6 +136,6 @@ with sync_playwright() as p:
         frog(lv); settle(); dragon(lv)
         time.sleep(2.5); shot('world_after_L%d' % lv); settle()
         print('level', lv, '->', ev("()=>JSON.stringify(ZW.Save.data.level)"), 'party', ev("()=>ZW.Save.data.partyN"), 'gold', ev("()=>ZW.Save.data.goldN"))
-    assert ev("()=>ZW.Save.data.goldN===6&&ZW.World.packLv('dragon')===3")
+    assert ev("()=>ZW.Save.data.goldN===8&&ZW.World.packLv('dragon')===3")
     print('loop errors:', ev("()=>window.__zwErrors||0"), 'errors:', errs)
     b.close()

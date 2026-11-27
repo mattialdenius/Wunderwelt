@@ -10,7 +10,7 @@ function finishMini(id) { if (Game.pending) return; const up = (Save.data.level[
 function miniWin(scene) { scene.winT = 0; Sfx.play('win'); Voice.say('win'); ScreenFx.confetti(VW, 80); }
 function drawSparkleLine(c, x1, y1, x2, y2, t) { const n = Math.max(3, Math.floor(dist(x1, y1, x2, y2) / 46)); for (let i = 1; i < n; i++) { const k = i / n, tw = Math.max(0, Math.sin(t * 6 - i * 0.7)); c.fillStyle = 'rgba(255,225,90,' + (0.5 + tw * 0.5) + ')'; sparklePath(c, lerp(x1, x2, k), lerp(y1, y2, k) - Math.sin(k * Math.PI) * 30, 8 + tw * 7); c.fill(); } }
 // Zauberhelfer: ein Glitzerknopf unter dem Haus-Knopf, nur wenn man einen hat. Jeder Tipp hilft einmal.
-const HELPER_OF = { owl: 'feather', snail: 'feather', squirrel: 'feather', mouse: 'feather', fox: 'lens', frog: 'lily', dragon: 'slow', hedgehog: 'eye' };
+const HELPER_OF = { owl: 'feather', snail: 'feather', squirrel: 'feather', mouse: 'feather', fox: 'lens', frog: 'lily', dragon: 'slow', hedgehog: 'eye', sheep: 'feather', bird: 'feather' };
 function helperBtn() { const e = miniExit(); return { x: e.x, y: e.y + e.r * 2 + 22, r: e.r }; }
 function helperCount(id) { return ((Save.data.helpers || {})[HELPER_OF[id]]) || 0; }
 function drawHelperBtn(c, id) {
@@ -853,4 +853,123 @@ const MemoryGame = {
   }
 };
 
-const MINIGAMES = { owl: OwlGame, fox: FoxGame, frog: FrogGame, dragon: DragonGame, snail: ReadGame, squirrel: MathGame, mouse: CountGame, hedgehog: MemoryGame };
+/* ---------- Wolkenschaf Wolli: Wolken nach Größe ordnen ----------
+   Antippen in der richtigen Reihenfolge (klein → groß, ab Stufe 2 auch groß → klein). Die Wolke fliegt dann in die Reihe unten. */
+const SIZE_PLAN = [[3, 3, 3, 3, 3], [4, -4, 4, -4, 4], [5, -5, 5, -4, -5]];   // Anzahl, Minus = von groß nach klein
+const SizeGame = {
+  id: 'sheep',
+  enter() { this.lv = miniLevel('sheep'); this.plan = SIZE_PLAN[this.lv]; this.round = 0; this.t = 0; this.winT = -1; this.setup(); Voice.say(['sheep_intro', 'sheep_intro2', 'sheep_intro3'][this.lv], { pitch: 1.15 }); },
+  setup() {
+    const k = this.plan[this.round], n = Math.abs(k); this.down_ = k < 0; this.state = 'play'; this.st = 0; this.idle = 0; this.hintT = 0; this.wrongs = 0; this.fx = this.fx || new Fx();
+    const step = this.lv === 2 ? 0.17 : 0.26, sizes = shuffle(Array.from({ length: n }, (_, i) => 0.55 + i * step));
+    const xs = shuffle(Array.from({ length: n }, (_, i) => i)), w = (VW - 340) / n;
+    this.clouds = sizes.map((s, i) => ({ s, x: 170 + w * (xs[i] + 0.5), y: 175 + (xs[i] % 2) * 50, ph: Math.random() * 6, done: -1, shake: 0, fx: 0, fy: 0 }));
+    this.order = this.clouds.map((_, i) => i).sort((a, b) => this.down_ ? this.clouds[b].s - this.clouds[a].s : this.clouds[a].s - this.clouds[b].s);
+    this.next = 0;
+    if (this.round > 0 || this.lv > 0) Voice.say(this.down_ ? 'size_down' : 'size_up', { pitch: 1.15, queue: true });
+  },
+  slot(i) { const n = this.clouds.length, w = Math.min(150, (VW - 360) / n); return { x: VW / 2 + (i - (n - 1) / 2) * w, y: VH - 70 }; },
+  update(dt) {
+    this.t += dt; this.st += dt; this.fx.update(dt); if (this.hintT > 0) this.hintT -= dt;
+    for (const c of this.clouds) { if (c.shake > 0) c.shake -= dt * 2.5; if (c.done >= 0) c.fx = Math.min(1, c.fx + dt * 3); }
+    if (this.winT >= 0) { this.winT += dt; if (this.winT > 2.8) finishMini('sheep'); return; }
+    if (this.state === 'right') { if (this.st > 1.8) { this.round++; if (this.round >= this.plan.length) miniWin(this); else this.setup(); } return; }
+    this.idle += dt; if (this.idle > CONFIG.hintDelay) this.hint();
+  },
+  hint() { this.idle = 0; this.hintT = 3; Sfx.play('hint'); Voice.say('size_hint', { pitch: 1.3 }); },
+  useHelper() { if (this.state !== 'play') return false; while (this.state === 'play') this.pick(this.order[this.next]); return true; },
+  pick(i) {
+    const c = this.clouds[i]; if (c.done >= 0) return; this.idle = 0; this.hintT = 0;
+    if (i !== this.order[this.next]) { c.shake = 1; this.wrongs++; Sfx.play('wrong'); Voice.say('try_again'); if (this.wrongs >= 2) { this.wrongs = 0; this.hint(); } return; }
+    c.done = this.next; c.fx = 0; c.sx = c.x; c.sy = c.y; Sfx.play('note', 400 + this.next * 90); this.next++; this.wrongs = 0;
+    if (this.next >= this.clouds.length) { this.state = 'right'; this.st = 0; Sfx.play('good'); this.fx.burst(VW / 2, VH - 80, 26, { g: 60 }); Voice.say('good'); }
+  },
+  pos(c) { if (c.done < 0) return { x: c.x, y: c.y + Math.sin(this.t * 1.5 + c.ph) * 6 }; const s = this.slot(c.done), k = c.fx * c.fx * (3 - 2 * c.fx); return { x: lerp(c.sx, s.x, k), y: lerp(c.sy, s.y - 20, k) - Math.sin(k * Math.PI) * 60 }; },
+  draw(c) {
+    const t = this.t, happy = this.winT >= 0 || this.state === 'right';
+    const g = c.createLinearGradient(0, 0, 0, VH); g.addColorStop(0, '#a9d8ff'); g.addColorStop(1, '#f3e4ff'); c.fillStyle = g; c.fillRect(0, 0, VW, VH);
+    for (let i = 0; i < 6; i++) { c.globalAlpha = 0.35; drawPuffCloud(c, (i * 233 + t * 8) % (VW + 200) - 100, 40 + (i * 61) % 120, 0.5, '#fff', false); c.globalAlpha = 1; }
+    rr(c, VW / 2 - 92, 10, 184, 54, 27); fs(c, 'rgba(255,255,255,0.85)');
+    const a = this.down_ ? [0.55, 0.3] : [0.3, 0.55]; drawPuffCloud(c, VW / 2 - 50, 38, a[0], '#fff', false); drawPuffCloud(c, VW / 2 + 50, 38, a[1], '#fff', false); drawIcon(c, 'right', VW / 2, 37, 30, '#7b5cd6');
+    const n = this.clouds.length; for (let i = 0; i < n; i++) { const s = this.slot(i); ell(c, s.x, s.y + 22, 56, 12); fs(c, 'rgba(255,255,255,0.6)', 'rgba(180,170,220,0.6)', 2); }
+    const hi = this.order[this.next];
+    this.clouds.forEach((cl, i) => {
+      const p = this.pos(cl), sx = cl.shake > 0 ? Math.sin(cl.shake * 30) * 8 : 0;
+      if (this.hintT > 0 && i === hi && cl.done < 0) { c.fillStyle = 'rgba(255,225,90,' + (0.45 + Math.sin(t * 8) * 0.2) + ')'; circ(c, p.x, p.y, 80 * cl.s + 18); c.fill(); }
+      drawPuffCloud(c, p.x + sx, p.y, cl.s * (cl.done >= 0 ? lerp(1, 0.85, cl.fx) : 1), cl.done >= 0 ? '#fffbe6' : '#fff', true, t);
+    });
+    drawRoundStars(c, this.plan.length, this.winT >= 0 ? this.plan.length : this.round + (this.state === 'right' ? 1 : 0));
+    drawActor(c, 'unicorn', 62, VH - 10, { size: 96, t, lift: happy ? Math.abs(Math.sin(t * 8)) * 24 : 0, mark: uniMark(), glow: this.hintT > 0 });
+    drawActor(c, 'sheep', VW - 72, VH - 12, { size: 96, t, flip: true, lift: happy ? Math.abs(Math.sin(t * 9)) * 22 : 0 });
+    this.fx.draw(c); drawHelperBtn(c, this.id); drawMiniExit(c);
+  },
+  down(p) {
+    const e = miniExit(); if (hit(p, e.x, e.y, e.r + 6)) { Sfx.play('tap'); Game.go(World, { from: 'sheep' }); return; }
+    if (helperDown(p, this)) return;
+    if (this.winT >= 0 || this.state !== 'play') return;
+    if (hit(p, 62, VH - 60, 56)) { this.hint(); return; }
+    let best = -1, bd = 1e9; this.clouds.forEach((cl, i) => { if (cl.done >= 0) return; const q = this.pos(cl), d = dist(p.x, p.y, q.x, q.y); if (d < Math.max(52, 62 * cl.s) && d < bd) { bd = d; best = i; } });
+    if (best >= 0) this.pick(best);
+  }
+};
+
+/* ---------- Sternenvogel Stella: Melodie nachspielen ----------
+   Stella spielt eine Tonfolge auf den Sternen vor, danach tippt das Kind sie nach. Falsch = einfach noch einmal anhören. */
+const MELODY_PLAN = [{ k: 3, len: [2, 2, 3, 3, 3] }, { k: 4, len: [3, 3, 4, 4, 4] }, { k: 5, len: [4, 4, 5, 5, 6] }];
+const MELODY_COL = ['#ff7b9c', '#ffd23f', '#5fd38d', '#7db8ff', '#c98bff'], MELODY_NOTE = [523, 659, 784, 880, 1047];
+const MelodyGame = {
+  id: 'bird',
+  enter() { this.lv = miniLevel('bird'); this.P = MELODY_PLAN[this.lv]; this.round = 0; this.t = 0; this.winT = -1; this.fx = new Fx(); this.flash = Array(5).fill(0); this.setup(true); Voice.say(['bird_intro', 'bird_intro2', 'bird_intro3'][this.lv], { pitch: 1.65 }); },
+  setup(first) { const n = this.P.len[this.round]; this.seq = Array.from({ length: n }, () => ri(0, this.P.k - 1)); this.guide = false; this.play(first ? 4.2 : 1.2); },
+  play(delay) { this.state = 'listen'; this.pos = 0; this.timer = -delay; this.idle = 0; this.input = 0; },
+  stars() { const k = this.P.k, out = []; for (let i = 0; i < k; i++) { const a = Math.PI * (1.15 + 0.7 * i / (k - 1)); out.push({ x: VW / 2 + Math.cos(a) * Math.min(330, VW * 0.33), y: VH * 0.92 + Math.sin(a) * VH * 0.62, r: Math.max(View.btn / 2 + 4, 56) }); } return out; },
+  ring(i) { this.flash[i] = 1; Sfx.play('note', MELODY_NOTE[i]); },
+  update(dt) {
+    this.t += dt; this.fx.update(dt); this.flash = this.flash.map(v => Math.max(0, v - dt * 2.2));
+    if (this.winT >= 0) { this.winT += dt; if (this.winT > 2.8) finishMini('bird'); return; }
+    if (this.state === 'listen') {
+      this.timer += dt; const gap = this.slow ? 1.1 : 0.75;
+      if (this.timer >= 0 && this.timer >= this.pos * gap) { if (this.pos < this.seq.length) { if (this.pos === 0) Voice.say('melody_listen', { pitch: 1.65 }); this.ring(this.seq[this.pos]); this.pos++; } else if (this.timer > this.pos * gap + 0.3) { this.state = 'you'; this.input = 0; this.slow = false; Voice.say('melody_you', { pitch: 1.65 }); } }
+      return;
+    }
+    if (this.state === 'right') { this.timer += dt; if (this.timer > 1.6) { this.round++; if (this.round >= this.P.len.length) miniWin(this); else this.setup(false); } return; }
+    this.idle += dt; if (this.idle > CONFIG.hintDelay) this.hint();
+  },
+  hint() { this.idle = 0; Sfx.play('hint'); this.guide = true; this.slow = true; Voice.say('melody_again', { pitch: 1.65 }); this.play(0.8); },
+  useHelper() { if (this.state !== 'you') return false; this.guide = true; return true; },
+  tapStar(i) {
+    this.ring(i); this.idle = 0;
+    if (i !== this.seq[this.input]) { Sfx.play('wrong'); this.slow = true; Voice.say('melody_again', { pitch: 1.65 }); this.play(1.1); return; }
+    this.input++;
+    if (this.input >= this.seq.length) { this.state = 'right'; this.timer = 0; Sfx.play('good'); this.fx.burst(VW / 2, VH * 0.4, 26, { g: 50, color: '#ffe066' }); Voice.say('good'); }
+  },
+  draw(c) {
+    const t = this.t, S = this.stars(), happy = this.winT >= 0 || this.state === 'right';
+    const g = c.createLinearGradient(0, 0, 0, VH); g.addColorStop(0, '#2c2f6e'); g.addColorStop(1, '#6a5aa8'); c.fillStyle = g; c.fillRect(0, 0, VW, VH);
+    c.fillStyle = 'rgba(255,255,255,0.8)'; for (let i = 0; i < 30; i++) { sparklePath(c, (i * 197 + 40) % VW, 14 + (i * 83) % (VH * 0.55), 1.5 + (Math.sin(t * 2 + i) + 1) * 1.5); c.fill(); }
+    for (let i = 0; i < this.seq.length; i++) { const x = VW / 2 + (i - (this.seq.length - 1) / 2) * 30, done = this.state === 'you' ? i < this.input : this.state === 'right'; circ(c, x, 34, 9); fs(c, done ? '#ffe066' : 'rgba(255,255,255,0.3)', '#fff', 2); }
+    const nextI = this.state === 'you' && this.guide ? this.seq[this.input] : -1;
+    S.forEach((s, i) => {
+      const f = this.flash[i], sz = s.r * (1 + f * 0.25);
+      if (f > 0 || i === nextI) { c.fillStyle = i === nextI && !f ? 'rgba(255,240,150,' + (0.3 + Math.sin(t * 7) * 0.15) + ')' : 'rgba(255,255,255,' + f * 0.5 + ')'; circ(c, s.x, s.y, sz * 1.35); c.fill(); }
+      starPath(c, s.x, s.y, sz); fs(c, f > 0 ? '#fff' : MELODY_COL[i], f > 0 ? MELODY_COL[i] : 'rgba(255,255,255,0.85)', 5);
+      c.fillStyle = '#3d2b3a'; circ(c, s.x - sz * 0.18, s.y - sz * 0.05, sz * 0.06); c.fill(); circ(c, s.x + sz * 0.18, s.y - sz * 0.05, sz * 0.06); c.fill();
+      c.strokeStyle = '#3d2b3a'; c.lineWidth = 2.5; c.beginPath(); c.arc(s.x, s.y + sz * 0.08, sz * (f > 0 ? 0.16 : 0.1), 0.2, Math.PI - 0.2); c.stroke();
+    });
+    if (this.state === 'listen') { c.save(); c.globalAlpha = 0.6 + Math.sin(t * 6) * 0.2; c.translate(VW / 2, VH * 0.46); drawThing(c, 'note', 0, 0, 56); c.restore(); }
+    drawRoundStars(c, this.P.len.length, this.winT >= 0 ? this.P.len.length : this.round + (this.state === 'right' ? 1 : 0));
+    drawActor(c, 'unicorn', 62, VH - 10, { size: 96, t, lift: happy ? Math.abs(Math.sin(t * 8)) * 24 : 0, mark: uniMark() });
+    drawActor(c, 'bird', VW - 72, VH - 12, { size: 90, t, flip: true, lift: (this.state === 'listen' ? Math.abs(Math.sin(t * 10)) * 10 : 0) + (happy ? Math.abs(Math.sin(t * 9)) * 22 : 0) });
+    this.fx.draw(c); drawHelperBtn(c, this.id); drawMiniExit(c);
+  },
+  down(p) {
+    const e = miniExit(); if (hit(p, e.x, e.y, e.r + 6)) { Sfx.play('tap'); Game.go(World, { from: 'bird' }); return; }
+    if (helperDown(p, this)) return;
+    if (this.winT >= 0) return;
+    if (hit(p, 62, VH - 60, 56) && this.state === 'you') { this.hint(); return; }
+    if (this.state !== 'you') return;
+    const S = this.stars(); for (let i = 0; i < S.length; i++) if (hit(p, S[i].x, S[i].y, S[i].r + 8)) { this.tapStar(i); return; }
+  }
+};
+
+const MINIGAMES = { owl: OwlGame, fox: FoxGame, frog: FrogGame, dragon: DragonGame, snail: ReadGame, squirrel: MathGame, mouse: CountGame, hedgehog: MemoryGame, sheep: SizeGame, bird: MelodyGame };

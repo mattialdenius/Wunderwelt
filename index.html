@@ -158,6 +158,37 @@ const SPEECH = {
   q_hedgehog_done: { text: 'Mmh, das wird ein feiner Kuchen! Danke! Hier sind zwei Zauberaugen: Damit siehst du beim Memory kurz alle Karten.', audio: null },
   album_open:      { text: 'Das ist dein Album. Hier sind alle deine Freunde!', audio: null },
   album_unknown:   { text: 'Diese Figur kennst du noch nicht. Such sie in der Welt!', audio: null },
+  /* --- Kapitel 3: Wolkeninseln --- */
+  area_wolken:     { text: 'Willkommen auf den Wolkeninseln!', audio: null },
+  sky_need_wings:  { text: 'Das ist ein Startplatz zum Fliegen! Dafür brauche ich aber Flügel.', audio: null },
+  sky_fly:         { text: 'Halt dich gut fest! Wir fliegen!', audio: null },
+  sky_back:        { text: 'Wir fliegen zurück in den Zauberwald!', audio: null },
+  world_hint_pad:  { text: 'Lauf zum Startplatz, dann fliegen wir!', audio: null },
+  story_wolli1:    { text: 'Mäh! Hallo {spieler}! Willkommen auf den Wolkeninseln. Ich bin Wolli, das Wolkenschaf.', audio: null },
+  story_wolli2:    { text: 'Die letzten zwei Splitter vom Regenbogenkristall sind hier oben gelandet. Einen habe ich, einen hat Sternenvogel Stella.', audio: null },
+  story_wolli3:    { text: 'Spielst du mit mir? Wir ordnen Wolken, von klein nach groß!', audio: null },
+  story_stella1:   { text: 'Du hast alle acht Splitter gefunden! Hör mal, wie fröhlich der Himmel klingt!', audio: null },
+  story_stella2:   { text: 'Jetzt muss der Kristall nur noch zusammengesetzt werden. Das geht nur am Drachenberg. Funki kennt den Weg!', audio: null },
+  sheep_intro:     { text: 'Tippe die Wolken an: zuerst die kleinste, dann die nächste, bis zur größten!', audio: null },
+  sheep_intro2:    { text: 'Jetzt sind es vier Wolken. Pass auf: Manchmal fangen wir mit der größten an!', audio: null },
+  sheep_intro3:    { text: 'Jetzt fünf Wolken! Schau ganz genau hin.', audio: null },
+  size_up:         { text: 'Von klein nach groß!', audio: null },
+  size_down:       { text: 'Von groß nach klein!', audio: null },
+  size_hint:       { text: 'Die hier ist als Nächstes dran!', audio: null },
+  bird_intro:      { text: 'Tschiep! Ich singe dir eine Melodie vor. Hör gut zu und tippe die Sterne dann genauso an!', audio: null },
+  bird_intro2:     { text: 'Jetzt sind es vier Sterne, und die Melodien werden länger!', audio: null },
+  bird_intro3:     { text: 'Jetzt fünf Sterne! Du bist ein echter Musikstar!', audio: null },
+  melody_listen:   { text: 'Hör gut zu!', audio: null },
+  melody_you:      { text: 'Jetzt du!', audio: null },
+  melody_again:    { text: 'Hör noch mal zu.', audio: null },
+  q_puff_offer:    { text: 'Hallo, ich bin Puff, die kleine Regenwolke. Ich habe meine fünf Regentropfen verloren! Findest du sie auf den Inseln?', audio: null },
+  q_puff_remind:   { text: 'Fünf Regentropfen. Sie glitzern blau!', audio: null },
+  q_drop_item:     { text: ['Ein Regentropfen!', 'Plitsch!'], audio: null },
+  q_puff_done:     { text: 'Juhu, jetzt kann ich wieder die Blumen gießen! Danke! Für dein Einhorn habe ich einen Sternenkranz.', audio: null },
+  q_sheep_offer:   { text: 'Meine drei Lämmchen sind über die Regenbogenbrücken davongehüpft! Bringst du sie mir zurück?', audio: null },
+  q_sheep_remind:  { text: 'Drei Lämmchen. Lauf einfach zu ihnen hin, dann hüpfen sie nach Hause.', audio: null },
+  q_lamb_item:     { text: ['Mäh!', 'Ein Lämmchen!'], audio: null },
+  q_sheep_done:    { text: 'Alle Lämmchen sind wieder da! Danke! Hier ist eine Wolkenmütze für dich, ganz flauschig.', audio: null },
   /* --- Nebenaufgaben --- */
   q_duck_offer:    { text: 'Quak quak! Oh je, meine drei Küken sind weggelaufen. Hilfst du mir, sie zu finden?', audio: null },
   q_duck_remind:   { text: 'Hast du meine Küken gesehen? Es sind drei!', audio: null },
@@ -412,7 +443,7 @@ const Voice = {
 /* ---- Spielstand ---- */
 const Save = {
   data: null,
-  fresh() { return { name: null, nameId: null, crystals: { owl: false, fox: false, frog: false, dragon: false, snail: false, squirrel: false, mouse: false, hedgehog: false }, level: { owl: 0, fox: 0, frog: 0, dragon: 0, snail: 0, squirrel: 0, mouse: 0, hedgehog: 0 }, player: null, learn: true, partyN: 0, goldN: 0, story: 0, quests: {}, inv: {}, helpers: { feather: 0, lens: 0, lily: 0, slow: 0, eye: 0 }, wings: false, cos: [], wear: { t: null, uni: null }, wallet: 0, tools: {}, shopOpen: false, goldParty: false, party4: false, goldParty4: false, dragonFriend: false, stars: [], rideTold: false, worldV: 0, dragon: { state: 'waiting', x: 0, y: 0, who: null }, celebrated: false, pos: null }; },
+  fresh() { return { name: null, nameId: null, crystals: { owl: false, fox: false, frog: false, dragon: false, snail: false, squirrel: false, mouse: false, hedgehog: false, sheep: false, bird: false }, level: { owl: 0, fox: 0, frog: 0, dragon: 0, snail: 0, squirrel: 0, mouse: 0, hedgehog: 0, sheep: 0, bird: 0 }, player: null, learn: true, partyN: 0, goldN: 0, story: 0, quests: {}, inv: {}, helpers: { feather: 0, lens: 0, lily: 0, slow: 0, eye: 0 }, wings: false, cos: [], wear: { t: null, uni: null }, wallet: 0, tools: {}, shopOpen: false, goldParty: false, party4: false, goldParty4: false, dragonFriend: false, stars: [], rideTold: false, worldV: 0, dragon: { state: 'waiting', x: 0, y: 0, who: null }, celebrated: false, pos: null }; },
   load() {
     this.data = this.fresh();
     try {
@@ -1079,20 +1110,30 @@ function drawThing(c, name, x, y, s) {
     case 'compass': circ(c, 0, 0, 22); fs(c, '#fff', '#c9a46e', 4); c.save(); c.rotate(0.5); tri(c, 0, -17, -6, 0, 6, 0); fs(c, '#ff6b6b'); tri(c, 0, 17, -6, 0, 6, 0); fs(c, '#9a8fb5'); c.restore(); starPath(c, 15, -15, 7); fs(c, '#ffe066', '#f0b429', 1.5); break;
     case 'heart': heartPath(c, 0, 6, 24); fs(c, '#ff8fb1', '#f06a98', 2); break;
     case 'star': starPath(c, 0, 0, 20); fs(c, '#ffe066', '#f0b429', 2); break;
+    case 'drop': drawDrop(c, 0, 0, 1.6); break;
+    case 'lamb': drawActor(c, 'sheep', 0, 22, { size: 58, t: Game.time, noShadow: true, bell: false }); break;
+    case 'size': drawPuffCloud(c, -20, 10, 0.25, '#fff', false); drawPuffCloud(c, -2, 6, 0.38, '#fff', false); drawPuffCloud(c, 18, 0, 0.52, '#fff', false); break;
+    case 'note': c.fillStyle = '#7b5cd6'; ell(c, -10, 14, 8, 6, -0.4); c.fill(); ell(c, 12, 8, 8, 6, -0.4); c.fill(); rr(c, -4, -18, 4, 32, 2); c.fill(); rr(c, 18, -24, 4, 32, 2); c.fill(); c.beginPath(); c.moveTo(-4, -18); c.lineTo(22, -24); c.lineTo(22, -14); c.lineTo(-4, -8); c.closePath(); c.fill(); starPath(c, -16, -16, 6); fs(c, '#ffe066'); break;
+    case 'cloudhat': drawHat(c, 'cloud', 0, 18, 1.2); break;
+    case 'stars': for (let i = 0; i < 5; i++) { const a = Math.PI * (1.05 + i * 0.22); starPath(c, Math.cos(a) * 20, 10 + Math.sin(a) * 20, 7); fs(c, ['#ffe066', '#ff9ecb', '#7db8ff', '#9be7a0', '#c9a5ff'][i], '#fff', 1); } break;
+    case 'pad': drawSkyPad(c, 0, 14, Game.time, true); break;
     default: drawIcon(c, name, 0, 0, 50);
   }
   c.restore();
 }
 // Hüte für T (auf dem Kopf, Kopfmitte bei 0,-72) und Schmuck fürs Einhorn
 function drawHat(c, kind, x, y, s = 1) {
+  kind = { shroomhat: 'shroom', cloudhat: 'cloud' }[kind] || kind;
   c.save(); c.translate(x, y); c.scale(s, s);
   if (kind === 'acorn') { c.beginPath(); c.ellipse(0, -14, 23, 15, 0, Math.PI, 0); c.closePath(); fs(c, '#c98a4a', '#a5672c', 2); c.strokeStyle = 'rgba(120,70,30,0.5)'; c.lineWidth = 1.5; for (let i = -16; i <= 16; i += 8) line(c, i, -14, i + 4, -24); c.strokeStyle = '#8a5528'; c.lineWidth = 4; line(c, 0, -28, 3, -36); }
   else if (kind === 'shroom') { c.beginPath(); c.ellipse(0, -14, 26, 18, 0, Math.PI, 0); c.closePath(); fs(c, '#ff6b6b', '#d9435e', 2); c.fillStyle = '#fff'; circ(c, -11, -22, 4); c.fill(); circ(c, 4, -27, 3.5); c.fill(); circ(c, 13, -17, 3); c.fill(); }
   else if (kind === 'crown') { c.beginPath(); c.moveTo(-18, -12); c.lineTo(-20, -34); c.lineTo(-9, -22); c.lineTo(0, -38); c.lineTo(9, -22); c.lineTo(20, -34); c.lineTo(18, -12); c.closePath(); fs(c, '#ffd23f', '#e0a800', 2); c.fillStyle = '#ff6b81'; circ(c, 0, -18, 3.5); c.fill(); c.fillStyle = '#5aa9ff'; circ(c, -11, -16, 2.5); c.fill(); circ(c, 11, -16, 2.5); c.fill(); }
+  else if (kind === 'cloud') { ell(c, 0, -10, 25, 8); fs(c, '#fff', '#a9cdee', 2); c.fillStyle = '#a9cdee'; for (const q of [[-14, -16, 12], [0, -25, 15], [14, -16, 12]]) { circ(c, q[0], q[1], q[2] + 2); c.fill(); } c.fillStyle = '#fff'; for (const q of [[-14, -16, 12], [0, -25, 15], [14, -16, 12]]) { circ(c, q[0], q[1], q[2]); c.fill(); } }
   c.restore();
 }
 function drawUniAcc(c, kind) {
   if (kind === 'flowers') { for (let i = 0; i < 5; i++) { c.fillStyle = PASTEL[i]; circ(c, 22 + i * 6, -96 + Math.abs(i - 2) * 3, 5); c.fill(); c.fillStyle = '#fff8c0'; circ(c, 22 + i * 6, -96 + Math.abs(i - 2) * 3, 1.8); c.fill(); } }
+  else if (kind === 'stars') { for (let i = 0; i < 5; i++) { starPath(c, 20 + i * 7, -97 + Math.abs(i - 2) * 3.5, 5); fs(c, ['#ffe066', '#ff9ecb', '#7db8ff', '#9be7a0', '#c9a5ff'][i], '#fff', 1); } }
   else if (kind === 'bow') { c.fillStyle = '#ff8fb1'; tri(c, -30, -50, -44, -60, -44, -40); c.fill(); tri(c, -30, -50, -16, -60, -16, -40); c.fill(); circ(c, -30, -50, 4); fs(c, '#f06a98'); }
 }
 
@@ -1183,6 +1224,84 @@ function drawWing(c, near, t) {   // Flügel fürs Einhorn (ab Kapitel 2)
   [[34, 13], [28, 10], [20, 7]].forEach((d, i) => { c.beginPath(); c.ellipse(-d[0] * 0.55, -i * 7, d[0], d[1], -0.2, 0, TAU); fs(c, cols[i], '#e0d0ec', 1.5); });
   c.restore();
 }
+
+/* ---- Wolkeninseln (Kapitel 3): Wolkenschaf Wolli, Sternenvogel Stella, Wölkchen Puff ---- */
+function drawSheep(c, t, o) {
+  c.fillStyle = '#5d5570'; [-14, -5, 5, 14].forEach(x => { rr(c, x - 3, -15, 6, 15, 3); c.fill(); });
+  c.fillStyle = '#d9dcf0'; for (let i = 0; i < 11; i++) { const a = i / 11 * TAU; circ(c, Math.cos(a) * 25, -32 + Math.sin(a) * 17, 13); c.fill(); }
+  c.fillStyle = '#fff'; for (let i = 0; i < 11; i++) { const a = i / 11 * TAU; circ(c, Math.cos(a) * 24, -33 + Math.sin(a) * 16, 11.5); c.fill(); } ell(c, 0, -33, 26, 18); c.fill();
+  c.fillStyle = '#5d5570'; ell(c, -17, -57, 9, 4.5, -0.4); c.fill(); ell(c, 17, -57, 9, 4.5, 0.4); c.fill();
+  ell(c, 0, -52, 12.5, 14.5); fs(c, '#6b6380');
+  c.fillStyle = '#fff'; circ(c, -7, -66, 6.5); c.fill(); circ(c, 1, -69, 7.5); c.fill(); circ(c, 9, -66, 6); c.fill();
+  if ((t % 3.3) < 0.12) { c.fillStyle = '#fff'; c.fillRect(-8, -55, 6, 1.6); c.fillRect(2, -55, 6, 1.6); }
+  else { c.fillStyle = '#fff'; circ(c, -5, -54, 3.6); c.fill(); circ(c, 5, -54, 3.6); c.fill(); c.fillStyle = '#3d2b3a'; circ(c, -4.5, -53.5, 1.9); c.fill(); circ(c, 5.5, -53.5, 1.9); c.fill(); }
+  c.fillStyle = 'rgba(255,160,190,0.8)'; circ(c, -8, -46, 2.6); c.fill(); circ(c, 8, -46, 2.6); c.fill();
+  c.strokeStyle = '#ffc9da'; c.lineWidth = 2; c.beginPath(); c.arc(0, -46, 3.5, 0.2, Math.PI - 0.2); c.stroke();
+  if (o.bell !== false && (o.size || 100) > 60) { c.strokeStyle = '#ff8fb1'; c.lineWidth = 3; line(c, -8, -40, 8, -40); circ(c, 0, -35, 4.5); fs(c, '#ffd23f', '#e0a800', 1.5); }
+}
+function drawBird(c, t, o) {
+  const fl = Math.sin(t * 7) * 0.35;
+  c.strokeStyle = '#ff9f5a'; c.lineWidth = 3; line(c, -6, -12, -7, 0); line(c, 6, -12, 7, 0); line(c, -7, 0, -12, 0); line(c, 7, 0, 12, 0);
+  c.fillStyle = '#5a8fe0'; tri(c, 18, -26, 36, -34, 32, -18); c.fill(); tri(c, 18, -22, 36, -22, 30, -10); c.fill();
+  circ(c, 0, -34, 24); fs(c, '#7db8ff', '#5a8fe0', 2);
+  ell(c, 0, -27, 15, 14); fs(c, '#e8f4ff');
+  c.save(); c.translate(-21, -34); c.rotate(0.5 + fl); ell(c, 0, 0, 8, 15); fs(c, '#5aa9ff', '#4f8fe0', 1.5); c.restore();
+  c.save(); c.translate(21, -34); c.rotate(-0.5 - fl); ell(c, 0, 0, 8, 15); fs(c, '#5aa9ff', '#4f8fe0', 1.5); c.restore();
+  if ((t % 3.1) < 0.12) { c.fillStyle = '#3d2b3a'; c.fillRect(-11, -43, 6, 1.6); c.fillRect(5, -43, 6, 1.6); }
+  else { c.fillStyle = '#3d2b3a'; circ(c, -8, -42, 3.4); c.fill(); circ(c, 8, -42, 3.4); c.fill(); c.fillStyle = '#fff'; circ(c, -7, -43.5, 1.2); c.fill(); circ(c, 9, -43.5, 1.2); c.fill(); }
+  tri(c, -5, -37, 5, -37, 0, -30); fs(c, '#ffb347', '#e08a2a', 1);
+  c.fillStyle = 'rgba(255,160,190,0.7)'; circ(c, -13, -35, 3); c.fill(); circ(c, 13, -35, 3); c.fill();
+  starPath(c, 0, -63, 9 + Math.sin(t * 4) * 1); fs(c, '#ffe066', '#f0b429', 2);
+}
+function drawCloudKid(c, t, o) {
+  c.fillStyle = '#a9cdee'; for (const q of [[-17, -30, 17], [0, -41, 21], [17, -30, 17], [0, -24, 22]]) { circ(c, q[0], q[1], q[2] + 2); c.fill(); }
+  c.fillStyle = '#fff'; for (const q of [[-17, -30, 17], [0, -41, 21], [17, -30, 17], [0, -24, 22]]) { circ(c, q[0], q[1], q[2]); c.fill(); }
+  c.fillStyle = '#3d2b3a'; if ((t % 2.9) < 0.12) { c.fillRect(-10, -33, 6, 1.6); c.fillRect(4, -33, 6, 1.6); } else { circ(c, -7, -33, 3); c.fill(); circ(c, 7, -33, 3); c.fill(); }
+  c.fillStyle = 'rgba(255,160,190,0.8)'; circ(c, -13, -26, 3); c.fill(); circ(c, 13, -26, 3); c.fill();
+  c.strokeStyle = '#3d2b3a'; c.lineWidth = 2; c.beginPath(); c.arc(0, -27, 4, 0.2, Math.PI - 0.2); c.stroke();
+  drawDrop(c, 0, -4 + (t * 18) % 10, 0.45);
+}
+function drawDrop(c, x, y, s = 1) {
+  c.save(); c.translate(x, y); c.scale(s, s);
+  c.beginPath(); c.moveTo(0, -16); c.quadraticCurveTo(12, -2, 10, 4); c.arc(0, 4, 10, 0, Math.PI); c.quadraticCurveTo(-12, -2, 0, -16); c.closePath(); fs(c, '#7db8ff', '#4f8fe0', 2);
+  c.fillStyle = 'rgba(255,255,255,0.75)'; ell(c, -4, 2, 2.5, 4.5, 0.3); c.fill();
+  c.restore();
+}
+function drawPuffCloud(c, x, y, s, col, face, t) {   // runde Wolke, optional mit Gesicht
+  c.save(); c.translate(x, y); c.scale(s, s);
+  c.fillStyle = 'rgba(120,150,200,0.25)'; ell(c, 0, 26, 46, 8); c.fill();
+  for (const pass of [0, 1]) { c.fillStyle = pass ? col : '#a9cdee'; for (const q of [[-26, 2, 20], [-8, -12, 25], [16, -8, 22], [30, 6, 16], [0, 8, 26]]) { circ(c, q[0], q[1], q[2] + (pass ? 0 : 2.5)); c.fill(); } }
+  if (face) {
+    c.fillStyle = '#3d2b3a'; circ(c, -8, 2, 3.5); c.fill(); circ(c, 8, 2, 3.5); c.fill();
+    c.fillStyle = 'rgba(255,160,190,0.8)'; circ(c, -15, 9, 3.5); c.fill(); circ(c, 15, 9, 3.5); c.fill();
+    c.strokeStyle = '#3d2b3a'; c.lineWidth = 2.2; c.beginPath(); c.arc(0, 8, 5, 0.25, Math.PI - 0.25); c.stroke();
+  }
+  c.restore();
+}
+function drawIsle(c, I, t) {   // schwebende Wolkeninsel
+  c.fillStyle = 'rgba(120,140,200,0.18)'; ell(c, I.x, I.y + I.ry * 0.9, I.rx * 0.8, I.ry * 0.35); c.fill();
+  c.fillStyle = '#dbe7fb'; for (let i = 0; i < 9; i++) { const a = Math.PI * (0.08 + i * 0.105); circ(c, I.x + Math.cos(a) * I.rx * 0.88, I.y + Math.sin(a) * I.ry * 0.9 + 18, I.ry * 0.28); c.fill(); }
+  ell(c, I.x, I.y + 16, I.rx, I.ry); fs(c, '#e8f0ff');
+  ell(c, I.x, I.y, I.rx, I.ry); fs(c, '#ffffff', '#d3e2fa', 4);
+  c.fillStyle = 'rgba(205,225,255,0.45)'; ell(c, I.x - I.rx * 0.3, I.y - I.ry * 0.15, I.rx * 0.35, I.ry * 0.22); c.fill(); ell(c, I.x + I.rx * 0.35, I.y + I.ry * 0.3, I.rx * 0.3, I.ry * 0.2); c.fill();
+}
+function drawSkyBridge(c, A, B, t) {   // Regenbogenbrücke zwischen zwei Inseln
+  const dx = B.x - A.x, dy = B.y - A.y, l = Math.hypot(dx, dy), nx = -dy / l, ny = dx / l;
+  c.lineCap = 'butt'; c.strokeStyle = 'rgba(120,140,200,0.18)'; c.lineWidth = 92; line(c, A.x, A.y + 26, B.x, B.y + 26);
+  ['#ff7b9c', '#ffb65c', '#ffe066', '#7ddc8a', '#7db8ff'].forEach((col, i) => { const o = (i - 2) * 16; c.strokeStyle = col; c.lineWidth = 17; line(c, A.x + nx * o, A.y + ny * o, B.x + nx * o, B.y + ny * o); });
+  c.fillStyle = 'rgba(255,255,255,0.9)'; const n = Math.floor(l / 90);
+  for (let i = 1; i < n; i++) { const k = i / n, tw = Math.max(0, Math.sin(t * 3 + i)); sparklePath(c, A.x + dx * k + nx * 30 * Math.sin(i), A.y + dy * k + ny * 30 * Math.sin(i), 2 + tw * 5); c.fill(); }
+}
+function drawSkyPad(c, x, y, t, on) {   // Startplatz zum Fliegen
+  c.fillStyle = 'rgba(40,70,50,0.16)'; ell(c, x, y + 6, 70, 22); c.fill();
+  ell(c, x, y, 66, 24); fs(c, '#efe8fb', '#c8bfe0', 3);
+  ['#ff7b9c', '#ffe066', '#7db8ff'].forEach((col, i) => { c.strokeStyle = col; c.lineWidth = 4; ell(c, x, y, 52 - i * 12, 18 - i * 4.5); c.stroke(); });
+  ['#ff7b9c', '#ffb65c', '#ffe066', '#7ddc8a', '#7db8ff'].forEach((col, i) => { c.strokeStyle = col; c.lineWidth = 7; c.beginPath(); c.arc(x, y - 6, 74 - i * 7, Math.PI * 1.04, Math.PI * 1.96); c.stroke(); });
+  const b = Math.sin(t * 2.5) * 5;
+  if (on) { c.fillStyle = 'rgba(255,247,170,' + (0.35 + Math.sin(t * 4) * 0.15) + ')'; circ(c, x, y - 80 + b, 30); c.fill(); }
+  c.save(); c.globalAlpha = on ? 1 : 0.55; drawThing(c, 'wings', x, y - 80 + b, 40); c.restore();
+}
+Object.assign(ART, { sheep: (c, t, o) => drawSheep(c, t, o), bird: (c, t, o) => drawBird(c, t, o), cloudkid: (c, t, o) => drawCloudKid(c, t, o) });
 
 /* ============ 4. SZENEN: START + EINHORN BENENNEN ============
    Jede Szene hat: enter(opts), update(dt), draw(c) und optional down/move/up/key/resize/leave. */
@@ -1439,7 +1558,16 @@ const NamingScene = {
    Zauberwald (Mitte-West), Hügel (Nordwest), Blumenwiese mit Pilzkreis (Südwest),
    Fluss mit drei Brücken, Fuchslichtung (Nordost), Seerosensee (Südost), Drachenfelsen (Osten).
    Weitere Gebiete später: eigenes Objekt nach diesem Muster anlegen (Karte, NPCS, Wege). */
-const WORLD = { w: 5600, h: 5000, cell: 20 };
+const WORLD = { w: 8000, h: 5000, cell: 20 };
+const WOOD_W = 5600, SKY_X = 5700;                                         // bis WOOD_W Wald und Dorf, dahinter der Himmel mit den Wolkeninseln
+const ISLES = [{ x: 6080, y: 1650, rx: 300, ry: 190 }, { x: 6820, y: 1000, rx: 330, ry: 210 }, { x: 7480, y: 1820, rx: 330, ry: 220 },
+  { x: 6780, y: 2620, rx: 310, ry: 200 }, { x: 7420, y: 3420, rx: 290, ry: 190 }, { x: 6300, y: 3500, rx: 270, ry: 180 }];
+const SKY_LINKS = [[0, 1], [1, 2], [0, 3], [3, 2], [3, 4], [3, 5]];        // Regenbogenbrücken
+const SKY_PAD = { x: 5390, y: 1650 }, LAND_PAD = { x: 5900, y: 1660 };    // Startplatz im Wald, Landeplatz auf der ersten Insel
+const LAMB_SPOTS = [[7380, 3500], [6360, 3560], [7580, 1960]];
+const DROP_SPOTS = [[6020, 1580], [7000, 1090], [7350, 1720], [6900, 2700], [6200, 3450]];
+const skyWalk = (x, y) => x > SKY_X && (ISLES.some(I => inEll(x, y, I, -14)) || SKY_LINKS.some(L => segDist(x, y, ISLES[L[0]].x, ISLES[L[0]].y, ISLES[L[1]].x, ISLES[L[1]].y) < 40));
+const inSky = x => x > WOOD_W;
 const HEDGE_Y = 3600;                                                      // Hecke zwischen Zauberwald (Norden) und Pilzdorf (Süden)
 const riverX = y => 2500 + 170 * Math.sin(y / 420 + 0.4) + 50 * Math.sin(y / 150);
 const BRIDGES = [900, 1950, 3050, 4400].map(y => ({ y, h: 96, w: 270, x: riverX(y) }));
@@ -1465,9 +1593,13 @@ const NPCS = {
   bee:   { id: 'bee',   x: 1460, y: 2990, art: 'bee',     size: 64, icon: 'honey',   lift: 26, sound: 'flutter', hop: 0, quest: true },
   bear:  { id: 'bear',  x: 1650, y: 560,  art: 'bear',    size: 104, icon: 'honey',  lift: 0, sound: 'babble', hop: 0, quest: true },
   mole:  { id: 'mole',  x: 880,  y: 2700, art: 'mole',    size: 70, icon: 'glasses', lift: 0, sound: 'squeak', hop: 0, quest: true },
-  bunny: { id: 'bunny', x: 1880, y: 1580, art: 'bunny',   size: 72, icon: 'bush',    lift: 0, sound: 'hop', hop: 0, quest: true }
+  bunny: { id: 'bunny', x: 1880, y: 1580, art: 'bunny',   size: 72, icon: 'bush',    lift: 0, sound: 'hop', hop: 0, quest: true },
+  // Wolkeninseln (Kapitel 3)
+  sheep: { id: 'sheep', x: 6860, y: 980,  art: 'sheep',   size: 98, icon: 'size',    lift: 0, sound: 'hop', hop: 0 },
+  bird:  { id: 'bird',  x: 7520, y: 1800, art: 'bird',    size: 74, icon: 'note',    lift: 16, sound: 'flutter', hop: 0 },
+  puff:  { id: 'puff',  x: 6760, y: 2600, art: 'cloudkid', size: 70, icon: 'drop',   lift: 22, sound: 'flutter', hop: 0, quest: true }
 };
-const QUEST_NPCS = ['duck', 'bee', 'bear', 'mole', 'bunny'];
+const QUEST_NPCS = ['duck', 'bee', 'bear', 'mole', 'bunny', 'puff'];
 const GATE = { x: 1500, y: HEDGE_Y };                                      // Pilztor: einziger Durchgang durch die Hecke (offen ab Ende Kapitel 1)
 // Pilzdorf
 const PLAZA = { x: 1500, y: 4300, r: 150 };
@@ -1477,11 +1609,11 @@ const LANTERNS = [[1370, 4190], [1640, 4200], [1500, 4480], [1000, 4560], [1990,
 const CAKE_SPOTS = [[700, 4450, 'berry'], [2350, 4650, 'berry'], [600, 4860, 'berry'], [2050, 4910, 'berry'], [850, 4530, 'shroom'], [2300, 4280, 'shroom']];
 const BEE_FLOWERS = [{ x: 1320, y: 2920, c: 'r' }, { x: 1620, y: 2890, c: 'y' }, { x: 1480, y: 3120, c: 'b' }];
 const QUEST_BUSHES = [[2060, 1470], [1740, 1420], [2010, 1730], [520, 3280], [770, 3380], [380, 3060]];
-const NPC_ALL = ['owl', 'fox', 'frog', 'dragon', 'snail', 'squirrel', 'mouse', 'hedgehog'];
+const NPC_ALL = ['owl', 'fox', 'frog', 'dragon', 'snail', 'squirrel', 'mouse', 'hedgehog', 'sheep', 'bird'];
 const npcOrder = () => NPC_ALL.filter(id => Save.data.learn || !NPCS[id].learn);   // wer gerade mitspielt (Reihenfolge = Rucksack)
 const walkers = () => npcOrder().filter(id => id !== 'dragon');
 const visibleNpcs = () => walkers().concat(QUEST_NPCS);
-const CRYSTAL_COL = { owl: '#b79cff', fox: '#ffb65c', frog: '#6fdc8c', dragon: '#ff8fb1', snail: '#5fd3e8', squirrel: '#ffd23f', mouse: '#7b8cff', hedgehog: '#e07a5f' };
+const CRYSTAL_COL = { owl: '#b79cff', fox: '#ffb65c', frog: '#6fdc8c', dragon: '#ff8fb1', snail: '#5fd3e8', squirrel: '#ffd23f', mouse: '#7b8cff', hedgehog: '#e07a5f', sheep: '#8fe3ff', bird: '#ff9ecb' };
 const START_POS = { x: 1500, y: 1850 };
 const DRAGON_HOME = { x: NPCS.dragon.x, y: NPCS.dragon.y };
 const BX = i => BRIDGES[i].x;
@@ -1503,7 +1635,7 @@ const PATHS = [
 // Versteckte Glitzersterne (werden beim Aufbau auf freie Stellen geschoben)
 const GLITTER = [[600, 520], [1900, 430], [2950, 420], [4300, 520], [5250, 700], [5300, 2500], [4800, 3330], [3950, 3330],
   [2650, 3420], [420, 3420], [300, 2200], [650, 1500], [1950, 1200], [3950, 2120], [4250, 1150],
-  [380, 4850], [2300, 4900], [3300, 4650], [4700, 4300], [5200, 4900]];   // die letzten fünf liegen südlich der Hecke
+  [380, 4850], [2300, 4900], [3300, 4650], [4700, 4300], [5200, 4900], [7470, 3300], [6230, 3420]];   // die letzten fünf liegen südlich der Hecke
 const uniMark = () => { const n = NAMES.find(n => n.id === Save.data.nameId); return n ? n.icon : null; };
 const hopLift = (h, amp = 24) => h > 0 ? Math.sin((1 - clamp(h, 0, 1)) * Math.PI) * amp : 0;
 function segDist(px, py, ax, ay, bx, by) { const dx = bx - ax, dy = by - ay, l = dx * dx + dy * dy; const t = l ? clamp(((px - ax) * dx + (py - ay) * dy) / l, 0, 1) : 0; return Math.hypot(px - ax - dx * t, py - ay - dy * t); }
@@ -1527,7 +1659,7 @@ const World = {
   },
   terrainOK(x, y, m) {
     if (Math.abs(y - HEDGE_Y) < 40 + m) return false;
-    if (x < 90 + m || x > WORLD.w - 90 - m || y < 140 + m || y > WORLD.h - 100 - m) return false;
+    if (x < 90 + m || x > WOOD_W - 90 - m || y < 140 + m || y > WORLD.h - 100 - m) return false;
     if (Math.abs(x - riverX(y)) < 64 + m) return false;
     if (inEll(x, y, LAKE, 16 + m) || inEll(x, y, POND, 16 + m)) return false;
     return true;
@@ -1542,38 +1674,38 @@ const World = {
     const occOK = (x, y, s) => { const i0 = Math.floor(x / BK), j0 = Math.floor(y / BK); for (let i = i0 - 2; i <= i0 + 2; i++) for (let j = j0 - 2; j <= j0 + 2; j++) { const a = occ.get(key(i, j)); if (a) for (const o of a) if (dist(x, y, o.x, o.y) < (s + o.s) / 2) return false; } return true; };
     const keep = [[START_POS.x, START_POS.y, 190], [RING.x, RING.y, 210], [DRAGON_HOME.x, DRAGON_HOME.y, 260], [NPCS.fox.x, NPCS.fox.y, 330]];
     for (const k in NPCS) keep.push([NPCS[k].x, NPCS[k].y, 200]);
-    keep.push([GATE.x, GATE.y, 150], [PLAZA.x, PLAZA.y, PLAZA.r + 60]); for (const h of HOUSES) keep.push([h.x, h.y - h.r, h.r + 80]); for (const l of LANTERNS) keep.push([l[0], l[1], 50]); for (const q of CAKE_SPOTS) keep.push([q[0], q[1], 60]); for (const f of BEE_FLOWERS) keep.push([f.x, f.y, 90]); for (const q of QUEST_BUSHES) keep.push([q[0], q[1], 80]);
+    keep.push([SKY_PAD.x, SKY_PAD.y, 170], [GATE.x, GATE.y, 150], [PLAZA.x, PLAZA.y, PLAZA.r + 60]); for (const h of HOUSES) keep.push([h.x, h.y - h.r, h.r + 80]); for (const l of LANTERNS) keep.push([l[0], l[1], 50]); for (const q of CAKE_SPOTS) keep.push([q[0], q[1], 60]); for (const f of BEE_FLOWERS) keep.push([f.x, f.y, 90]); for (const q of QUEST_BUSHES) keep.push([q[0], q[1], 80]);
     for (const b of BRIDGES) { keep.push([b.x - 200, b.y, 170]); keep.push([b.x + 200, b.y, 170]); }
     const free0 = (x, y, m, pm) => this.terrainOK(x, y, m) && pathDist(x, y) > pm && keep.every(k => dist(x, y, k[0], k[1]) > k[2]);
     const tree = (x, y, s, sp) => { this.trees.push({ x, y, s: s || 0.95 + R() * 0.3, kind: R() < 0.22 ? 1 : R() < 0.5 ? 2 : 0, shake: 0 }); addOcc(x, y, sp || 100); };
     // Waldrand rundherum
-    for (let x = 20; x < W.w; x += 76) {
+    for (let x = 20; x < WOOD_W; x += 76) {
       const xa = x + R() * 30, xb = x + R() * 30;
       if (Math.abs(xa - riverX(40)) > 110) tree(xa, 70 + R() * 22, 1.25);
       if (Math.abs(xb - riverX(W.h)) > 110) tree(xb, W.h + 8 + R() * 12, 1.25);
     }
-    for (let y = 160; y < W.h - 30; y += 82) { tree(18 + R() * 26, y + R() * 20, 1.2); tree(W.w - 18 - R() * 26, y + R() * 20, 1.2); }
+    for (let y = 160; y < W.h - 30; y += 82) { tree(18 + R() * 26, y + R() * 20, 1.2); tree(WOOD_W - 18 - R() * 26, y + R() * 20, 1.2); }
     // Hügel im Norden (nur Bild, begehbar)
     for (let i = 0; i < 9; i++) this.hills.push({ x: 250 + R() * 2000, y: 250 + R() * 450, rx: 180 + R() * 160, ry: 80 + R() * 60 });
     // Felsen: viele am Drachenfelsen, ein paar am Fluss
     for (let i = 0, n = 0; i < 3000 && n < 46; i++) { const x = 4420 + R() * 1050, y = 420 + R() * 2900, r = 26 + R() * 32; if (free0(x, y, r, 70) && occOK(x, y, r * 2 + 60)) { this.rocks.push({ x, y, r, wob: 0, moss: R() < 0.5 }); addOcc(x, y, r * 2 + 60); n++; } }
     for (let i = 0, n = 0; i < 2000 && n < 12; i++) { const y = 300 + R() * 3000, x = riverX(y) + (R() < 0.5 ? -1 : 1) * (110 + R() * 60), r = 22 + R() * 16; if (free0(x, y, r, 70) && occOK(x, y, r * 2 + 50)) { this.rocks.push({ x, y, r, wob: 0, moss: true }); addOcc(x, y, r * 2 + 50); n++; } }
     // Bäume je nach Zone mehr oder weniger dicht
-    for (let i = 0; i < 16000; i++) { const x = R() * W.w, y = R() * W.h, sp = this.spacing(x, y); if (free0(x, y, 50, 72) && occOK(x, y, sp)) tree(x, y, 0, sp); }
+    for (let i = 0; i < 16000; i++) { const x = R() * WOOD_W, y = R() * W.h, sp = this.spacing(x, y); if (free0(x, y, 50, 72) && occOK(x, y, sp)) tree(x, y, 0, sp); }
     // Büsche (manchmal mit Hase), Pilze, Blumen, Schmetterlinge
     const bush = (x, y) => { this.bushes.push({ x, y, shake: 0, peek: 0, dragon: false }); addOcc(x, y, 90); };
     bush(1250, 1950); bush(1700, 1600); for (const q of QUEST_BUSHES) bush(q[0], q[1]);
-    for (let i = 0, n = 0; i < 4000 && n < 46; i++) { const x = R() * W.w, y = R() * W.h; if (free0(x, y, 40, 60) && occOK(x, y, 110)) { bush(x, y); n++; } }
+    for (let i = 0, n = 0; i < 4000 && n < 46; i++) { const x = R() * WOOD_W, y = R() * W.h; if (free0(x, y, 40, 60) && occOK(x, y, 110)) { bush(x, y); n++; } }
     const mush = (x, y, o) => this.mushrooms.push(Object.assign({ x, y, col: MUSH_COL[this.mushrooms.length % 4], squish: 0 }, o || {}));
     mush(1330, 1700); mush(1650, 2000); mush(1180, 1460);
-    for (let i = 0, n = 0; i < 4000 && n < 60; i++) { const x = R() * W.w, y = R() * W.h; if (free0(x, y, 20, 40) && occOK(x, y, 60)) { mush(x, y); addOcc(x, y, 40); n++; } }
+    for (let i = 0, n = 0; i < 4000 && n < 60; i++) { const x = R() * WOOD_W, y = R() * W.h; if (free0(x, y, 20, 40) && occOK(x, y, 60)) { mush(x, y); addOcc(x, y, 40); n++; } }
     RING_NOTES.forEach((f, i) => { const a = i / 8 * TAU - Math.PI / 2; mush(RING.x + Math.cos(a) * RING.r, RING.y + Math.sin(a) * RING.r * 0.62, { col: MUSH_COL[i % 7], note: f, ring: i }); });
     const FC = ['#ff9ecb', '#fff', '#ffd27f', '#c9a5ff', '#9ecbff', '#ff8a8a'];
     for (let i = 0; i < 2600; i++) {
-      const meadow = i < 900, x = meadow ? 140 + R() * 2100 : 80 + R() * (W.w - 160), y = meadow ? 2650 + R() * 860 : 150 + R() * (W.h - 220);
+      const meadow = i < 900, x = meadow ? 140 + R() * 2100 : 80 + R() * (WOOD_W - 160), y = meadow ? 2650 + R() * 860 : 150 + R() * (W.h - 220);
       if (this.terrainOK(x, y, 6) && pathDist(x, y) > 30) this.flowers.push({ x, y, col: FC[i % FC.length], r: R() * 6 });
     }
-    for (let i = 0; i < 220; i++) this.patches.push({ x: R() * W.w, y: R() * W.h, rx: 60 + R() * 130, ry: 30 + R() * 60, light: R() < 0.5 });
+    for (let i = 0; i < 220; i++) this.patches.push({ x: R() * WOOD_W, y: R() * W.h, rx: 60 + R() * 130, ry: 30 + R() * 60, light: R() < 0.5 });
     const BC = ['#ff9ecb', '#ffd27f', '#9ecbff', '#c9a5ff', '#fff38a'];
     const bf = (x, y) => this.butterflies.push({ hx: x, hy: y, x, y, ph: this.butterflies.length * 1.7, col: BC[this.butterflies.length % BC.length], away: 0, off: 0, dir: this.butterflies.length * 2.1 });
     [[1450, 1650], [1750, 1950], [1250, 2150]].forEach(p => bf(p[0], p[1]));
@@ -1586,7 +1718,8 @@ const World = {
     this.grid = new Uint8Array(this.cols * this.rows);
     for (let j = 0; j < this.rows; j++) for (let i = 0; i < this.cols; i++) {
       const x = (i + 0.5) * W.cell, y = (j + 0.5) * W.cell;
-      const solid = x < 60 || x > W.w - 60 || y < 110 || y > W.h - 64 || Math.abs(y - HEDGE_Y) < 28 || (!onBridge(x, y) && Math.abs(x - riverX(y)) < 64) || inEll(x, y, LAKE, 16) || inEll(x, y, POND, 16);
+      if (x > WOOD_W - 60) { this.grid[j * this.cols + i] = skyWalk(x, y) ? 0 : 1; continue; }
+      const solid = x < 60 || y < 110 || y > W.h - 64 || Math.abs(y - HEDGE_Y) < 28 || (!onBridge(x, y) && Math.abs(x - riverX(y)) < 64) || inEll(x, y, LAKE, 16) || inEll(x, y, POND, 16);
       this.grid[j * this.cols + i] = solid ? 1 : 0;
     }
     for (const t of this.trees) this.stamp(t.x, t.y - 4, 31);
@@ -1600,6 +1733,8 @@ const World = {
     this.gs = new Float32Array(this.grid.length); this.came = new Int32Array(this.grid.length); this.st = new Uint8Array(this.grid.length);
     // Glitzersterne auf freie Stellen schieben
     this.glitter = GLITTER.map(p => { const k = this.nearFree(p[0], p[1]); return { x: (k % this.cols + 0.5) * W.cell, y: (Math.floor(k / this.cols) + 0.5) * W.cell }; });
+    const RS = seeded(777); this.skyPuffs = [];   // ferne Wölkchen im Himmel (nur Bild)
+    for (let i = 0; i < 70; i++) { const x = WOOD_W + 120 + RS() * (W.w - WOOD_W - 160), y = 120 + RS() * (W.h - 240); if (!ISLES.some(I => inEll(x, y, I, 120))) this.skyPuffs.push({ x, y, s: 0.5 + RS() * 0.9, ph: RS() * 6 }); }
     this.renderMinimap();
   },
   setGate(open) {   // Durchgang im Pilztor frei oder zu
@@ -1629,7 +1764,11 @@ const World = {
     c.fillStyle = '#a8a8b8'; for (const r of this.rocks) { circ(c, r.x, r.y, r.r * 1.2); c.fill(); }
     for (const t of this.trees) { c.fillStyle = t.kind === 1 ? '#f2a3c3' : t.kind === 2 ? '#4eaa6c' : '#62b874'; circ(c, t.x, t.y - 30, 40); c.fill(); }
     c.fillStyle = '#ff9ecb'; for (const m of this.mushrooms) if (m.ring != null) { circ(c, m.x, m.y, 22); c.fill(); }
-    c.fillStyle = '#3f9a58'; c.fillRect(60, HEDGE_Y - 26, WORLD.w - 120, 52);
+    c.fillStyle = '#3f9a58'; c.fillRect(60, HEDGE_Y - 26, WOOD_W - 120, 52);
+    c.fillStyle = '#cfe8ff'; c.fillRect(WOOD_W - 10, 0, WORLD.w, WORLD.h);
+    c.lineCap = 'round'; c.lineWidth = 80; c.strokeStyle = '#ffc2d6'; for (const L of SKY_LINKS) { const A = ISLES[L[0]], B = ISLES[L[1]]; line(c, A.x, A.y, B.x, B.y); }
+    c.fillStyle = '#fff'; for (const I of ISLES) { ell(c, I.x, I.y, I.rx, I.ry); c.fill(); }
+    c.fillStyle = '#c9a5ff'; circ(c, SKY_PAD.x, SKY_PAD.y, 60); c.fill(); circ(c, LAND_PAD.x, LAND_PAD.y, 60); c.fill();
     c.fillStyle = '#e8d6b0'; circ(c, PLAZA.x, PLAZA.y, PLAZA.r); c.fill();
     for (const h of HOUSES) { c.fillStyle = h.col; circ(c, h.x, h.y - h.r * 0.9, h.r * 1.05); c.fill(); }
     this.minimap = cv;
@@ -1742,11 +1881,13 @@ const World = {
     Game.go(MINIGAMES[id], {});
   },
   dragonReady() { const D = this.dragon; return Save.data.dragonFriend && D.vis && !D.fly && (D.mode === 'home' || D.mode === 'visit'); },
-  nearestStar() { let best = -1, bd = 1e9; this.glitter.forEach((s, i) => { if ((Save.data.stars || []).includes(i)) return; const d = dist(s.x, s.y, this.T.x, this.T.y); if (d < bd) { bd = d; best = i; } }); return best; },
-  hintTarget() {
+  nearestStar() { let best = -1, bd = 1e9; this.glitter.forEach((s, i) => { if ((Save.data.stars || []).includes(i) || (inSky(s.x) && !Save.data.wings) || (s.y > HEDGE_Y && Save.data.story < 3 && !inSky(s.x))) return; const d = dist(s.x, s.y, this.T.x, this.T.y); if (d < bd) { bd = d; best = i; } }); return best; },
+  hintTarget() { const t = this.hintTarget0(); return t && !this.viaPad(t) ? this.hintTargetNear() : this.viaPad(t); },
+  hintTargetNear() { const si = this.nearestStar(); return si >= 0 ? { x: this.glitter[si].x, y: this.glitter[si].y, star: true } : null; },
+  hintTarget0() {
     if (this.crystalGround) return { x: this.crystalGround.x, y: this.crystalGround.y, crystal: true };
     const sq = this.storyQuestTarget(); if (sq) return sq;   // erst Geschichte, dann Aufträge
-    const av = npcOrder().filter(id => id !== 'dragon' || this.dragonReady());
+    const av = npcOrder().filter(id => (id !== 'dragon' || this.dragonReady()) && (Save.data.wings || !inSky(NPCS[id].x)) && (Save.data.story >= 3 || NPCS[id].y < HEDGE_Y));
     const id = av.sort((a, b) => Save.data.level[a] - Save.data.level[b])[0];   // wer hat die niedrigste Stufe?
     if (id && Save.data.level[id] < 3) { const s = id === 'dragon' ? this.dragonSpot() : this.npcSpot(NPCS[id]); return { x: s.x, y: s.y, npc: id }; }
     const si = this.nearestStar(); if (si >= 0) return { x: this.glitter[si].x, y: this.glitter[si].y, star: true };
@@ -1756,7 +1897,7 @@ const World = {
     this.idle = 0; this.U.hop = 1; Sfx.play('hint');
     const t = this.hintTarget(); if (!t) { Voice.say('uni_tap'); this.fx.burst(this.U.x, this.U.y - 50, 10, { g: 60 }); return; }
     this.hint = { t: 8, target: t, path: this.findPath(this.T.x, this.T.y, t.x, t.y) || [t] };
-    Voice.say(t.crystal ? 'world_hint_crystal' : t.star ? 'world_hint_star' : 'world_hint');
+    Voice.say(t.crystal ? 'world_hint_crystal' : t.star ? 'world_hint_star' : t.pad ? 'world_hint_pad' : 'world_hint');
   },
   pickDropSpot() {
     const T = this.T, cam = this.cam;
@@ -1778,6 +1919,33 @@ const World = {
     this.ride = false; U.x = T.x; U.y = T.y; U.face = T.face; T.path = null;
     const nx = T.x + 50 * T.face; if (this.free(nx, T.y)) T.x = nx; else if (this.free(T.x - 50 * T.face, T.y)) T.x -= 50 * T.face;
     T.hop = 1; this.trail.length = 0; Sfx.play('hop'); Voice.say('uni_ride_off');
+  },
+
+  /* ---- Fliegen zu den Wolkeninseln ---- */
+  usePad(P) {
+    if (!Save.data.wings) { this.U.hop = 1; Voice.say('sky_need_wings'); return; }
+    this.queue.push(() => this.evFly(P, P === SKY_PAD ? LAND_PAD : SKY_PAD));
+  },
+  evFly(A, B) {
+    const T = this.T, U = this.U, up = B === LAND_PAD; T.path = null; T.onArrive = null; this.hint = null;
+    this.ride = true; T.hop = 1; U.hop = 1; Sfx.play('flutter'); Sfx.play('fanfare'); Voice.say(up ? 'sky_fly' : 'sky_back');
+    const k = this.nearFree(B.x + (up ? 110 : -110), B.y + 10), ex = (k % this.cols + 0.5) * WORLD.cell, ey = (Math.floor(k / this.cols) + 0.5) * WORLD.cell, sx = T.x, sy = T.y;
+    const e = { block: true, t: 0, dur: 3.4 };
+    e.update = dt => {
+      e.t += dt; const u = clamp(e.t / e.dur, 0, 1), m = u * u * (3 - 2 * u);
+      T.x = lerp(sx, ex, m); T.y = lerp(sy, ey, m); T.face = ex > sx ? 1 : -1; T.walk = false; U.x = T.x; U.y = T.y; U.face = T.face;
+      this.flyLift = Math.sin(u * Math.PI) * 170;
+      if (Math.random() < dt * 24) this.fx.add({ x: T.x - T.face * rnd(20, 60), y: T.y - this.flyLift - rnd(20, 60), vy: -20, life: 0.8, size: rnd(4, 9), color: PASTEL[ri(0, 5)] });
+      if (u < 1) return false;
+      this.flyLift = 0; this.ride = false; U.x = T.x - 60 * T.face; U.y = T.y; if (!this.free(U.x, U.y)) U.x = T.x; this.trail.length = 0; T.hop = 1; Sfx.play('pop'); this.fx.burst(T.x, T.y - 30, 16, { g: 60 });
+      Save.data.pos = { x: Math.round(T.x), y: Math.round(T.y) }; Save.store(); this.onPad = false; return true;
+    };
+    return e;
+  },
+  viaPad(tg) {   // Ziel auf der anderen Seite (Himmel/Wald)? Dann erst zum Startplatz
+    if (!tg || inSky(tg.x) === inSky(this.T.x)) return tg;
+    if (!Save.data.wings) return null;
+    const P = inSky(this.T.x) ? LAND_PAD : SKY_PAD; return { x: P.x, y: P.y, pad: true };
   },
 
   /* ---- Ereignisse: Belohnung, Drache, Feier ---- */
@@ -1944,7 +2112,7 @@ const World = {
 
   /* ---- Ablauf ---- */
   update(dt) {
-    this.autoSave = (this.autoSave || 0) + dt; if (this.autoSave > 5) { this.autoSave = 0; Save.data.pos = { x: Math.round(this.T.x), y: Math.round(this.T.y) }; Save.store(); }   // alle 5 s Standort sichern
+    this.autoSave = (this.autoSave || 0) + dt; if (this.autoSave > 5 && !this.ev) { this.autoSave = 0; Save.data.pos = { x: Math.round(this.T.x), y: Math.round(this.T.y) }; Save.store(); }   // alle 5 s Standort sichern
     this.time += dt; const T = this.T, U = this.U, D = this.dragon;
     // Eltern-Menü: drei Punkte unten links 1,5 s gedrückt halten
     if (this.menuHold != null) { this.menuT += dt; if (this.menuT > 1.5) { this.menuHold = null; Sfx.play('pop'); Game.go(StartScene, { panel: true }); } }
@@ -1955,7 +2123,7 @@ const World = {
     if (this.prank && this.prank.update(dt)) this.prank = null;
     else if (!this.prank && !this.ev && !this.dlg && !this.overlay && !this.queue.length && Save.data.dragonFriend && Save.data.dragon.state === 'done' && !this.mapOpen) {
       this.prankCool -= dt;
-      if (this.prankCool <= 0) { if (dist(T.x, T.y, DRAGON_HOME.x, DRAGON_HOME.y) < 700) this.prankCool = 12; else this.startPrank(); }
+      if (this.prankCool <= 0) { if (dist(T.x, T.y, DRAGON_HOME.x, DRAGON_HOME.y) < 700 || inSky(T.x)) this.prankCool = 12; else this.startPrank(); }
     }
     if (this.tipT > 0 && !this.blocked()) { this.tipT -= dt; if (this.tipT <= 0 && !Save.data.rideTold) { Save.data.rideTold = true; Save.store(); U.hop = 1; Voice.say('uni_ride_tip'); } }
 
@@ -1988,8 +2156,11 @@ const World = {
     }
     for (const o of [T, U, D].concat(visibleNpcs().map(k => NPCS[k]))) if (o.hop > 0) o.hop -= dt * 2;
     this.updateQuests(dt);
-    const area = T.y > HEDGE_Y ? 'dorf' : 'wald';
-    if (this.area && area !== this.area) { this.banner = { name: area, t: 0 }; Sfx.play('win'); Voice.say(area === 'dorf' ? 'area_dorf' : 'area_wald'); }
+    const area = inSky(T.x) ? 'wolken' : T.y > HEDGE_Y ? 'dorf' : 'wald';
+    if (this.area && area !== this.area) { this.banner = { name: area, t: 0 }; Sfx.play('win'); Voice.say('area_' + area); }
+    const P = inSky(T.x) ? LAND_PAD : SKY_PAD, onP = dist(T.x, T.y, P.x, P.y) < 48;   // auf den Startplatz gelaufen?
+    if (onP && !this.onPad && !this.blocked() && !this.ev) this.usePad(P);
+    this.onPad = onP;
     this.area = area; if (this.banner && (this.banner.t += dt) > 3) this.banner = null;
     if ((Save.data.wallet || 0) !== this.lastWallet) { this.lastWallet = Save.data.wallet || 0; this.starPop = 1; }
     const zt = this.ride ? (T.walk ? ZOOM_GALLOP : ZOOM_RIDE) : 1;
@@ -2040,6 +2211,17 @@ const World = {
     const inView = (x, y, m) => x > cam.x - m && x < cam.x + VWz + m && y > cam.y - m && y < cam.y + VHz + m + 60;
     c.fillStyle = '#a9e2a2'; c.fillRect(0, 0, VW, VH);
     c.save(); c.scale(z, z); c.translate(-cam.x, -cam.y);
+    if (cam.x + VWz > WOOD_W - 80) {   // Himmel mit Wolkeninseln hinter dem Waldrand
+      const sg = c.createLinearGradient(0, 0, 0, WORLD.h); sg.addColorStop(0, '#bfe3ff'); sg.addColorStop(0.55, '#dcecff'); sg.addColorStop(1, '#f6e4ff');
+      c.fillStyle = sg; c.fillRect(WOOD_W - 30, cam.y - 10, WORLD.w - WOOD_W + 40, VHz + 20);
+      for (const p of this.skyPuffs) if (inView(p.x, p.y, 120)) { c.globalAlpha = 0.55; drawPuffCloud(c, p.x + Math.sin(t * 0.3 + p.ph) * 20, p.y, p.s, '#fff', false); c.globalAlpha = 1; }
+      c.fillStyle = '#a9e2a2'; for (let y = Math.floor((cam.y - 40) / 40) * 40; y < cam.y + VHz + 40; y += 40) { circ(c, WOOD_W - 30, y, 28 + (y / 40 % 2) * 6); c.fill(); }
+      c.strokeStyle = '#86c98a'; c.lineWidth = 4; c.beginPath(); for (let y = Math.floor((cam.y - 40) / 40) * 40; y < cam.y + VHz + 40; y += 40) c.arc(WOOD_W - 30, y, 28 + (y / 40 % 2) * 6, -1.1, 1.1); c.stroke();
+      for (const I of ISLES) if (inView(I.x, I.y, I.rx + 60)) drawIsle(c, I, t);
+      for (const L of SKY_LINKS) { const A = ISLES[L[0]], B = ISLES[L[1]]; if (!inView((A.x + B.x) / 2, (A.y + B.y) / 2, 700)) continue;   // Brücke von Inselrand zu Inselrand
+        const dx = B.x - A.x, dy = B.y - A.y, l = Math.hypot(dx, dy), ux = dx / l, uy = dy / l, edge = I => Math.sqrt(1 / ((ux / I.rx) ** 2 + (uy / I.ry) ** 2)) - 26;
+        const ka = edge(A), kb = edge(B); drawSkyBridge(c, { x: A.x + ux * ka, y: A.y + uy * ka }, { x: B.x - ux * kb, y: B.y - uy * kb }, t); }
+    }
     // Bodenzonen: Blumenwiese etwas heller, Felsen etwas grauer, Hügel im Norden
     c.fillStyle = 'rgba(255,240,200,0.35)'; rr(c, 60, 2620, 2200, 960, 200); c.fill();
     c.fillStyle = 'rgba(200,200,215,0.35)'; rr(c, 4380, 380, 1150, 3000, 260); c.fill();
@@ -2112,8 +2294,8 @@ const World = {
     });
     if (g) add(g.y, () => { c.fillStyle = 'rgba(255,247,160,' + (0.35 + Math.sin(t * 5) * 0.15) + ')'; circ(c, g.x, g.y - 16, 34 + Math.sin(t * 5) * 4); c.fill(); c.fillStyle = 'rgba(40,70,50,0.2)'; ell(c, g.x, g.y + 2, 14, 5); c.fill(); drawCrystal(c, g.x, g.y - 16 - Math.abs(Math.sin(t * 3)) * 5, 18, CRYSTAL_COL[g.who]); });
     if (this.ride) add(T.y + 0.1, () => {
-      drawActor(c, 'unicorn', T.x + 6 * T.face, T.y, { size: 92, t, walk: T.walk, flip: T.face < 0, lift: hopLift(U.hop, 30) + ph(3), mark: uniMark(), glow: !!this.hint });
-      drawActor(c, 't', T.x - 4 * T.face, T.y, { size: 74, t, sit: true, flip: T.face < 0, noShadow: true, lift: 36 + hopLift(U.hop, 30) + hopLift(T.hop, 12) + (T.walk ? Math.abs(Math.sin(t * 13)) * 4 : 0) + ph(4) });
+      drawActor(c, 'unicorn', T.x + 6 * T.face, T.y, { size: 92, t, walk: T.walk || this.flyLift > 0, flip: T.face < 0, lift: hopLift(U.hop, 30) + ph(3) + (this.flyLift || 0), mark: uniMark(), glow: !!this.hint });
+      drawActor(c, 't', T.x - 4 * T.face, T.y, { size: 74, t, sit: true, flip: T.face < 0, noShadow: true, lift: 36 + hopLift(U.hop, 30) + hopLift(T.hop, 12) + (T.walk ? Math.abs(Math.sin(t * 13)) * 4 : 0) + ph(4) + (this.flyLift || 0) });
     });
     else {
       add(U.y, () => drawActor(c, 'unicorn', U.x, U.y, { size: 88, t, walk: U.walk, flip: U.face < 0, lift: hopLift(U.hop, 34) + ph(3), mark: uniMark(), glow: !!this.hint }));
@@ -2122,12 +2304,13 @@ const World = {
     // Hecke mit Lücke für das Pilztor (und für den Fluss)
     if (cam.y + VHz > HEDGE_Y - 80 && cam.y < HEDGE_Y + 80) add(HEDGE_Y + 14, () => {
       const rx = riverX(HEDGE_Y);
-      for (let x = Math.floor((cam.x - 60) / 44) * 44; x < cam.x + VWz + 60; x += 44) {
+      for (let x = Math.floor((cam.x - 60) / 44) * 44; x < Math.min(cam.x + VWz + 60, WOOD_W - 40); x += 44) {
         if (Math.abs(x - GATE.x) < 96 || Math.abs(x - rx) < 70) continue;
         const k = (x / 44) % 2 ? 1 : 0;
         c.fillStyle = '#4fa766'; circ(c, x, HEDGE_Y - 8 + k * 6, 30); c.fill(); c.fillStyle = '#5fb873'; circ(c, x + 10, HEDGE_Y - 24 + k * 6, 22); c.fill(); c.fillStyle = '#74c985'; circ(c, x - 6, HEDGE_Y - 32 + k * 6, 13); c.fill();
       }
     });
+    for (const P of [SKY_PAD, LAND_PAD]) if (inView(P.x, P.y, 120)) add(P.y, () => drawSkyPad(c, P.x, P.y, t, !!Save.data.wings));
     const lit = Save.data.story >= 5, mq = this.qs('mouse');
     for (const h of HOUSES) if (inView(h.x, h.y - h.r, h.r * 2.4)) add(h.y, () => drawShroomHouse(c, Object.assign(h, { lit }), t));
     LANTERNS.forEach((l, i) => { if (inView(l[0], l[1], 60)) add(l[1], () => drawLantern(c, l[0], l[1], lit || (mq && (mq.s === 'done' || (mq.items && mq.items[i].got))), t)); });
@@ -2162,11 +2345,11 @@ const World = {
     }
     if (this.ev && this.ev.drawScreen) this.ev.drawScreen(c);
     if (this.banner) {   // Gebietsname beim Betreten (nur zur Freude, nicht zum Spielen nötig)
-      const b = this.banner, a = clamp(Math.min(b.t / 0.4, (3 - b.t) / 0.6), 0, 1), dorf = b.name === 'dorf';
-      c.save(); c.globalAlpha = a; c.font = '800 34px system-ui, sans-serif'; const w = c.measureText(dorf ? 'Pilzdorf' : 'Zauberwald').width + 110;
-      rr(c, VW / 2 - w / 2, 22, w, 64, 32); fs(c, 'rgba(255,255,255,0.9)', dorf ? '#ff6b6b' : '#5fbf57', 4);
-      drawThing(c, dorf ? 'shroom' : 'BAUM', VW / 2 - w / 2 + 38, 54, 40);
-      c.fillStyle = '#5a4a7a'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(dorf ? 'Pilzdorf' : 'Zauberwald', VW / 2 + 22, 56); c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+      const b = this.banner, a = clamp(Math.min(b.t / 0.4, (3 - b.t) / 0.6), 0, 1), B = { dorf: ['Pilzdorf', '#ff6b6b', 'shroom'], wald: ['Zauberwald', '#5fbf57', 'BAUM'], wolken: ['Wolkeninseln', '#7db8ff', 'cloud'] }[b.name];
+      c.save(); c.globalAlpha = a; c.font = '800 34px system-ui, sans-serif'; const w = c.measureText(B[0]).width + 110;
+      rr(c, VW / 2 - w / 2, 22, w, 64, 32); fs(c, 'rgba(255,255,255,0.9)', B[1], 4);
+      drawThing(c, B[2], VW / 2 - w / 2 + 38, 54, 40);
+      c.fillStyle = '#5a4a7a'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(B[0], VW / 2 + 22, 56); c.textAlign = 'left'; c.textBaseline = 'alphabetic';
       c.restore();
     }
     // Anzeige: Rucksack mit Kristallen, Glitzersterne, Einhorn-Hilfeknopf, Karte
@@ -2201,6 +2384,7 @@ const World = {
     const P = (x, y) => [M.x + x * M.m, M.y + y * M.m];
     if (Save.data.tools && Save.data.tools.compass) this.glitter.forEach((s, i) => { if ((Save.data.stars || []).includes(i)) return; const [x, y] = P(s.x, s.y); starPath(c, x, y, 7 + Math.sin(t * 5 + i) * 1.5); fs(c, '#ffe066', '#fff', 1.5); });   // Glitzer-Kompass
     { const [gx, gy] = P(GATE.x, GATE.y); drawThing(c, 'gate', gx, gy - 6, 30); }
+    for (const Q of [SKY_PAD, LAND_PAD]) { const [px, py] = P(Q.x, Q.y); drawThing(c, 'wings', px, py - 8, 26); }
     visibleNpcs().forEach((id, i) => { const [x, y] = P(NPCS[id].x, NPCS[id].y); c.save(); c.translate(x, y - 18); c.scale(0.62, 0.62); this.npcBubble(c, id, 0, 0, i, t, true); c.restore(); });
     const D = this.dragon;
     if (D.vis) { const [x, y] = P(D.x, D.y); drawActor(c, 'dragon', x, y + 6, { size: 34, t, noShadow: true, flip: true }); }
@@ -2286,14 +2470,14 @@ const World = {
 /* ============ 5b. GESCHICHTE, GESPRÄCHE, AUFTRÄGE, RUCKSACK, LADEN ============
    Alles hier hängt sich an World an. Neue Aufträge = neuer Eintrag in QUESTS (+ Sprachtexte q_<id>_offer/_remind/_done).
    Ein Gespräch ist eine Liste von Zeilen: [wer spricht, Sprachtext-Schlüssel, Bilder in der Blase, { vars, choice }]. */
-const NPC_PITCH = { owl: 1.0, fox: 1.1, frog: 1.2, dragon: 1.7, snail: 1.25, squirrel: 1.45, duck: 1.3, bee: 1.6, bear: 0.75, mole: 0.95, bunny: 1.5, uni: 1.3 };
-const COS = { acorn: 't', crown: 't', shroomhat: 't', flowers: 'uni', bow: 'uni' };          // Schmuck: für T oder fürs Einhorn
+const NPC_PITCH = { owl: 1.0, fox: 1.1, frog: 1.2, dragon: 1.7, snail: 1.25, squirrel: 1.45, duck: 1.3, bee: 1.6, bear: 0.75, mole: 0.95, bunny: 1.5, uni: 1.3, mouse: 1.4, hedgehog: 1.3, sheep: 1.15, bird: 1.65, puff: 1.55 };
+const COS = { acorn: 't', crown: 't', shroomhat: 't', cloudhat: 't', flowers: 'uni', bow: 'uni', stars: 'uni' };          // Schmuck: für T oder fürs Einhorn
 const SHOP = [{ id: 'feather', price: 3 }, { id: 'lens', price: 3 }, { id: 'lily', price: 3 }, { id: 'slow', price: 3 }, { id: 'eye', price: 3 }, { id: 'bow', price: 5, cos: true }, { id: 'crown', price: 8, cos: true }];
 const COLOR_WORD = { r: 'rote', y: 'gelbe', b: 'blaue' };
 const SPLITTERS_WALD = ['owl', 'fox', 'frog', 'dragon'];                       // Splitter aus Kapitel 1
-const SPLITTERS = SPLITTERS_WALD.concat(['mouse', 'hedgehog']);                 // alle bisher erreichbaren Splitter (8 insgesamt geplant)
-const ALBUM = ['owl', 'fox', 'frog', 'dragon', 'snail', 'squirrel', 'duck', 'bee', 'bear', 'mole', 'bunny', 'mouse', 'hedgehog'];
-const ITEM_VOICE = { chick: 'q_duck_item', nut: 'q_nut_found', lamp: 'q_lamp_item', berry: 'q_cake_item', shroom: 'q_cake_item' };
+const SPLITTERS = SPLITTERS_WALD.concat(['mouse', 'hedgehog', 'sheep', 'bird']);                 // alle bisher erreichbaren Splitter (8 insgesamt geplant)
+const ALBUM = ['owl', 'fox', 'frog', 'dragon', 'snail', 'squirrel', 'duck', 'bee', 'bear', 'mole', 'bunny', 'mouse', 'hedgehog', 'sheep', 'bird', 'puff'];
+const ITEM_VOICE = { chick: 'q_duck_item', nut: 'q_nut_found', lamp: 'q_lamp_item', berry: 'q_cake_item', shroom: 'q_cake_item', lamb: 'q_lamb_item', drop: 'q_drop_item' };
 // Nebenaufgaben. bushes = Nummern in QUEST_BUSHES; reward: helper/n, item, tool, cos, shop. Jede erledigte Aufgabe gibt zusätzlich 2 Glitzersterne.
 const QUESTS = {
   duck:     { type: 'collect', item: 'chick', n: 3, spots: [[2290, 2400], [1960, 2330], [2880, 2760]], follow: true, reward: { helper: 'lily', n: 2 }, show: ['chick', 'chick', 'chick'] },
@@ -2304,7 +2488,9 @@ const QUESTS = {
   snail:    { type: 'errand', to: 'fox', give: 'letter', back: 'answer', needLv: 1, learn: true, reward: { helper: 'lens', n: 2 }, show: ['letter', 'fox'] },
   squirrel: { type: 'collect', item: 'nut', n: 6, hide: 'tree', needLv: 1, learn: true, reward: { cos: 'acorn', shop: true }, show: ['nut', 'BAUM'] },
   mouse:    { type: 'collect', item: 'lamp', n: 5, spots: LANTERNS.map(l => [l[0], l[1] + 26, 'lamp']), needLv: 1, reward: { cos: 'shroomhat' }, show: ['lantern'] },
-  hedgehog: { type: 'collect', item: 'mix', n: 6, spots: CAKE_SPOTS.map(q => [q[0], q[1] + (q[2] === 'berry' ? 30 : 0), q[2]]), needLv: 1, reward: { helper: 'eye', n: 2 }, show: ['berry', 'shroom'] }
+  hedgehog: { type: 'collect', item: 'mix', n: 6, spots: CAKE_SPOTS.map(q => [q[0], q[1] + (q[2] === 'berry' ? 30 : 0), q[2]]), needLv: 1, reward: { helper: 'eye', n: 2 }, show: ['berry', 'shroom'] },
+  sheep:    { type: 'collect', item: 'lamb', n: 3, spots: LAMB_SPOTS, needLv: 1, reward: { cos: 'cloudhat' }, show: ['lamb'] },
+  puff:     { type: 'collect', item: 'drop', n: 5, spots: DROP_SPOTS, reward: { cos: 'stars' }, show: ['drop'] }
 };
 const questBush = i => World.bushes[2 + i];                                    // die festen Auftrags-Büsche stehen nach den zwei ersten Büschen
 
@@ -2334,6 +2520,10 @@ Object.assign(World, {
       after: () => { S.story = 4; Save.store(); this.startNpc('mouse'); } };
     if (S.story === 4 && S.crystals.mouse && S.crystals.hedgehog) return { npc: 'mouse', lines: [['mouse', 'story_mia4', ['rainbow', 'lantern']], ['mouse', 'story_mia5', ['unicorn', 'wings']], ['uni', 'story_uni_wings', ['wings', 'cloud']]],
       after: () => { S.story = 5; S.wings = true; Save.store(); Sfx.play('fanfare'); ScreenFx.confetti(VW, 70); this.U.hop = 1; delete SIL.unicorn; this.fx.burst(this.U.x, this.U.y - 60, 30, { g: 40 }); } };
+    if (S.story === 5) return { npc: 'sheep', lines: [['sheep', 'story_wolli1', ['sheep', 'cloud']], ['sheep', 'story_wolli2', ['splitter', 'sheep', 'bird']], ['sheep', 'story_wolli3', ['size']]],
+      after: () => { S.story = 6; Save.store(); this.startNpc('sheep'); } };
+    if (S.story === 6 && S.crystals.sheep && S.crystals.bird) return { npc: 'bird', lines: [['bird', 'story_stella1', ['rainbow', 'note']], ['bird', 'story_stella2', ['splitter', 'dragon']]],
+      after: () => { S.story = 7; Save.store(); Sfx.play('fanfare'); ScreenFx.confetti(VW, 90); this.U.hop = 1; } };
     return null;
   },
   storyQuestTarget() {
@@ -2541,7 +2731,7 @@ Object.assign(World, {
       if (q.type !== 'collect' || q.seq) continue;
       for (const it of st.items) {
         if (it.got) continue;
-        if (it.shown) { if (!inView(it.x, it.y, 40) || it.k === 'lamp' || it.k === 'berry') continue; add(it.y, () => { if (it.k === 'shroom') drawGoldShroom(c, it.x, it.y, t); else if (q.item === 'chick') drawChick(c, it.x, it.y, t + it.x, 1.4); else if (q.item === 'nut') { c.fillStyle = 'rgba(255,240,140,0.4)'; circ(c, it.x, it.y - 14, 22); c.fill(); drawThing(c, 'nut', it.x, it.y - 14 - Math.abs(Math.sin(t * 3)) * 4, 30); } }); }
+        if (it.shown) { if (!inView(it.x, it.y, 40) || it.k === 'lamp' || it.k === 'berry') continue; add(it.y, () => { if (it.k === 'shroom') drawGoldShroom(c, it.x, it.y, t); else if (q.item === 'lamb') drawActor(c, 'sheep', it.x, it.y, { size: 46, t: t + it.x, bell: false, lift: Math.abs(Math.sin(t * 3 + it.x)) * 8 }); else if (q.item === 'drop') { c.fillStyle = 'rgba(125,184,255,0.3)'; circ(c, it.x, it.y - 18, 22); c.fill(); drawDrop(c, it.x, it.y - 18 - Math.abs(Math.sin(t * 2.5 + it.x)) * 6, 1.3); } else if (q.item === 'chick') drawChick(c, it.x, it.y, t + it.x, 1.4); else if (q.item === 'nut') { c.fillStyle = 'rgba(255,240,140,0.4)'; circ(c, it.x, it.y - 14, 22); c.fill(); drawThing(c, 'nut', it.x, it.y - 14 - Math.abs(Math.sin(t * 3)) * 4, 30); } }); }
         else if (it.tree != null) { const tr = this.trees[it.tree]; if (inView(tr.x, tr.y, 150)) add(tr.y + 0.5, () => drawThing(c, 'nut', tr.x + 16 * tr.s, tr.y - 70 * tr.s + Math.sin(t * 3 + it.tree) * 2, 20)); }
       }
       if (q.follow) { let k = 0; const tr = this.chickTrail; for (const it of st.items) if (it.got) { const p = tr[Math.max(0, tr.length - 1 - 5 * (k + 1))] || this.T; k++; add(p.y, () => drawChick(c, p.x, p.y, t * 1.3 + k, 1.3)); } }
@@ -2698,7 +2888,7 @@ function finishMini(id) { if (Game.pending) return; const up = (Save.data.level[
 function miniWin(scene) { scene.winT = 0; Sfx.play('win'); Voice.say('win'); ScreenFx.confetti(VW, 80); }
 function drawSparkleLine(c, x1, y1, x2, y2, t) { const n = Math.max(3, Math.floor(dist(x1, y1, x2, y2) / 46)); for (let i = 1; i < n; i++) { const k = i / n, tw = Math.max(0, Math.sin(t * 6 - i * 0.7)); c.fillStyle = 'rgba(255,225,90,' + (0.5 + tw * 0.5) + ')'; sparklePath(c, lerp(x1, x2, k), lerp(y1, y2, k) - Math.sin(k * Math.PI) * 30, 8 + tw * 7); c.fill(); } }
 // Zauberhelfer: ein Glitzerknopf unter dem Haus-Knopf, nur wenn man einen hat. Jeder Tipp hilft einmal.
-const HELPER_OF = { owl: 'feather', snail: 'feather', squirrel: 'feather', mouse: 'feather', fox: 'lens', frog: 'lily', dragon: 'slow', hedgehog: 'eye' };
+const HELPER_OF = { owl: 'feather', snail: 'feather', squirrel: 'feather', mouse: 'feather', fox: 'lens', frog: 'lily', dragon: 'slow', hedgehog: 'eye', sheep: 'feather', bird: 'feather' };
 function helperBtn() { const e = miniExit(); return { x: e.x, y: e.y + e.r * 2 + 22, r: e.r }; }
 function helperCount(id) { return ((Save.data.helpers || {})[HELPER_OF[id]]) || 0; }
 function drawHelperBtn(c, id) {
@@ -3541,7 +3731,126 @@ const MemoryGame = {
   }
 };
 
-const MINIGAMES = { owl: OwlGame, fox: FoxGame, frog: FrogGame, dragon: DragonGame, snail: ReadGame, squirrel: MathGame, mouse: CountGame, hedgehog: MemoryGame };
+/* ---------- Wolkenschaf Wolli: Wolken nach Größe ordnen ----------
+   Antippen in der richtigen Reihenfolge (klein → groß, ab Stufe 2 auch groß → klein). Die Wolke fliegt dann in die Reihe unten. */
+const SIZE_PLAN = [[3, 3, 3, 3, 3], [4, -4, 4, -4, 4], [5, -5, 5, -4, -5]];   // Anzahl, Minus = von groß nach klein
+const SizeGame = {
+  id: 'sheep',
+  enter() { this.lv = miniLevel('sheep'); this.plan = SIZE_PLAN[this.lv]; this.round = 0; this.t = 0; this.winT = -1; this.setup(); Voice.say(['sheep_intro', 'sheep_intro2', 'sheep_intro3'][this.lv], { pitch: 1.15 }); },
+  setup() {
+    const k = this.plan[this.round], n = Math.abs(k); this.down_ = k < 0; this.state = 'play'; this.st = 0; this.idle = 0; this.hintT = 0; this.wrongs = 0; this.fx = this.fx || new Fx();
+    const step = this.lv === 2 ? 0.17 : 0.26, sizes = shuffle(Array.from({ length: n }, (_, i) => 0.55 + i * step));
+    const xs = shuffle(Array.from({ length: n }, (_, i) => i)), w = (VW - 340) / n;
+    this.clouds = sizes.map((s, i) => ({ s, x: 170 + w * (xs[i] + 0.5), y: 175 + (xs[i] % 2) * 50, ph: Math.random() * 6, done: -1, shake: 0, fx: 0, fy: 0 }));
+    this.order = this.clouds.map((_, i) => i).sort((a, b) => this.down_ ? this.clouds[b].s - this.clouds[a].s : this.clouds[a].s - this.clouds[b].s);
+    this.next = 0;
+    if (this.round > 0 || this.lv > 0) Voice.say(this.down_ ? 'size_down' : 'size_up', { pitch: 1.15, queue: true });
+  },
+  slot(i) { const n = this.clouds.length, w = Math.min(150, (VW - 360) / n); return { x: VW / 2 + (i - (n - 1) / 2) * w, y: VH - 70 }; },
+  update(dt) {
+    this.t += dt; this.st += dt; this.fx.update(dt); if (this.hintT > 0) this.hintT -= dt;
+    for (const c of this.clouds) { if (c.shake > 0) c.shake -= dt * 2.5; if (c.done >= 0) c.fx = Math.min(1, c.fx + dt * 3); }
+    if (this.winT >= 0) { this.winT += dt; if (this.winT > 2.8) finishMini('sheep'); return; }
+    if (this.state === 'right') { if (this.st > 1.8) { this.round++; if (this.round >= this.plan.length) miniWin(this); else this.setup(); } return; }
+    this.idle += dt; if (this.idle > CONFIG.hintDelay) this.hint();
+  },
+  hint() { this.idle = 0; this.hintT = 3; Sfx.play('hint'); Voice.say('size_hint', { pitch: 1.3 }); },
+  useHelper() { if (this.state !== 'play') return false; while (this.state === 'play') this.pick(this.order[this.next]); return true; },
+  pick(i) {
+    const c = this.clouds[i]; if (c.done >= 0) return; this.idle = 0; this.hintT = 0;
+    if (i !== this.order[this.next]) { c.shake = 1; this.wrongs++; Sfx.play('wrong'); Voice.say('try_again'); if (this.wrongs >= 2) { this.wrongs = 0; this.hint(); } return; }
+    c.done = this.next; c.fx = 0; c.sx = c.x; c.sy = c.y; Sfx.play('note', 400 + this.next * 90); this.next++; this.wrongs = 0;
+    if (this.next >= this.clouds.length) { this.state = 'right'; this.st = 0; Sfx.play('good'); this.fx.burst(VW / 2, VH - 80, 26, { g: 60 }); Voice.say('good'); }
+  },
+  pos(c) { if (c.done < 0) return { x: c.x, y: c.y + Math.sin(this.t * 1.5 + c.ph) * 6 }; const s = this.slot(c.done), k = c.fx * c.fx * (3 - 2 * c.fx); return { x: lerp(c.sx, s.x, k), y: lerp(c.sy, s.y - 20, k) - Math.sin(k * Math.PI) * 60 }; },
+  draw(c) {
+    const t = this.t, happy = this.winT >= 0 || this.state === 'right';
+    const g = c.createLinearGradient(0, 0, 0, VH); g.addColorStop(0, '#a9d8ff'); g.addColorStop(1, '#f3e4ff'); c.fillStyle = g; c.fillRect(0, 0, VW, VH);
+    for (let i = 0; i < 6; i++) { c.globalAlpha = 0.35; drawPuffCloud(c, (i * 233 + t * 8) % (VW + 200) - 100, 40 + (i * 61) % 120, 0.5, '#fff', false); c.globalAlpha = 1; }
+    rr(c, VW / 2 - 92, 10, 184, 54, 27); fs(c, 'rgba(255,255,255,0.85)');
+    const a = this.down_ ? [0.55, 0.3] : [0.3, 0.55]; drawPuffCloud(c, VW / 2 - 50, 38, a[0], '#fff', false); drawPuffCloud(c, VW / 2 + 50, 38, a[1], '#fff', false); drawIcon(c, 'right', VW / 2, 37, 30, '#7b5cd6');
+    const n = this.clouds.length; for (let i = 0; i < n; i++) { const s = this.slot(i); ell(c, s.x, s.y + 22, 56, 12); fs(c, 'rgba(255,255,255,0.6)', 'rgba(180,170,220,0.6)', 2); }
+    const hi = this.order[this.next];
+    this.clouds.forEach((cl, i) => {
+      const p = this.pos(cl), sx = cl.shake > 0 ? Math.sin(cl.shake * 30) * 8 : 0;
+      if (this.hintT > 0 && i === hi && cl.done < 0) { c.fillStyle = 'rgba(255,225,90,' + (0.45 + Math.sin(t * 8) * 0.2) + ')'; circ(c, p.x, p.y, 80 * cl.s + 18); c.fill(); }
+      drawPuffCloud(c, p.x + sx, p.y, cl.s * (cl.done >= 0 ? lerp(1, 0.85, cl.fx) : 1), cl.done >= 0 ? '#fffbe6' : '#fff', true, t);
+    });
+    drawRoundStars(c, this.plan.length, this.winT >= 0 ? this.plan.length : this.round + (this.state === 'right' ? 1 : 0));
+    drawActor(c, 'unicorn', 62, VH - 10, { size: 96, t, lift: happy ? Math.abs(Math.sin(t * 8)) * 24 : 0, mark: uniMark(), glow: this.hintT > 0 });
+    drawActor(c, 'sheep', VW - 72, VH - 12, { size: 96, t, flip: true, lift: happy ? Math.abs(Math.sin(t * 9)) * 22 : 0 });
+    this.fx.draw(c); drawHelperBtn(c, this.id); drawMiniExit(c);
+  },
+  down(p) {
+    const e = miniExit(); if (hit(p, e.x, e.y, e.r + 6)) { Sfx.play('tap'); Game.go(World, { from: 'sheep' }); return; }
+    if (helperDown(p, this)) return;
+    if (this.winT >= 0 || this.state !== 'play') return;
+    if (hit(p, 62, VH - 60, 56)) { this.hint(); return; }
+    let best = -1, bd = 1e9; this.clouds.forEach((cl, i) => { if (cl.done >= 0) return; const q = this.pos(cl), d = dist(p.x, p.y, q.x, q.y); if (d < Math.max(52, 62 * cl.s) && d < bd) { bd = d; best = i; } });
+    if (best >= 0) this.pick(best);
+  }
+};
+
+/* ---------- Sternenvogel Stella: Melodie nachspielen ----------
+   Stella spielt eine Tonfolge auf den Sternen vor, danach tippt das Kind sie nach. Falsch = einfach noch einmal anhören. */
+const MELODY_PLAN = [{ k: 3, len: [2, 2, 3, 3, 3] }, { k: 4, len: [3, 3, 4, 4, 4] }, { k: 5, len: [4, 4, 5, 5, 6] }];
+const MELODY_COL = ['#ff7b9c', '#ffd23f', '#5fd38d', '#7db8ff', '#c98bff'], MELODY_NOTE = [523, 659, 784, 880, 1047];
+const MelodyGame = {
+  id: 'bird',
+  enter() { this.lv = miniLevel('bird'); this.P = MELODY_PLAN[this.lv]; this.round = 0; this.t = 0; this.winT = -1; this.fx = new Fx(); this.flash = Array(5).fill(0); this.setup(true); Voice.say(['bird_intro', 'bird_intro2', 'bird_intro3'][this.lv], { pitch: 1.65 }); },
+  setup(first) { const n = this.P.len[this.round]; this.seq = Array.from({ length: n }, () => ri(0, this.P.k - 1)); this.guide = false; this.play(first ? 4.2 : 1.2); },
+  play(delay) { this.state = 'listen'; this.pos = 0; this.timer = -delay; this.idle = 0; this.input = 0; },
+  stars() { const k = this.P.k, out = []; for (let i = 0; i < k; i++) { const a = Math.PI * (1.15 + 0.7 * i / (k - 1)); out.push({ x: VW / 2 + Math.cos(a) * Math.min(330, VW * 0.33), y: VH * 0.92 + Math.sin(a) * VH * 0.62, r: Math.max(View.btn / 2 + 4, 56) }); } return out; },
+  ring(i) { this.flash[i] = 1; Sfx.play('note', MELODY_NOTE[i]); },
+  update(dt) {
+    this.t += dt; this.fx.update(dt); this.flash = this.flash.map(v => Math.max(0, v - dt * 2.2));
+    if (this.winT >= 0) { this.winT += dt; if (this.winT > 2.8) finishMini('bird'); return; }
+    if (this.state === 'listen') {
+      this.timer += dt; const gap = this.slow ? 1.1 : 0.75;
+      if (this.timer >= 0 && this.timer >= this.pos * gap) { if (this.pos < this.seq.length) { if (this.pos === 0) Voice.say('melody_listen', { pitch: 1.65 }); this.ring(this.seq[this.pos]); this.pos++; } else if (this.timer > this.pos * gap + 0.3) { this.state = 'you'; this.input = 0; this.slow = false; Voice.say('melody_you', { pitch: 1.65 }); } }
+      return;
+    }
+    if (this.state === 'right') { this.timer += dt; if (this.timer > 1.6) { this.round++; if (this.round >= this.P.len.length) miniWin(this); else this.setup(false); } return; }
+    this.idle += dt; if (this.idle > CONFIG.hintDelay) this.hint();
+  },
+  hint() { this.idle = 0; Sfx.play('hint'); this.guide = true; this.slow = true; Voice.say('melody_again', { pitch: 1.65 }); this.play(0.8); },
+  useHelper() { if (this.state !== 'you') return false; this.guide = true; return true; },
+  tapStar(i) {
+    this.ring(i); this.idle = 0;
+    if (i !== this.seq[this.input]) { Sfx.play('wrong'); this.slow = true; Voice.say('melody_again', { pitch: 1.65 }); this.play(1.1); return; }
+    this.input++;
+    if (this.input >= this.seq.length) { this.state = 'right'; this.timer = 0; Sfx.play('good'); this.fx.burst(VW / 2, VH * 0.4, 26, { g: 50, color: '#ffe066' }); Voice.say('good'); }
+  },
+  draw(c) {
+    const t = this.t, S = this.stars(), happy = this.winT >= 0 || this.state === 'right';
+    const g = c.createLinearGradient(0, 0, 0, VH); g.addColorStop(0, '#2c2f6e'); g.addColorStop(1, '#6a5aa8'); c.fillStyle = g; c.fillRect(0, 0, VW, VH);
+    c.fillStyle = 'rgba(255,255,255,0.8)'; for (let i = 0; i < 30; i++) { sparklePath(c, (i * 197 + 40) % VW, 14 + (i * 83) % (VH * 0.55), 1.5 + (Math.sin(t * 2 + i) + 1) * 1.5); c.fill(); }
+    for (let i = 0; i < this.seq.length; i++) { const x = VW / 2 + (i - (this.seq.length - 1) / 2) * 30, done = this.state === 'you' ? i < this.input : this.state === 'right'; circ(c, x, 34, 9); fs(c, done ? '#ffe066' : 'rgba(255,255,255,0.3)', '#fff', 2); }
+    const nextI = this.state === 'you' && this.guide ? this.seq[this.input] : -1;
+    S.forEach((s, i) => {
+      const f = this.flash[i], sz = s.r * (1 + f * 0.25);
+      if (f > 0 || i === nextI) { c.fillStyle = i === nextI && !f ? 'rgba(255,240,150,' + (0.3 + Math.sin(t * 7) * 0.15) + ')' : 'rgba(255,255,255,' + f * 0.5 + ')'; circ(c, s.x, s.y, sz * 1.35); c.fill(); }
+      starPath(c, s.x, s.y, sz); fs(c, f > 0 ? '#fff' : MELODY_COL[i], f > 0 ? MELODY_COL[i] : 'rgba(255,255,255,0.85)', 5);
+      c.fillStyle = '#3d2b3a'; circ(c, s.x - sz * 0.18, s.y - sz * 0.05, sz * 0.06); c.fill(); circ(c, s.x + sz * 0.18, s.y - sz * 0.05, sz * 0.06); c.fill();
+      c.strokeStyle = '#3d2b3a'; c.lineWidth = 2.5; c.beginPath(); c.arc(s.x, s.y + sz * 0.08, sz * (f > 0 ? 0.16 : 0.1), 0.2, Math.PI - 0.2); c.stroke();
+    });
+    if (this.state === 'listen') { c.save(); c.globalAlpha = 0.6 + Math.sin(t * 6) * 0.2; c.translate(VW / 2, VH * 0.46); drawThing(c, 'note', 0, 0, 56); c.restore(); }
+    drawRoundStars(c, this.P.len.length, this.winT >= 0 ? this.P.len.length : this.round + (this.state === 'right' ? 1 : 0));
+    drawActor(c, 'unicorn', 62, VH - 10, { size: 96, t, lift: happy ? Math.abs(Math.sin(t * 8)) * 24 : 0, mark: uniMark() });
+    drawActor(c, 'bird', VW - 72, VH - 12, { size: 90, t, flip: true, lift: (this.state === 'listen' ? Math.abs(Math.sin(t * 10)) * 10 : 0) + (happy ? Math.abs(Math.sin(t * 9)) * 22 : 0) });
+    this.fx.draw(c); drawHelperBtn(c, this.id); drawMiniExit(c);
+  },
+  down(p) {
+    const e = miniExit(); if (hit(p, e.x, e.y, e.r + 6)) { Sfx.play('tap'); Game.go(World, { from: 'bird' }); return; }
+    if (helperDown(p, this)) return;
+    if (this.winT >= 0) return;
+    if (hit(p, 62, VH - 60, 56) && this.state === 'you') { this.hint(); return; }
+    if (this.state !== 'you') return;
+    const S = this.stars(); for (let i = 0; i < S.length; i++) if (hit(p, S[i].x, S[i].y, S[i].r + 8)) { this.tapStar(i); return; }
+  }
+};
+
+const MINIGAMES = { owl: OwlGame, fox: FoxGame, frog: FrogGame, dragon: DragonGame, snail: ReadGame, squirrel: MathGame, mouse: CountGame, hedgehog: MemoryGame, sheep: SizeGame, bird: MelodyGame };
 
 /* ============ 7. START ============ */
 function drawRotateHint(c) {
@@ -3585,7 +3894,7 @@ function boot() {
   window.addEventListener('beforeunload', saveNow);
   // den Browser bitten, den Spielstand nicht bei Speicherplatzmangel zu löschen
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) {}
-  window.ZW = { CONFIG, SPEECH, Game, Save, View, Input, World, StartScene, NamingScene, OwlGame, FoxGame, FrogGame, DragonGame, ReadGame, MathGame, CountGame, MemoryGame, CharScene, NPCS, Voice }; // zum Testen in der Konsole
+  window.ZW = { CONFIG, SPEECH, Game, Save, View, Input, World, StartScene, NamingScene, OwlGame, FoxGame, FrogGame, DragonGame, ReadGame, MathGame, CountGame, MemoryGame, SizeGame, MelodyGame, CharScene, NPCS, Voice }; // zum Testen in der Konsole
   lastFrame = performance.now(); requestAnimationFrame(frame);
 }
 boot();

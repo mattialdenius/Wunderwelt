@@ -2,14 +2,14 @@
 /* ============ 5b. GESCHICHTE, GESPRÄCHE, AUFTRÄGE, RUCKSACK, LADEN ============
    Alles hier hängt sich an World an. Neue Aufträge = neuer Eintrag in QUESTS (+ Sprachtexte q_<id>_offer/_remind/_done).
    Ein Gespräch ist eine Liste von Zeilen: [wer spricht, Sprachtext-Schlüssel, Bilder in der Blase, { vars, choice }]. */
-const NPC_PITCH = { owl: 1.0, fox: 1.1, frog: 1.2, dragon: 1.7, snail: 1.25, squirrel: 1.45, duck: 1.3, bee: 1.6, bear: 0.75, mole: 0.95, bunny: 1.5, uni: 1.3 };
-const COS = { acorn: 't', crown: 't', shroomhat: 't', flowers: 'uni', bow: 'uni' };          // Schmuck: für T oder fürs Einhorn
+const NPC_PITCH = { owl: 1.0, fox: 1.1, frog: 1.2, dragon: 1.7, snail: 1.25, squirrel: 1.45, duck: 1.3, bee: 1.6, bear: 0.75, mole: 0.95, bunny: 1.5, uni: 1.3, mouse: 1.4, hedgehog: 1.3, sheep: 1.15, bird: 1.65, puff: 1.55 };
+const COS = { acorn: 't', crown: 't', shroomhat: 't', cloudhat: 't', flowers: 'uni', bow: 'uni', stars: 'uni' };          // Schmuck: für T oder fürs Einhorn
 const SHOP = [{ id: 'feather', price: 3 }, { id: 'lens', price: 3 }, { id: 'lily', price: 3 }, { id: 'slow', price: 3 }, { id: 'eye', price: 3 }, { id: 'bow', price: 5, cos: true }, { id: 'crown', price: 8, cos: true }];
 const COLOR_WORD = { r: 'rote', y: 'gelbe', b: 'blaue' };
 const SPLITTERS_WALD = ['owl', 'fox', 'frog', 'dragon'];                       // Splitter aus Kapitel 1
-const SPLITTERS = SPLITTERS_WALD.concat(['mouse', 'hedgehog']);                 // alle bisher erreichbaren Splitter (8 insgesamt geplant)
-const ALBUM = ['owl', 'fox', 'frog', 'dragon', 'snail', 'squirrel', 'duck', 'bee', 'bear', 'mole', 'bunny', 'mouse', 'hedgehog'];
-const ITEM_VOICE = { chick: 'q_duck_item', nut: 'q_nut_found', lamp: 'q_lamp_item', berry: 'q_cake_item', shroom: 'q_cake_item' };
+const SPLITTERS = SPLITTERS_WALD.concat(['mouse', 'hedgehog', 'sheep', 'bird']);                 // alle bisher erreichbaren Splitter (8 insgesamt geplant)
+const ALBUM = ['owl', 'fox', 'frog', 'dragon', 'snail', 'squirrel', 'duck', 'bee', 'bear', 'mole', 'bunny', 'mouse', 'hedgehog', 'sheep', 'bird', 'puff'];
+const ITEM_VOICE = { chick: 'q_duck_item', nut: 'q_nut_found', lamp: 'q_lamp_item', berry: 'q_cake_item', shroom: 'q_cake_item', lamb: 'q_lamb_item', drop: 'q_drop_item' };
 // Nebenaufgaben. bushes = Nummern in QUEST_BUSHES; reward: helper/n, item, tool, cos, shop. Jede erledigte Aufgabe gibt zusätzlich 2 Glitzersterne.
 const QUESTS = {
   duck:     { type: 'collect', item: 'chick', n: 3, spots: [[2290, 2400], [1960, 2330], [2880, 2760]], follow: true, reward: { helper: 'lily', n: 2 }, show: ['chick', 'chick', 'chick'] },
@@ -20,7 +20,9 @@ const QUESTS = {
   snail:    { type: 'errand', to: 'fox', give: 'letter', back: 'answer', needLv: 1, learn: true, reward: { helper: 'lens', n: 2 }, show: ['letter', 'fox'] },
   squirrel: { type: 'collect', item: 'nut', n: 6, hide: 'tree', needLv: 1, learn: true, reward: { cos: 'acorn', shop: true }, show: ['nut', 'BAUM'] },
   mouse:    { type: 'collect', item: 'lamp', n: 5, spots: LANTERNS.map(l => [l[0], l[1] + 26, 'lamp']), needLv: 1, reward: { cos: 'shroomhat' }, show: ['lantern'] },
-  hedgehog: { type: 'collect', item: 'mix', n: 6, spots: CAKE_SPOTS.map(q => [q[0], q[1] + (q[2] === 'berry' ? 30 : 0), q[2]]), needLv: 1, reward: { helper: 'eye', n: 2 }, show: ['berry', 'shroom'] }
+  hedgehog: { type: 'collect', item: 'mix', n: 6, spots: CAKE_SPOTS.map(q => [q[0], q[1] + (q[2] === 'berry' ? 30 : 0), q[2]]), needLv: 1, reward: { helper: 'eye', n: 2 }, show: ['berry', 'shroom'] },
+  sheep:    { type: 'collect', item: 'lamb', n: 3, spots: LAMB_SPOTS, needLv: 1, reward: { cos: 'cloudhat' }, show: ['lamb'] },
+  puff:     { type: 'collect', item: 'drop', n: 5, spots: DROP_SPOTS, reward: { cos: 'stars' }, show: ['drop'] }
 };
 const questBush = i => World.bushes[2 + i];                                    // die festen Auftrags-Büsche stehen nach den zwei ersten Büschen
 
@@ -50,6 +52,10 @@ Object.assign(World, {
       after: () => { S.story = 4; Save.store(); this.startNpc('mouse'); } };
     if (S.story === 4 && S.crystals.mouse && S.crystals.hedgehog) return { npc: 'mouse', lines: [['mouse', 'story_mia4', ['rainbow', 'lantern']], ['mouse', 'story_mia5', ['unicorn', 'wings']], ['uni', 'story_uni_wings', ['wings', 'cloud']]],
       after: () => { S.story = 5; S.wings = true; Save.store(); Sfx.play('fanfare'); ScreenFx.confetti(VW, 70); this.U.hop = 1; delete SIL.unicorn; this.fx.burst(this.U.x, this.U.y - 60, 30, { g: 40 }); } };
+    if (S.story === 5) return { npc: 'sheep', lines: [['sheep', 'story_wolli1', ['sheep', 'cloud']], ['sheep', 'story_wolli2', ['splitter', 'sheep', 'bird']], ['sheep', 'story_wolli3', ['size']]],
+      after: () => { S.story = 6; Save.store(); this.startNpc('sheep'); } };
+    if (S.story === 6 && S.crystals.sheep && S.crystals.bird) return { npc: 'bird', lines: [['bird', 'story_stella1', ['rainbow', 'note']], ['bird', 'story_stella2', ['splitter', 'dragon']]],
+      after: () => { S.story = 7; Save.store(); Sfx.play('fanfare'); ScreenFx.confetti(VW, 90); this.U.hop = 1; } };
     return null;
   },
   storyQuestTarget() {
@@ -257,7 +263,7 @@ Object.assign(World, {
       if (q.type !== 'collect' || q.seq) continue;
       for (const it of st.items) {
         if (it.got) continue;
-        if (it.shown) { if (!inView(it.x, it.y, 40) || it.k === 'lamp' || it.k === 'berry') continue; add(it.y, () => { if (it.k === 'shroom') drawGoldShroom(c, it.x, it.y, t); else if (q.item === 'chick') drawChick(c, it.x, it.y, t + it.x, 1.4); else if (q.item === 'nut') { c.fillStyle = 'rgba(255,240,140,0.4)'; circ(c, it.x, it.y - 14, 22); c.fill(); drawThing(c, 'nut', it.x, it.y - 14 - Math.abs(Math.sin(t * 3)) * 4, 30); } }); }
+        if (it.shown) { if (!inView(it.x, it.y, 40) || it.k === 'lamp' || it.k === 'berry') continue; add(it.y, () => { if (it.k === 'shroom') drawGoldShroom(c, it.x, it.y, t); else if (q.item === 'lamb') drawActor(c, 'sheep', it.x, it.y, { size: 46, t: t + it.x, bell: false, lift: Math.abs(Math.sin(t * 3 + it.x)) * 8 }); else if (q.item === 'drop') { c.fillStyle = 'rgba(125,184,255,0.3)'; circ(c, it.x, it.y - 18, 22); c.fill(); drawDrop(c, it.x, it.y - 18 - Math.abs(Math.sin(t * 2.5 + it.x)) * 6, 1.3); } else if (q.item === 'chick') drawChick(c, it.x, it.y, t + it.x, 1.4); else if (q.item === 'nut') { c.fillStyle = 'rgba(255,240,140,0.4)'; circ(c, it.x, it.y - 14, 22); c.fill(); drawThing(c, 'nut', it.x, it.y - 14 - Math.abs(Math.sin(t * 3)) * 4, 30); } }); }
         else if (it.tree != null) { const tr = this.trees[it.tree]; if (inView(tr.x, tr.y, 150)) add(tr.y + 0.5, () => drawThing(c, 'nut', tr.x + 16 * tr.s, tr.y - 70 * tr.s + Math.sin(t * 3 + it.tree) * 2, 20)); }
       }
       if (q.follow) { let k = 0; const tr = this.chickTrail; for (const it of st.items) if (it.got) { const p = tr[Math.max(0, tr.length - 1 - 5 * (k + 1))] || this.T; k++; add(p.y, () => drawChick(c, p.x, p.y, t * 1.3 + k, 1.3)); } }

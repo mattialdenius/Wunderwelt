@@ -596,20 +596,30 @@ function drawThing(c, name, x, y, s) {
     case 'compass': circ(c, 0, 0, 22); fs(c, '#fff', '#c9a46e', 4); c.save(); c.rotate(0.5); tri(c, 0, -17, -6, 0, 6, 0); fs(c, '#ff6b6b'); tri(c, 0, 17, -6, 0, 6, 0); fs(c, '#9a8fb5'); c.restore(); starPath(c, 15, -15, 7); fs(c, '#ffe066', '#f0b429', 1.5); break;
     case 'heart': heartPath(c, 0, 6, 24); fs(c, '#ff8fb1', '#f06a98', 2); break;
     case 'star': starPath(c, 0, 0, 20); fs(c, '#ffe066', '#f0b429', 2); break;
+    case 'drop': drawDrop(c, 0, 0, 1.6); break;
+    case 'lamb': drawActor(c, 'sheep', 0, 22, { size: 58, t: Game.time, noShadow: true, bell: false }); break;
+    case 'size': drawPuffCloud(c, -20, 10, 0.25, '#fff', false); drawPuffCloud(c, -2, 6, 0.38, '#fff', false); drawPuffCloud(c, 18, 0, 0.52, '#fff', false); break;
+    case 'note': c.fillStyle = '#7b5cd6'; ell(c, -10, 14, 8, 6, -0.4); c.fill(); ell(c, 12, 8, 8, 6, -0.4); c.fill(); rr(c, -4, -18, 4, 32, 2); c.fill(); rr(c, 18, -24, 4, 32, 2); c.fill(); c.beginPath(); c.moveTo(-4, -18); c.lineTo(22, -24); c.lineTo(22, -14); c.lineTo(-4, -8); c.closePath(); c.fill(); starPath(c, -16, -16, 6); fs(c, '#ffe066'); break;
+    case 'cloudhat': drawHat(c, 'cloud', 0, 18, 1.2); break;
+    case 'stars': for (let i = 0; i < 5; i++) { const a = Math.PI * (1.05 + i * 0.22); starPath(c, Math.cos(a) * 20, 10 + Math.sin(a) * 20, 7); fs(c, ['#ffe066', '#ff9ecb', '#7db8ff', '#9be7a0', '#c9a5ff'][i], '#fff', 1); } break;
+    case 'pad': drawSkyPad(c, 0, 14, Game.time, true); break;
     default: drawIcon(c, name, 0, 0, 50);
   }
   c.restore();
 }
 // Hüte für T (auf dem Kopf, Kopfmitte bei 0,-72) und Schmuck fürs Einhorn
 function drawHat(c, kind, x, y, s = 1) {
+  kind = { shroomhat: 'shroom', cloudhat: 'cloud' }[kind] || kind;
   c.save(); c.translate(x, y); c.scale(s, s);
   if (kind === 'acorn') { c.beginPath(); c.ellipse(0, -14, 23, 15, 0, Math.PI, 0); c.closePath(); fs(c, '#c98a4a', '#a5672c', 2); c.strokeStyle = 'rgba(120,70,30,0.5)'; c.lineWidth = 1.5; for (let i = -16; i <= 16; i += 8) line(c, i, -14, i + 4, -24); c.strokeStyle = '#8a5528'; c.lineWidth = 4; line(c, 0, -28, 3, -36); }
   else if (kind === 'shroom') { c.beginPath(); c.ellipse(0, -14, 26, 18, 0, Math.PI, 0); c.closePath(); fs(c, '#ff6b6b', '#d9435e', 2); c.fillStyle = '#fff'; circ(c, -11, -22, 4); c.fill(); circ(c, 4, -27, 3.5); c.fill(); circ(c, 13, -17, 3); c.fill(); }
   else if (kind === 'crown') { c.beginPath(); c.moveTo(-18, -12); c.lineTo(-20, -34); c.lineTo(-9, -22); c.lineTo(0, -38); c.lineTo(9, -22); c.lineTo(20, -34); c.lineTo(18, -12); c.closePath(); fs(c, '#ffd23f', '#e0a800', 2); c.fillStyle = '#ff6b81'; circ(c, 0, -18, 3.5); c.fill(); c.fillStyle = '#5aa9ff'; circ(c, -11, -16, 2.5); c.fill(); circ(c, 11, -16, 2.5); c.fill(); }
+  else if (kind === 'cloud') { ell(c, 0, -10, 25, 8); fs(c, '#fff', '#a9cdee', 2); c.fillStyle = '#a9cdee'; for (const q of [[-14, -16, 12], [0, -25, 15], [14, -16, 12]]) { circ(c, q[0], q[1], q[2] + 2); c.fill(); } c.fillStyle = '#fff'; for (const q of [[-14, -16, 12], [0, -25, 15], [14, -16, 12]]) { circ(c, q[0], q[1], q[2]); c.fill(); } }
   c.restore();
 }
 function drawUniAcc(c, kind) {
   if (kind === 'flowers') { for (let i = 0; i < 5; i++) { c.fillStyle = PASTEL[i]; circ(c, 22 + i * 6, -96 + Math.abs(i - 2) * 3, 5); c.fill(); c.fillStyle = '#fff8c0'; circ(c, 22 + i * 6, -96 + Math.abs(i - 2) * 3, 1.8); c.fill(); } }
+  else if (kind === 'stars') { for (let i = 0; i < 5; i++) { starPath(c, 20 + i * 7, -97 + Math.abs(i - 2) * 3.5, 5); fs(c, ['#ffe066', '#ff9ecb', '#7db8ff', '#9be7a0', '#c9a5ff'][i], '#fff', 1); } }
   else if (kind === 'bow') { c.fillStyle = '#ff8fb1'; tri(c, -30, -50, -44, -60, -44, -40); c.fill(); tri(c, -30, -50, -16, -60, -16, -40); c.fill(); circ(c, -30, -50, 4); fs(c, '#f06a98'); }
 }
 
@@ -700,3 +710,81 @@ function drawWing(c, near, t) {   // Flügel fürs Einhorn (ab Kapitel 2)
   [[34, 13], [28, 10], [20, 7]].forEach((d, i) => { c.beginPath(); c.ellipse(-d[0] * 0.55, -i * 7, d[0], d[1], -0.2, 0, TAU); fs(c, cols[i], '#e0d0ec', 1.5); });
   c.restore();
 }
+
+/* ---- Wolkeninseln (Kapitel 3): Wolkenschaf Wolli, Sternenvogel Stella, Wölkchen Puff ---- */
+function drawSheep(c, t, o) {
+  c.fillStyle = '#5d5570'; [-14, -5, 5, 14].forEach(x => { rr(c, x - 3, -15, 6, 15, 3); c.fill(); });
+  c.fillStyle = '#d9dcf0'; for (let i = 0; i < 11; i++) { const a = i / 11 * TAU; circ(c, Math.cos(a) * 25, -32 + Math.sin(a) * 17, 13); c.fill(); }
+  c.fillStyle = '#fff'; for (let i = 0; i < 11; i++) { const a = i / 11 * TAU; circ(c, Math.cos(a) * 24, -33 + Math.sin(a) * 16, 11.5); c.fill(); } ell(c, 0, -33, 26, 18); c.fill();
+  c.fillStyle = '#5d5570'; ell(c, -17, -57, 9, 4.5, -0.4); c.fill(); ell(c, 17, -57, 9, 4.5, 0.4); c.fill();
+  ell(c, 0, -52, 12.5, 14.5); fs(c, '#6b6380');
+  c.fillStyle = '#fff'; circ(c, -7, -66, 6.5); c.fill(); circ(c, 1, -69, 7.5); c.fill(); circ(c, 9, -66, 6); c.fill();
+  if ((t % 3.3) < 0.12) { c.fillStyle = '#fff'; c.fillRect(-8, -55, 6, 1.6); c.fillRect(2, -55, 6, 1.6); }
+  else { c.fillStyle = '#fff'; circ(c, -5, -54, 3.6); c.fill(); circ(c, 5, -54, 3.6); c.fill(); c.fillStyle = '#3d2b3a'; circ(c, -4.5, -53.5, 1.9); c.fill(); circ(c, 5.5, -53.5, 1.9); c.fill(); }
+  c.fillStyle = 'rgba(255,160,190,0.8)'; circ(c, -8, -46, 2.6); c.fill(); circ(c, 8, -46, 2.6); c.fill();
+  c.strokeStyle = '#ffc9da'; c.lineWidth = 2; c.beginPath(); c.arc(0, -46, 3.5, 0.2, Math.PI - 0.2); c.stroke();
+  if (o.bell !== false && (o.size || 100) > 60) { c.strokeStyle = '#ff8fb1'; c.lineWidth = 3; line(c, -8, -40, 8, -40); circ(c, 0, -35, 4.5); fs(c, '#ffd23f', '#e0a800', 1.5); }
+}
+function drawBird(c, t, o) {
+  const fl = Math.sin(t * 7) * 0.35;
+  c.strokeStyle = '#ff9f5a'; c.lineWidth = 3; line(c, -6, -12, -7, 0); line(c, 6, -12, 7, 0); line(c, -7, 0, -12, 0); line(c, 7, 0, 12, 0);
+  c.fillStyle = '#5a8fe0'; tri(c, 18, -26, 36, -34, 32, -18); c.fill(); tri(c, 18, -22, 36, -22, 30, -10); c.fill();
+  circ(c, 0, -34, 24); fs(c, '#7db8ff', '#5a8fe0', 2);
+  ell(c, 0, -27, 15, 14); fs(c, '#e8f4ff');
+  c.save(); c.translate(-21, -34); c.rotate(0.5 + fl); ell(c, 0, 0, 8, 15); fs(c, '#5aa9ff', '#4f8fe0', 1.5); c.restore();
+  c.save(); c.translate(21, -34); c.rotate(-0.5 - fl); ell(c, 0, 0, 8, 15); fs(c, '#5aa9ff', '#4f8fe0', 1.5); c.restore();
+  if ((t % 3.1) < 0.12) { c.fillStyle = '#3d2b3a'; c.fillRect(-11, -43, 6, 1.6); c.fillRect(5, -43, 6, 1.6); }
+  else { c.fillStyle = '#3d2b3a'; circ(c, -8, -42, 3.4); c.fill(); circ(c, 8, -42, 3.4); c.fill(); c.fillStyle = '#fff'; circ(c, -7, -43.5, 1.2); c.fill(); circ(c, 9, -43.5, 1.2); c.fill(); }
+  tri(c, -5, -37, 5, -37, 0, -30); fs(c, '#ffb347', '#e08a2a', 1);
+  c.fillStyle = 'rgba(255,160,190,0.7)'; circ(c, -13, -35, 3); c.fill(); circ(c, 13, -35, 3); c.fill();
+  starPath(c, 0, -63, 9 + Math.sin(t * 4) * 1); fs(c, '#ffe066', '#f0b429', 2);
+}
+function drawCloudKid(c, t, o) {
+  c.fillStyle = '#a9cdee'; for (const q of [[-17, -30, 17], [0, -41, 21], [17, -30, 17], [0, -24, 22]]) { circ(c, q[0], q[1], q[2] + 2); c.fill(); }
+  c.fillStyle = '#fff'; for (const q of [[-17, -30, 17], [0, -41, 21], [17, -30, 17], [0, -24, 22]]) { circ(c, q[0], q[1], q[2]); c.fill(); }
+  c.fillStyle = '#3d2b3a'; if ((t % 2.9) < 0.12) { c.fillRect(-10, -33, 6, 1.6); c.fillRect(4, -33, 6, 1.6); } else { circ(c, -7, -33, 3); c.fill(); circ(c, 7, -33, 3); c.fill(); }
+  c.fillStyle = 'rgba(255,160,190,0.8)'; circ(c, -13, -26, 3); c.fill(); circ(c, 13, -26, 3); c.fill();
+  c.strokeStyle = '#3d2b3a'; c.lineWidth = 2; c.beginPath(); c.arc(0, -27, 4, 0.2, Math.PI - 0.2); c.stroke();
+  drawDrop(c, 0, -4 + (t * 18) % 10, 0.45);
+}
+function drawDrop(c, x, y, s = 1) {
+  c.save(); c.translate(x, y); c.scale(s, s);
+  c.beginPath(); c.moveTo(0, -16); c.quadraticCurveTo(12, -2, 10, 4); c.arc(0, 4, 10, 0, Math.PI); c.quadraticCurveTo(-12, -2, 0, -16); c.closePath(); fs(c, '#7db8ff', '#4f8fe0', 2);
+  c.fillStyle = 'rgba(255,255,255,0.75)'; ell(c, -4, 2, 2.5, 4.5, 0.3); c.fill();
+  c.restore();
+}
+function drawPuffCloud(c, x, y, s, col, face, t) {   // runde Wolke, optional mit Gesicht
+  c.save(); c.translate(x, y); c.scale(s, s);
+  c.fillStyle = 'rgba(120,150,200,0.25)'; ell(c, 0, 26, 46, 8); c.fill();
+  for (const pass of [0, 1]) { c.fillStyle = pass ? col : '#a9cdee'; for (const q of [[-26, 2, 20], [-8, -12, 25], [16, -8, 22], [30, 6, 16], [0, 8, 26]]) { circ(c, q[0], q[1], q[2] + (pass ? 0 : 2.5)); c.fill(); } }
+  if (face) {
+    c.fillStyle = '#3d2b3a'; circ(c, -8, 2, 3.5); c.fill(); circ(c, 8, 2, 3.5); c.fill();
+    c.fillStyle = 'rgba(255,160,190,0.8)'; circ(c, -15, 9, 3.5); c.fill(); circ(c, 15, 9, 3.5); c.fill();
+    c.strokeStyle = '#3d2b3a'; c.lineWidth = 2.2; c.beginPath(); c.arc(0, 8, 5, 0.25, Math.PI - 0.25); c.stroke();
+  }
+  c.restore();
+}
+function drawIsle(c, I, t) {   // schwebende Wolkeninsel
+  c.fillStyle = 'rgba(120,140,200,0.18)'; ell(c, I.x, I.y + I.ry * 0.9, I.rx * 0.8, I.ry * 0.35); c.fill();
+  c.fillStyle = '#dbe7fb'; for (let i = 0; i < 9; i++) { const a = Math.PI * (0.08 + i * 0.105); circ(c, I.x + Math.cos(a) * I.rx * 0.88, I.y + Math.sin(a) * I.ry * 0.9 + 18, I.ry * 0.28); c.fill(); }
+  ell(c, I.x, I.y + 16, I.rx, I.ry); fs(c, '#e8f0ff');
+  ell(c, I.x, I.y, I.rx, I.ry); fs(c, '#ffffff', '#d3e2fa', 4);
+  c.fillStyle = 'rgba(205,225,255,0.45)'; ell(c, I.x - I.rx * 0.3, I.y - I.ry * 0.15, I.rx * 0.35, I.ry * 0.22); c.fill(); ell(c, I.x + I.rx * 0.35, I.y + I.ry * 0.3, I.rx * 0.3, I.ry * 0.2); c.fill();
+}
+function drawSkyBridge(c, A, B, t) {   // Regenbogenbrücke zwischen zwei Inseln
+  const dx = B.x - A.x, dy = B.y - A.y, l = Math.hypot(dx, dy), nx = -dy / l, ny = dx / l;
+  c.lineCap = 'butt'; c.strokeStyle = 'rgba(120,140,200,0.18)'; c.lineWidth = 92; line(c, A.x, A.y + 26, B.x, B.y + 26);
+  ['#ff7b9c', '#ffb65c', '#ffe066', '#7ddc8a', '#7db8ff'].forEach((col, i) => { const o = (i - 2) * 16; c.strokeStyle = col; c.lineWidth = 17; line(c, A.x + nx * o, A.y + ny * o, B.x + nx * o, B.y + ny * o); });
+  c.fillStyle = 'rgba(255,255,255,0.9)'; const n = Math.floor(l / 90);
+  for (let i = 1; i < n; i++) { const k = i / n, tw = Math.max(0, Math.sin(t * 3 + i)); sparklePath(c, A.x + dx * k + nx * 30 * Math.sin(i), A.y + dy * k + ny * 30 * Math.sin(i), 2 + tw * 5); c.fill(); }
+}
+function drawSkyPad(c, x, y, t, on) {   // Startplatz zum Fliegen
+  c.fillStyle = 'rgba(40,70,50,0.16)'; ell(c, x, y + 6, 70, 22); c.fill();
+  ell(c, x, y, 66, 24); fs(c, '#efe8fb', '#c8bfe0', 3);
+  ['#ff7b9c', '#ffe066', '#7db8ff'].forEach((col, i) => { c.strokeStyle = col; c.lineWidth = 4; ell(c, x, y, 52 - i * 12, 18 - i * 4.5); c.stroke(); });
+  ['#ff7b9c', '#ffb65c', '#ffe066', '#7ddc8a', '#7db8ff'].forEach((col, i) => { c.strokeStyle = col; c.lineWidth = 7; c.beginPath(); c.arc(x, y - 6, 74 - i * 7, Math.PI * 1.04, Math.PI * 1.96); c.stroke(); });
+  const b = Math.sin(t * 2.5) * 5;
+  if (on) { c.fillStyle = 'rgba(255,247,170,' + (0.35 + Math.sin(t * 4) * 0.15) + ')'; circ(c, x, y - 80 + b, 30); c.fill(); }
+  c.save(); c.globalAlpha = on ? 1 : 0.55; drawThing(c, 'wings', x, y - 80 + b, 40); c.restore();
+}
+Object.assign(ART, { sheep: (c, t, o) => drawSheep(c, t, o), bird: (c, t, o) => drawBird(c, t, o), cloudkid: (c, t, o) => drawCloudKid(c, t, o) });

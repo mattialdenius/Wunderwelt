@@ -142,6 +142,37 @@ const SPEECH = {
   q_hedgehog_done: { text: 'Mmh, das wird ein feiner Kuchen! Danke! Hier sind zwei Zauberaugen: Damit siehst du beim Memory kurz alle Karten.', audio: null },
   album_open:      { text: 'Das ist dein Album. Hier sind alle deine Freunde!', audio: null },
   album_unknown:   { text: 'Diese Figur kennst du noch nicht. Such sie in der Welt!', audio: null },
+  /* --- Kapitel 3: Wolkeninseln --- */
+  area_wolken:     { text: 'Willkommen auf den Wolkeninseln!', audio: null },
+  sky_need_wings:  { text: 'Das ist ein Startplatz zum Fliegen! Dafür brauche ich aber Flügel.', audio: null },
+  sky_fly:         { text: 'Halt dich gut fest! Wir fliegen!', audio: null },
+  sky_back:        { text: 'Wir fliegen zurück in den Zauberwald!', audio: null },
+  world_hint_pad:  { text: 'Lauf zum Startplatz, dann fliegen wir!', audio: null },
+  story_wolli1:    { text: 'Mäh! Hallo {spieler}! Willkommen auf den Wolkeninseln. Ich bin Wolli, das Wolkenschaf.', audio: null },
+  story_wolli2:    { text: 'Die letzten zwei Splitter vom Regenbogenkristall sind hier oben gelandet. Einen habe ich, einen hat Sternenvogel Stella.', audio: null },
+  story_wolli3:    { text: 'Spielst du mit mir? Wir ordnen Wolken, von klein nach groß!', audio: null },
+  story_stella1:   { text: 'Du hast alle acht Splitter gefunden! Hör mal, wie fröhlich der Himmel klingt!', audio: null },
+  story_stella2:   { text: 'Jetzt muss der Kristall nur noch zusammengesetzt werden. Das geht nur am Drachenberg. Funki kennt den Weg!', audio: null },
+  sheep_intro:     { text: 'Tippe die Wolken an: zuerst die kleinste, dann die nächste, bis zur größten!', audio: null },
+  sheep_intro2:    { text: 'Jetzt sind es vier Wolken. Pass auf: Manchmal fangen wir mit der größten an!', audio: null },
+  sheep_intro3:    { text: 'Jetzt fünf Wolken! Schau ganz genau hin.', audio: null },
+  size_up:         { text: 'Von klein nach groß!', audio: null },
+  size_down:       { text: 'Von groß nach klein!', audio: null },
+  size_hint:       { text: 'Die hier ist als Nächstes dran!', audio: null },
+  bird_intro:      { text: 'Tschiep! Ich singe dir eine Melodie vor. Hör gut zu und tippe die Sterne dann genauso an!', audio: null },
+  bird_intro2:     { text: 'Jetzt sind es vier Sterne, und die Melodien werden länger!', audio: null },
+  bird_intro3:     { text: 'Jetzt fünf Sterne! Du bist ein echter Musikstar!', audio: null },
+  melody_listen:   { text: 'Hör gut zu!', audio: null },
+  melody_you:      { text: 'Jetzt du!', audio: null },
+  melody_again:    { text: 'Hör noch mal zu.', audio: null },
+  q_puff_offer:    { text: 'Hallo, ich bin Puff, die kleine Regenwolke. Ich habe meine fünf Regentropfen verloren! Findest du sie auf den Inseln?', audio: null },
+  q_puff_remind:   { text: 'Fünf Regentropfen. Sie glitzern blau!', audio: null },
+  q_drop_item:     { text: ['Ein Regentropfen!', 'Plitsch!'], audio: null },
+  q_puff_done:     { text: 'Juhu, jetzt kann ich wieder die Blumen gießen! Danke! Für dein Einhorn habe ich einen Sternenkranz.', audio: null },
+  q_sheep_offer:   { text: 'Meine drei Lämmchen sind über die Regenbogenbrücken davongehüpft! Bringst du sie mir zurück?', audio: null },
+  q_sheep_remind:  { text: 'Drei Lämmchen. Lauf einfach zu ihnen hin, dann hüpfen sie nach Hause.', audio: null },
+  q_lamb_item:     { text: ['Mäh!', 'Ein Lämmchen!'], audio: null },
+  q_sheep_done:    { text: 'Alle Lämmchen sind wieder da! Danke! Hier ist eine Wolkenmütze für dich, ganz flauschig.', audio: null },
   /* --- Nebenaufgaben --- */
   q_duck_offer:    { text: 'Quak quak! Oh je, meine drei Küken sind weggelaufen. Hilfst du mir, sie zu finden?', audio: null },
   q_duck_remind:   { text: 'Hast du meine Küken gesehen? Es sind drei!', audio: null },
@@ -396,7 +427,7 @@ const Voice = {
 /* ---- Spielstand ---- */
 const Save = {
   data: null,
-  fresh() { return { name: null, nameId: null, crystals: { owl: false, fox: false, frog: false, dragon: false, snail: false, squirrel: false, mouse: false, hedgehog: false }, level: { owl: 0, fox: 0, frog: 0, dragon: 0, snail: 0, squirrel: 0, mouse: 0, hedgehog: 0 }, player: null, learn: true, partyN: 0, goldN: 0, story: 0, quests: {}, inv: {}, helpers: { feather: 0, lens: 0, lily: 0, slow: 0, eye: 0 }, wings: false, cos: [], wear: { t: null, uni: null }, wallet: 0, tools: {}, shopOpen: false, goldParty: false, party4: false, goldParty4: false, dragonFriend: false, stars: [], rideTold: false, worldV: 0, dragon: { state: 'waiting', x: 0, y: 0, who: null }, celebrated: false, pos: null }; },
+  fresh() { return { name: null, nameId: null, crystals: { owl: false, fox: false, frog: false, dragon: false, snail: false, squirrel: false, mouse: false, hedgehog: false, sheep: false, bird: false }, level: { owl: 0, fox: 0, frog: 0, dragon: 0, snail: 0, squirrel: 0, mouse: 0, hedgehog: 0, sheep: 0, bird: 0 }, player: null, learn: true, partyN: 0, goldN: 0, story: 0, quests: {}, inv: {}, helpers: { feather: 0, lens: 0, lily: 0, slow: 0, eye: 0 }, wings: false, cos: [], wear: { t: null, uni: null }, wallet: 0, tools: {}, shopOpen: false, goldParty: false, party4: false, goldParty4: false, dragonFriend: false, stars: [], rideTold: false, worldV: 0, dragon: { state: 'waiting', x: 0, y: 0, who: null }, celebrated: false, pos: null }; },
   load() {
     this.data = this.fresh();
     try {

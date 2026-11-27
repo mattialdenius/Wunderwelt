@@ -71,7 +71,7 @@ with sync_playwright() as p:
             tap(pr[0]['x'], pr[0]['y']); time.sleep(0.12); tap(pr[1]['x'], pr[1]['y']); time.sleep(0.3)
         print('  memory L%d ok' % lv); scene('World')
 
-    page.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__file__),'..','index.html'))+''); time.sleep(0.5)
+    page.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__file__),'..','index.html'))); time.sleep(0.5)
     ev("()=>{localStorage.clear();ZW.Save.reset();const S=ZW.Save.data;S.name='Wolke';S.nameId='wolke';S.player={gender:'boy',skin:3,hair:0,style:8,cloth:2,name:'Ben'};S.worldV=2;S.rideTold=true;S.story=3;S.dragonFriend=true;S.dragon.state='done';for(const k of ['owl','fox','frog','dragon']){S.crystals[k]=true;S.level[k]=1}S.partyN=8;ZW.Save.store();ZW.Game.go(ZW.World,{})}")
     scene('World'); ev("()=>{ZW.World.prankCool=1e9}")
     assert ev("()=>ZW.World.gateOpen"), 'gate should be open'
