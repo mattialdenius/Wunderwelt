@@ -145,7 +145,7 @@ Object.assign(World, {
       if (qs && this.questReady(id)) { this.completeQuest(id); return; }
       if (qs) { this.say([[id, this.remindKey(id), this.questIcons(id), { vars: this.questVars(id) }]], mini); return; }
       if (this.activeQuests().length >= 3) { this.say([[id, 'quest_full', ['check', 'check', 'check']]], mini); return; }
-      this.say([[id, 'q_' + id + '_offer', this.questIcons(id), { choice: [{ icon: 'heart', cb: () => this.acceptQuest(id) }, { icon: 'cloud', cb: () => { Voice.say('quest_later', { pitch: P }); mini(); } }] }]]);
+      this.say([[id, 'q_' + id + '_offer', this.questIcons(id), { choice: [{ icon: 'heart', cb: () => this.acceptQuest(id) }, { icon: 'cloud', cb: () => { Voice.say('quest_later', { pitch: P }); } }] }]]);
       return;
     }
     if (id === 'squirrel' && S.shopOpen && Save.data.learn) { this.say([[id, 'flink_choice', ['math', 'shop'], { choice: [{ icon: 'math', cb: () => this.startNpc(id) }, { icon: 'shop', cb: () => this.openShop() }] }]]); return; }
