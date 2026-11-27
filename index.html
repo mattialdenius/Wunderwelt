@@ -880,7 +880,7 @@ function drawPic(c, key, x, y, size) { c.save(); c.translate(x, y); c.scale(size
    Jede Szene hat: enter(opts), update(dt), draw(c) und optional down/move/up/key/resize/leave. */
 
 const StartScene = {
-  enter() { this.t = 0; this.hold = null; this.holdT = 0; this.flash = 0; this.panel = false; this.armed = -1; },
+  enter(o) { this.t = 0; this.hold = null; this.holdT = 0; this.flash = 0; this.panel = !!(o && o.panel); this.fromWorld = this.panel; this.armed = -1; },
   btn() { return { x: VW / 2, y: VH * 0.5, r: Math.max(View.btn * 0.8, 92) }; },
   gear() { return { x: VW - 46, y: VH - 46, r: 28 }; },
   charBtn() { const r = Math.max(View.btn / 2, 52); return { x: 16 + r, y: 16 + r, r }; },
@@ -888,7 +888,7 @@ const StartScene = {
   // Eltern-Bereich: 0 = Kristalle neu sammeln, 1 = alles neu, 2 = Lesen & Rechnen an/aus, 3 = zurück
   panelBtns() {
     const r = Math.max(View.btn / 2, 54), sp = Math.min(220, (VW - 120) / 3.6), y = VH / 2 - 6, x = i => VW / 2 + (i - 1.5) * sp;
-    return [{ x: x(0), y, r, color: '#b79cff', label: 'Kristalle neu', sub: 'Name und Figur bleiben' }, { x: x(1), y, r, color: '#ff8fb1', label: 'Alles neu', sub: 'Auch Name und Figur' },
+    return [{ x: x(0), y, r, color: '#b79cff', label: 'Kristalle neu', sub: 'Name und Figur bleiben' }, { x: x(1), y, r, color: '#ff8fb1', label: 'Spiel ganz neu', sub: 'Alles wird gelöscht' },
       { x: x(2), y, r, color: Save.data.learn ? '#5fd38d' : '#d6d0e0', label: 'Lesen & Rechnen', sub: Save.data.learn ? 'ist an' : 'ist aus' }, { x: x(3), y, r, color: '#9ecbff', label: 'Zurück', sub: '' }];
   },
   update(dt) {
@@ -940,10 +940,11 @@ const StartScene = {
   down(p) {
     if (this.panel) {
       const B = this.panelBtns(), i = B.findIndex(q => hit(p, q.x, q.y, q.r + 10));
-      if (i < 0 || i === 3) { this.panel = false; Sfx.play('tap'); return; }
+      if (i < 0 || i === 3) { this.panel = false; Sfx.play('tap'); if (i === 3 && this.fromWorld && Save.data.player && Save.data.name) Game.go(World, {}); return; }
       if (i === 2) { Save.data.learn = !Save.data.learn; Save.store(); Sfx.play('pop'); this.armed = -1; return; }
       if (this.armed !== i) { this.armed = i; Sfx.play('tap'); return; }
       if (i === 0) Save.resetProgress(); else Save.reset();
+      this.fromWorld = false;
       this.panel = false; this.flash = 1; Sfx.play('good'); return;
     }
     const b = this.btn(); if (hit(p, b.x, b.y, b.r + 14)) { this.start(p); return; }
@@ -1342,7 +1343,7 @@ const World = {
     }
     if (S.dragon.state === 'done') S.dragonFriend = true;
     this.fx = new Fx(); this.ev = null; this.queue = []; this.hint = null; this.idle = 0; this.pending = null; this.packWig = 0; this.marker = null; this.party = 0; this.lastPathT = 0;
-    this.prank = null; this.prankCool = rnd(25, 40); this.stoleOnce = false; this.ride = false; this.mapOpen = false; this.tipT = o.first ? 9 : 4; this.starPop = 0;
+    this.menuHold = null; this.menuT = 0; this.prank = null; this.prankCool = rnd(25, 40); this.stoleOnce = false; this.ride = false; this.mapOpen = false; this.tipT = o.first ? 9 : 4; this.starPop = 0;
     const d = S.dragon;
     this.grabbed = d.state === 'dropped'; this.crystalGround = d.state === 'dropped' ? { x: d.x, y: d.y, who: d.who } : null;
     this.dragon = { x: DRAGON_HOME.x, y: DRAGON_HOME.y, vis: d.state !== 'waiting', fly: false, carry: null, flip: true, hop: 0, mode: 'home', sc: 1 };
@@ -1362,7 +1363,7 @@ const World = {
   vw() { return VW / this.zoom; }, vh() { return VH / this.zoom; },
   toWorld(p) { return { x: p.x / this.zoom + this.cam.x, y: p.y / this.zoom + this.cam.y }; },
   camTo(k) { const tx = clamp(this.T.x - this.vw() / 2, 0, WORLD.w - this.vw()), ty = clamp(this.T.y - this.vh() / 2 - 30 / this.zoom, 0, WORLD.h - this.vh()); this.cam.x = lerp(this.cam.x, tx, k); this.cam.y = lerp(this.cam.y, ty, k); },
-  hud() { const r = Math.max(View.btn / 2, 48); return { pack: { x: VW - 16 - r, y: 16 + r, r }, hint: { x: 16 + r, y: 16 + r, r }, map: { x: VW - 16 - r, y: VH - 16 - r, r } }; },
+  hud() { const r = Math.max(View.btn / 2, 48); return { pack: { x: VW - 16 - r, y: 16 + r, r }, hint: { x: 16 + r, y: 16 + r, r }, map: { x: VW - 16 - r, y: VH - 16 - r, r }, menu: { x: 46, y: VH - 46, r: 28 } }; },
   slotScreen(id) { const h = this.hud(), n = npcOrder().length, i = npcOrder().indexOf(id); return { x: h.pack.x - h.pack.r - 30 - (n - 1 - i) * 46, y: h.pack.y }; },
   slotWorld(id) { return this.toWorld(this.slotScreen(id)); },
   // Stufe des Kristalls, wie er gerade im Rucksack liegt (0 = nicht da, 1–3 = klein, groß, golden)
@@ -1593,6 +1594,8 @@ const World = {
   /* ---- Ablauf ---- */
   update(dt) {
     this.time += dt; const T = this.T, U = this.U, D = this.dragon;
+    // Eltern-Menü: drei Punkte unten links 1,5 s gedrückt halten
+    if (this.menuHold != null) { this.menuT += dt; if (this.menuT > 1.5) { this.menuHold = null; Sfx.play('pop'); Game.go(StartScene, { panel: true }); } }
     if (this.ev) { if (this.ev.update(dt)) { this.ev = null; this.storyDirty = true; } }
     else if (this.queue.length) this.ev = this.queue.shift()();
     else if (this.storyDirty) { this.storyDirty = false; this.checkStory(); }
@@ -1789,6 +1792,8 @@ const World = {
     drawRoundBtn(c, H.hint.x, H.hint.y, H.hint.r, { color: '#fff7ea', glow: !!this.hint });
     c.save(); circ(c, H.hint.x, H.hint.y, H.hint.r - 3); c.clip(); drawActor(c, 'unicorn', H.hint.x - 10, H.hint.y + H.hint.r * 0.78, { size: H.hint.r * 1.35, t: 1, noShadow: true, mark: uniMark() }); c.restore();
     drawRoundBtn(c, H.map.x, H.map.y, H.map.r, { color: '#fff7ea', icon: 'map', iconScale: 1.1 });
+    const M = H.menu; c.globalAlpha = 0.6; c.fillStyle = '#fff'; circ(c, M.x, M.y, M.r); c.fill(); c.fillStyle = '#7a8a9a'; for (let i = 0; i < 3; i++) { circ(c, M.x - 10 + i * 10, M.y, 3); c.fill(); } c.globalAlpha = 1;
+    if (this.menuHold != null) { c.strokeStyle = '#ff8fb1'; c.lineWidth = 6; c.lineCap = 'round'; c.beginPath(); c.arc(M.x, M.y, M.r + 6, -Math.PI / 2, -Math.PI / 2 + TAU * this.menuT / 1.5); c.stroke(); }
     if (this.mapOpen) this.drawMap(c, t);
   },
   mapRect() { const m = Math.min((VW - 170) / WORLD.w, (VH - 50) / WORLD.h), w = WORLD.w * m, h = WORLD.h * m; return { x: (VW - w) / 2 - 30, y: (VH - h) / 2, w, h, m }; },
@@ -1822,6 +1827,7 @@ const World = {
       }
       return;
     }
+    if (!this.mapOpen && hit(p, H.menu.x, H.menu.y, H.menu.r + 14)) { this.menuHold = p.id; this.menuT = 0; return; }
     if (hit(p, H.pack.x, H.pack.y, H.pack.r + 6)) { this.packWig = 1; Sfx.play('tap'); const n = npcOrder().filter(id => this.inPack(id)).length, m = npcOrder().length; Voice.say(n === 0 ? 'backpack_0' : n === m ? 'backpack_all' : 'backpack_n', { vars: { n, m } }); return; }
     if (this.blocked()) return;
     this.idle = 0;
@@ -1864,7 +1870,7 @@ const World = {
     if (this.mapOpen || !this.dragTap || this.blocked() || this.time - this.lastPathT < 0.22 || dist(p.x, p.y, p.sx, p.sy) < 30) return;
     this.lastPathT = this.time; this.idle = 0; const w0 = this.toWorld(p); this.walkTo(w0.x, w0.y);
   },
-  up() { this.dragTap = false; },
+  up(p) { this.dragTap = false; if (p && this.menuHold === p.id) this.menuHold = null; },
   key(k) {
     if (k === 'KeyM') { this.mapOpen = !this.mapOpen; return; }
     if (this.blocked() || this.mapOpen) return;
