@@ -112,8 +112,10 @@ const LOOK = {
   skin:  ['#fde4cf', '#f9d0b0', '#eab28c', '#c98d63', '#a0683f', '#6f4529'],
   hair:  ['#2b2122', '#5a3825', '#8a5a3c', '#b5562e', '#e0b25a', '#f3dc95', '#f48fb1', '#8fb8f4'],
   cloth: ['#ff8fb1', '#b79cff', '#5aa9ff', '#5fd38d', '#ffd23f', '#ff9f5a', '#ff6b6b', '#5fd3c7'],
-  styles: ['kurz', 'wuschel', 'bob', 'zoepfe', 'zopf', 'lang']
+  styles: ['kurz', 'wuschel', 'bob', 'zoepfe', 'zopf', 'lang', 'scheitel', 'stoppel', 'igel', 'afro']
 };
+// Reihenfolge in der Auswahl: erst kurze, dann lange Frisuren (die Nummern im Spielstand bleiben gleich)
+const STYLE_ORDER = [0, 6, 7, 8, 1, 9, 2, 3, 4, 5];
 const DEFAULT_LOOK = { gender: 'girl', skin: 1, hair: 2, style: 3, cloth: 0 };
 const curLook = o => (o && o.look) || Object.assign({}, DEFAULT_LOOK, (Save.data && Save.data.player) || {});
 function shade(hex, f) {   // f < 0 dunkler
@@ -149,6 +151,10 @@ function drawHairBack(c, L, cx, cy, hc) {
     case 'zoepfe': circ(c, cx, cy - 2, 24); c.fill(); ell(c, cx - 27, cy + 12, 8, 14); c.fill(); ell(c, cx + 27, cy + 12, 8, 14); c.fill(); c.fillStyle = '#ffd86b'; circ(c, cx - 25, cy - 1, 4); c.fill(); circ(c, cx + 25, cy - 1, 4); c.fill(); break;
     case 'zopf': circ(c, cx, cy - 2, 24); c.fill(); ell(c, cx - 27, cy + 2, 9, 19, 0.45); c.fill(); c.fillStyle = '#ffd86b'; circ(c, cx - 21, cy - 12, 4); c.fill(); break;
     case 'lang': rr(c, cx - 26, cy - 26, 52, 62, 20); c.fill(); break;
+    case 'scheitel': circ(c, cx, cy - 3, 22.5); c.fill(); break;
+    case 'stoppel': circ(c, cx, cy - 1, 21.6); c.fill(); break;
+    case 'igel': circ(c, cx, cy - 3, 22); c.fill(); for (let k = 0; k < 9; k++) { const a = Math.PI * (1.02 + k * 0.12); tri(c, cx + Math.cos(a - 0.09) * 20, cy - 3 + Math.sin(a - 0.09) * 20, cx + Math.cos(a) * 31, cy - 3 + Math.sin(a) * 31, cx + Math.cos(a + 0.09) * 20, cy - 3 + Math.sin(a + 0.09) * 20); c.fill(); } break;
+    case 'afro': circ(c, cx, cy - 7, 31); c.fill(); for (let a = 0; a < 12; a++) { const an = a / 12 * TAU; circ(c, cx + Math.cos(an) * 28, cy - 7 + Math.sin(an) * 28, 8); c.fill(); } break;
   }
 }
 function drawHairFront(c, L, cx, cy, hc) {
@@ -156,6 +162,10 @@ function drawHairFront(c, L, cx, cy, hc) {
   switch (LOOK.styles[L.style]) {
     case 'wuschel': for (let k = -2; k <= 2; k++) { circ(c, cx + k * 7.5, cy - 15 + Math.abs(k) * 2, 7); c.fill(); } break;
     case 'bob': c.beginPath(); c.arc(cx, cy, 20.5, Math.PI, 0); c.lineTo(cx + 20.5, cy - 6); c.lineTo(cx - 20.5, cy - 6); c.closePath(); c.fill(); break;
+    case 'scheitel': c.beginPath(); c.arc(cx, cy, 20.5, Math.PI * 1.02, Math.PI * 1.98); c.quadraticCurveTo(cx + 14, cy - 2, cx + 4, cy - 10); c.quadraticCurveTo(cx - 8, cy - 14, cx - 20, cy - 4); c.closePath(); c.fill(); break;
+    case 'stoppel': c.beginPath(); c.arc(cx, cy, 20.5, Math.PI * 1.1, Math.PI * 1.9); c.quadraticCurveTo(cx, cy - 13, cx - 19.5, cy - 7); c.closePath(); c.fill(); break;
+    case 'igel': c.beginPath(); c.arc(cx, cy, 20.5, Math.PI * 1.08, Math.PI * 1.92); c.lineTo(cx + 12, cy - 12); c.lineTo(cx + 6, cy - 9); c.lineTo(cx, cy - 13); c.lineTo(cx - 6, cy - 9); c.lineTo(cx - 12, cy - 12); c.closePath(); c.fill(); break;
+    case 'afro': for (let k = -3; k <= 3; k++) { circ(c, cx + k * 6.5, cy - 15 + Math.abs(k) * 1.6, 7); c.fill(); } break;
     default: c.beginPath(); c.arc(cx, cy, 20.5, Math.PI * 1.08, Math.PI * 1.92); c.quadraticCurveTo(cx, cy - 8, cx - 19.5, cy - 5); c.closePath(); c.fill();
   }
 }

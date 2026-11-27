@@ -33,7 +33,7 @@ with sync_playwright() as p:
         tap(d['cats'][cat]['x'],d['cats'][cat]['y']); time.sleep(0.15); tap(d['opt'][opt]['x'],d['opt'][opt]['y']); time.sleep(0.15)
         if cat==1: shot('char_style')
     look=ev("()=>ZW.CharScene.look"); print('look',look)
-    assert look=={'gender':'boy','skin':4,'hair':4,'style':1,'cloth':3}, look
+    assert look=={'gender':'boy','skin':4,'hair':4,'style':6,'cloth':3}, look
     shot('char_boy')
     tap(d['ok']['x'],d['ok']['y'])
     wait("()=>ZW.Game.scene===ZW.NamingScene&&ZW.Game.fade<0.05"); print('player saved', ev("()=>JSON.stringify(ZW.Save.data.player)"))

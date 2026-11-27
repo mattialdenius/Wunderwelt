@@ -100,12 +100,12 @@ const CharScene = {
     this.name = pl.name || ''; this.input = null;
   },
   leave() { this.closeInput(true); },
-  count(cat) { return { gender: 2, style: 6, hair: 8, skin: 6, cloth: 8 }[cat]; },
+  count(cat) { return { gender: 2, style: STYLE_ORDER.length, hair: 8, skin: 6, cloth: 8 }[cat]; },
   layout() {
     const px = clamp(VW * 0.19, 120, 250), catX = px * 2 + 30, gx0 = catX + 70, gx1 = VW - 24, cols = 4, cell = (gx1 - gx0) / cols;
     const cr = clamp(VH / 13, 34, 44), r = clamp(cell * 0.4, 30, 56);
     return { prev: { x: px, y: VH - 50 }, nameBox: { x: px, y: 60, w: clamp(px * 1.7, 200, 340), h: 64 }, cats: CHAR_CATS.map((_, i) => ({ x: catX, y: 70 + i * (VH - 140) / 4, r: cr })),
-      opt: k => ({ x: gx0 + cell * (k % cols + 0.5), y: 150 + Math.floor(k / cols) * 150, r }), ok: { x: VW - 24 - Math.max(View.btn / 2, 54), y: VH - 24 - Math.max(View.btn / 2, 54), r: Math.max(View.btn / 2, 54) } };
+      opt: k => ({ x: gx0 + cell * (k % cols + 0.5), y: 128 + Math.floor(k / cols) * 132, r: Math.min(r, 54) }), ok: { x: VW - 24 - Math.max(View.btn / 2, 54), y: VH - 24 - Math.max(View.btn / 2, 54), r: Math.max(View.btn / 2, 54) } };
   },
   update(dt) {
     this.t += dt; if (this.hop > 0) this.hop -= dt * 2;
@@ -120,7 +120,7 @@ const CharScene = {
       c.save(); circ(c, q.x, q.y, q.r - 3); c.clip(); drawActor(c, 't', q.x, q.y + q.r * 0.95, { size: q.r * 1.75, t: 0.5, noShadow: true, look: Object.assign({}, L, { gender: k ? 'boy' : 'girl', style: k ? (L.style === 3 ? 0 : L.style) : L.style }) }); c.restore();
     } else if (cat === 'style') {
       drawRoundBtn(c, q.x, q.y, q.r, { color: '#fff7ea', stroke: sel ? '#ff8fb1' : '#fff' });
-      c.save(); circ(c, q.x, q.y, q.r - 3); c.clip(); c.translate(q.x, q.y + q.r * 2.25); c.scale(q.r / 32, q.r / 32); drawTHead(c, 0.5, { look: Object.assign({}, L, { style: k }) }); c.restore();
+      c.save(); circ(c, q.x, q.y, q.r - 3); c.clip(); c.translate(q.x, q.y + q.r * 2.25); c.scale(q.r / 32, q.r / 32); drawTHead(c, 0.5, { look: Object.assign({}, L, { style: STYLE_ORDER[k] }) }); c.restore();
     } else {
       const col = cat === 'hair' ? LOOK.hair[k] : cat === 'skin' ? LOOK.skin[k] : LOOK.cloth[k];
       circ(c, q.x, q.y, q.r); fs(c, col, sel ? '#ff8fb1' : '#fff', sel ? 6 : 4);
@@ -153,7 +153,7 @@ const CharScene = {
       c.restore();
     });
     // Auswahl des aktiven Bereichs
-    const cat = CHAR_CATS[this.cat], cur = cat === 'gender' ? (L.gender === 'boy' ? 1 : 0) : L[cat];
+    const cat = CHAR_CATS[this.cat], cur = cat === 'gender' ? (L.gender === 'boy' ? 1 : 0) : cat === 'style' ? STYLE_ORDER.indexOf(L.style) : L[cat];
     for (let k = 0; k < this.count(cat); k++) this.drawOption(c, cat, k, D.opt(k), k === cur);
     drawRoundBtn(c, D.ok.x, D.ok.y, D.ok.r, { color: '#5fd38d', icon: 'check', pulse: true });
   },
@@ -183,7 +183,7 @@ const CharScene = {
     const cat = CHAR_CATS[this.cat];
     for (let k = 0; k < this.count(cat); k++) { const q = D.opt(k); if (hit(p, q.x, q.y, q.r + 10)) {
       if (cat === 'gender') { const boy = k === 1; if ((this.look.gender === 'boy') !== boy) { this.look.gender = boy ? 'boy' : 'girl'; if (boy && this.look.style === 3) this.look.style = 0; } this.set('gender', this.look.gender); }
-      else this.set(cat, k);
+      else this.set(cat, cat === 'style' ? STYLE_ORDER[k] : k);
       return;
     } }
     if (hit(p, D.ok.x, D.ok.y, D.ok.r + 10)) { this.confirm(); return; }
