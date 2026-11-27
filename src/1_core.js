@@ -174,6 +174,7 @@ const SPEECH = {
   q_lamb_item:     { text: ['Mäh!', 'Ein Lämmchen!'], audio: null },
   q_sheep_done:    { text: 'Alle Lämmchen sind wieder da! Danke! Hier ist eine Wolkenmütze für dich, ganz flauschig.', audio: null },
   /* --- Kapitel 4: Drachenberg und Sternenfest --- */
+  sound_voice:     { text: 'Jetzt hörst du nur noch die Stimme.', audio: null },
   area_berg:       { text: 'Der Drachenberg!', audio: null },
   story_funki4:    { text: 'Wow, du hast alle acht Splitter! Komm mit auf den Drachenberg, da setzen wir den Kristall wieder zusammen. Ich fliege schon mal vor!', audio: null },
   story_funki5:    { text: 'Hier oben auf dem Drachenberg stand der Regenbogenkristall. Das ist sein Kristallstein.', audio: null },
@@ -363,7 +364,7 @@ const Sfx = {
       src.connect(f); f.connect(g); g.connect(this.master); src.start(t0);
     } catch (e) {}
   },
-  play(name, arg) { const f = SOUNDS[name]; if (f) f(this, arg); }
+  play(name, arg) { if ((Save.data && Save.data.sound || 'all') !== 'all') return; const f = SOUNDS[name]; if (f) f(this, arg); }   // Elternmenü: Ton an / nur Stimme / stumm
 };
 const SOUNDS = {
   tap: s => s.tone(660, 0.08, { type: 'triangle', vol: 0.18 }),
@@ -410,7 +411,7 @@ const Voice = {
   say(key, o = {}) {
     const e = SPEECH[key]; if (!e) return;
     this.last = key;
-    if (!CONFIG.speech.enabled) return;
+    if (!CONFIG.speech.enabled || Save.data.sound === 'off') return;
     let txt = Array.isArray(e.text) ? pick(e.text) : e.text;
     const pl = Save.data.player, vars = Object.assign({ name: Save.data.name || 'dein Einhorn', spieler: (pl && pl.name) || 'du' }, o.vars || {});
     txt = txt.replace(/\{(\w+)\}/g, (m, k) => vars[k] != null ? vars[k] : m);
@@ -451,8 +452,8 @@ const Save = {
   },
   store() { try { window.localStorage.setItem(CONFIG.saveKey, JSON.stringify(this.data)); } catch (e) {} },
   // Nur den Fortschritt löschen (Kristalle, Stufen, Drache); der Name des Einhorns bleibt
-  resetProgress() { const f = this.fresh(); f.name = this.data.name; f.nameId = this.data.nameId; f.player = this.data.player; f.learn = this.data.learn; f.cos = this.data.cos; f.wear = this.data.wear; f.wings = this.data.wings; this.data = f; this.store(); },
-  reset() { this.data = this.fresh(); try { window.localStorage.removeItem(CONFIG.saveKey); } catch (e) {} }
+  resetProgress() { const f = this.fresh(); f.name = this.data.name; f.nameId = this.data.nameId; f.player = this.data.player; f.learn = this.data.learn; f.cos = this.data.cos; f.wear = this.data.wear; f.wings = this.data.wings; f.sound = this.data.sound; this.data = f; this.store(); },
+  reset() { const snd = this.data && this.data.sound; this.data = this.fresh(); if (snd) this.data.sound = snd; try { window.localStorage.removeItem(CONFIG.saveKey); } catch (e) {} }
 };
 
 /* ---- Effekte: Glitzer, Konfetti ---- */

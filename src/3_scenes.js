@@ -10,9 +10,11 @@ const StartScene = {
   tPos() { return { x: VW * 0.5 - 380 < 60 ? 70 : VW * 0.5 - 380, y: VH - 40 }; },
   // Eltern-Bereich: 0 = Kristalle neu sammeln, 1 = alles neu, 2 = Lesen & Rechnen an/aus, 3 = zurück
   panelBtns() {
-    const r = Math.max(View.btn / 2, 54), sp = Math.min(220, (VW - 120) / 3.6), y = VH / 2 - 6, x = i => VW / 2 + (i - 1.5) * sp;
+    const r = Math.max(View.btn / 2, 52), sp = Math.min(200, (VW - 100) / 4.6), y = VH / 2 - 6, x = i => VW / 2 + (i - 2) * sp, snd = Save.data.sound || 'all';
     return [{ x: x(0), y, r, color: '#b79cff', label: 'Kristalle neu', sub: 'Name und Figur bleiben' }, { x: x(1), y, r, color: '#ff8fb1', label: 'Spiel ganz neu', sub: 'Alles wird gelöscht' },
-      { x: x(2), y, r, color: Save.data.learn ? '#5fd38d' : '#d6d0e0', label: 'Lesen & Rechnen', sub: Save.data.learn ? 'ist an' : 'ist aus' }, { x: x(3), y, r, color: '#9ecbff', label: 'Zurück', sub: '' }];
+      { x: x(2), y, r, color: Save.data.learn ? '#5fd38d' : '#d6d0e0', label: 'Lesen & Rechnen', sub: Save.data.learn ? 'ist an' : 'ist aus' },
+      { x: x(3), y, r, color: snd === 'all' ? '#5fd38d' : snd === 'voice' ? '#ffd23f' : '#d6d0e0', label: 'Ton', sub: snd === 'all' ? 'ist an' : snd === 'voice' ? 'nur Stimme' : 'stumm' },
+      { x: x(4), y, r, color: '#9ecbff', label: 'Zurück', sub: '' }];
   },
   update(dt) {
     this.t += dt;
@@ -48,12 +50,13 @@ const StartScene = {
     if (this.hold != null) { c.strokeStyle = '#ff8fb1'; c.lineWidth = 6; c.lineCap = 'round'; c.beginPath(); c.arc(g.x, g.y, g.r + 6, -Math.PI / 2, -Math.PI / 2 + TAU * this.holdT / 1.5); c.stroke(); }
     if (this.panel) {
       c.fillStyle = 'rgba(40,40,70,0.55)'; c.fillRect(0, 0, VW, VH);
-      const B = this.panelBtns(), w = Math.min(VW - 30, B[3].x - B[0].x + 240);
+      const B = this.panelBtns(), w = Math.min(VW - 30, B[4].x - B[0].x + 220);
       rr(c, VW / 2 - w / 2, VH / 2 - 170, w, 330, 30); fs(c, '#fffaf2', '#fff', 4);
       c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = '#5a4a7a'; c.font = '700 26px system-ui, sans-serif'; c.fillText('Für Eltern', VW / 2, VH / 2 - 132);
       B.forEach((q, i) => {
         const arm = this.armed === i;
-        drawRoundBtn(c, q.x, q.y, q.r, { color: arm ? '#ff9f43' : q.color, icon: i === 3 ? 'x' : i === 2 ? null : arm ? 'check' : 'redo', pulse: arm });
+        drawRoundBtn(c, q.x, q.y, q.r, { color: arm ? '#ff9f43' : q.color, icon: i === 4 ? 'x' : i === 2 || i === 3 ? null : arm ? 'check' : 'redo', pulse: arm });
+        if (i === 3) drawSpeaker(c, q.x, q.y, q.r * 0.9, Save.data.sound || 'all');
         if (i === 0 && !arm) drawCrystal(c, q.x, q.y, 9, '#fff');
         if (i === 2) { drawIcon(c, 'abc', q.x, q.y - 12, 30); drawIcon(c, 'math', q.x, q.y + 16, 30); }
         c.fillStyle = '#5a4a7a'; c.font = '700 18px system-ui, sans-serif'; c.fillText(arm ? 'Wirklich? Nochmal tippen' : q.label, q.x, q.y + q.r + 28);
@@ -66,8 +69,10 @@ const StartScene = {
   down(p) {
     if (this.panel) {
       const B = this.panelBtns(), i = B.findIndex(q => hit(p, q.x, q.y, q.r + 10));
-      if (i < 0 || i === 3) { this.panel = false; Sfx.play('tap'); if (i === 3 && this.fromWorld && Save.data.player && Save.data.name) Game.go(World, {}); return; }
+      if (i < 0 || i === 4) { this.panel = false; Sfx.play('tap'); if (i === 4 && this.fromWorld && Save.data.player && Save.data.name) Game.go(World, {}); return; }
       if (i === 2) { Save.data.learn = !Save.data.learn; Save.store(); Sfx.play('pop'); this.armed = -1; return; }
+      if (i === 3) { const o = ['all', 'voice', 'off'], n = o[(o.indexOf(Save.data.sound || 'all') + 1) % 3]; Save.data.sound = n; Save.store(); this.armed = -1;
+        if (n === 'off') Voice.stop(); Sfx.play('pop'); if (n === 'voice') Voice.say('sound_voice'); return; }
       if (this.armed !== i) { this.armed = i; Sfx.play('tap'); return; }
       if (i === 0) Save.resetProgress(); else Save.reset();
       this.fromWorld = false;

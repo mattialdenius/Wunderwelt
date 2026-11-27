@@ -819,3 +819,13 @@ function drawAltar(c, x, y, t, full) {
 function drawBigRainbow(c, x, y, r, k) {   // k: 0..1 wie weit der Bogen schon gewachsen ist
   ['#ff7b9c', '#ff9f5a', '#ffd23f', '#9be7a0', '#5fd3c7', '#7db8ff', '#a98bff', '#e59bff'].forEach((col, i) => { c.strokeStyle = col; c.lineWidth = r * 0.06; c.lineCap = 'round'; c.beginPath(); c.arc(x, y, r - i * r * 0.06, Math.PI, Math.PI + Math.PI * k); c.stroke(); });
 }
+
+function drawSpeaker(c, x, y, s, mode) {   // Lautsprecher: all = mit Wellen, voice = mit Sprechblase, off = durchgestrichen
+  c.save(); c.translate(x, y); const k = s / 50; c.scale(k, k);
+  c.fillStyle = '#fff'; c.beginPath(); c.moveTo(-22, -9); c.lineTo(-10, -9); c.lineTo(4, -22); c.lineTo(4, 22); c.lineTo(-10, 9); c.lineTo(-22, 9); c.closePath(); c.fill();
+  c.strokeStyle = '#fff'; c.lineWidth = 4.5; c.lineCap = 'round';
+  if (mode === 'all') { c.beginPath(); c.arc(6, 0, 12, -0.8, 0.8); c.stroke(); c.beginPath(); c.arc(6, 0, 22, -0.8, 0.8); c.stroke(); }
+  else if (mode === 'voice') { rr(c, 12, -20, 22, 16, 6); c.fillStyle = '#fff'; c.fill(); tri(c, 15, -6, 21, -6, 14, 1); c.fill(); c.fillStyle = '#ffd23f'; for (let i = 0; i < 3; i++) { circ(c, 17 + i * 6, -12, 1.8); c.fill(); } }
+  else { line(c, 12, -10, 30, 10); line(c, 30, -10, 12, 10); }
+  c.restore();
+}
