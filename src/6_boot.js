@@ -35,7 +35,7 @@ function boot() {
   window.addEventListener('resize', () => View.resize());
   window.addEventListener('orientationchange', () => setTimeout(() => View.resize(), 200));
   document.addEventListener('visibilitychange', () => { if (document.hidden) Voice.stop(); lastFrame = performance.now(); });
-  window.ZW = { CONFIG, SPEECH, Game, Save, View, Input, World, StartScene, NamingScene, OwlGame, FoxGame, FrogGame, DragonGame, ReadGame, MathGame, CharScene, NPCS, Voice }; // zum Testen in der Konsole
+  window.ZW = { CONFIG, SPEECH, Game, Save, View, Input, World, StartScene, NamingScene, OwlGame, FoxGame, FrogGame, DragonGame, ReadGame, MathGame, CountGame, MemoryGame, CharScene, NPCS, Voice }; // zum Testen in der Konsole
   lastFrame = performance.now(); requestAnimationFrame(frame);
 }
 boot();

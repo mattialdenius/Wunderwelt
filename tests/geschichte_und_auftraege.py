@@ -48,7 +48,7 @@ with sync_playwright() as p:
     def settle(): wait("()=>ZW.Game.scene===ZW.World&&!ZW.World.blocked()&&!ZW.World.ev&&!ZW.World.storyDirty", 40)
     def exit_mini(): tap(*ev("()=>{const r=Math.max(ZW.View.btn/2-6,44);return [14+r,14+r]}")); scene('World'); time.sleep(0.3)
 
-    page.goto('file:///home/claude/index.html'); time.sleep(0.5)
+    page.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__file__),'..','index.html'))); time.sleep(0.5)
     ev("()=>{localStorage.clear();ZW.Save.reset();const S=ZW.Save.data;S.name='Glitzer';S.nameId='glitzer';S.player={gender:'girl',skin:1,hair:3,style:4,cloth:1,name:'Mia'};S.worldV=2;S.rideTold=true;ZW.Save.store();ZW.Game.go(ZW.World,{first:true})}")
     scene('World'); ev("()=>{ZW.World.prankCool=1e9}")
     # --- Geschichte: Eule erzählt ---

@@ -10,7 +10,7 @@ function finishMini(id) { if (Game.pending) return; const up = (Save.data.level[
 function miniWin(scene) { scene.winT = 0; Sfx.play('win'); Voice.say('win'); ScreenFx.confetti(VW, 80); }
 function drawSparkleLine(c, x1, y1, x2, y2, t) { const n = Math.max(3, Math.floor(dist(x1, y1, x2, y2) / 46)); for (let i = 1; i < n; i++) { const k = i / n, tw = Math.max(0, Math.sin(t * 6 - i * 0.7)); c.fillStyle = 'rgba(255,225,90,' + (0.5 + tw * 0.5) + ')'; sparklePath(c, lerp(x1, x2, k), lerp(y1, y2, k) - Math.sin(k * Math.PI) * 30, 8 + tw * 7); c.fill(); } }
 // Zauberhelfer: ein Glitzerknopf unter dem Haus-Knopf, nur wenn man einen hat. Jeder Tipp hilft einmal.
-const HELPER_OF = { owl: 'feather', snail: 'feather', squirrel: 'feather', fox: 'lens', frog: 'lily', dragon: 'slow' };
+const HELPER_OF = { owl: 'feather', snail: 'feather', squirrel: 'feather', mouse: 'feather', fox: 'lens', frog: 'lily', dragon: 'slow', hedgehog: 'eye' };
 function helperBtn() { const e = miniExit(); return { x: e.x, y: e.y + e.r * 2 + 22, r: e.r }; }
 function helperCount(id) { return ((Save.data.helpers || {})[HELPER_OF[id]]) || 0; }
 function drawHelperBtn(c, id) {
@@ -691,4 +691,166 @@ const MathGame = {
   key(k) { const n = { Digit1: 0, Digit2: 1, Digit3: 2, Digit4: 3 }[k]; if (n != null && n < this.opts.length) { const L = this.layout(); this.down({ x: L.opts[n].x, y: L.opts[n].y }); } }
 };
 
-const MINIGAMES = { owl: OwlGame, fox: FoxGame, frog: FrogGame, dragon: DragonGame, snail: ReadGame, squirrel: MathGame };
+
+/* ---------- Maus Mia: Glühwürmchen zählen ----------
+   cN = so viele zählen (Bereich), only = nur die gelben zählen, more = in welchem Glas sind mehr?
+   Antippen eines Glühwürmchens markiert es und sagt die nächste Zahl: so zählt das Kind mit. */
+const COUNT_PLAN = [['c6', 'c6', 'c6', 'c6', 'c6'], ['c10', 'only', 'c10', 'only', 'c12'], ['c20', 'more', 'only20', 'c20', 'more']];
+const COUNT_RANGE = { c6: [1, 6], c10: [5, 10], c12: [7, 12], c20: [11, 20] };
+const CountGame = {
+  id: 'mouse',
+  enter() { this.lv = miniLevel('mouse'); this.plan = COUNT_PLAN[this.lv]; this.round = 0; this.t = 0; this.winT = -1; this.setup(); Voice.say(['mouse_intro', 'mouse_intro2', 'mouse_intro3'][this.lv], { pitch: 1.4 }); },
+  jars() { const two = this.type === 'more'; return two ? [{ x: VW / 2 - 190, y: 250, w: 300, h: 250 }, { x: VW / 2 + 190, y: 250, w: 300, h: 250 }] : [{ x: VW / 2, y: 250, w: Math.min(520, VW - 360), h: 270 }]; },
+  place(jar, n, cols) {   // n Glühwürmchen ohne Überlappung im Glas verteilen
+    const out = [];
+    for (let tries = 0; out.length < n && tries < 4000; tries++) {
+      const x = jar.x + (Math.random() - 0.5) * (jar.w - 60), y = jar.y + 10 + (Math.random() - 0.5) * (jar.h - 80);
+      if (out.every(o => dist(o.x, o.y, x, y) > 46)) out.push({ x, y, c: cols ? cols[out.length] : 'y', mark: 0, ph: Math.random() * 6 });
+    }
+    return out;
+  },
+  setup() {
+    const type = this.plan[this.round]; this.type = type; this.state = 'play'; this.st = 0; this.idle = 0; this.hintT = 0; this.wrongs = 0; this.marks = 0; this.auto = -1; this.fx = new Fx();
+    const J = this.jars();
+    if (type === 'more') { let a, b; do { a = ri(5, 14); b = ri(5, 14); } while (Math.abs(a - b) < 2); this.flies = [this.place(J[0], a), this.place(J[1], b)]; this.ans = a > b ? 0 : 1; this.opts = null; }
+    else {
+      let n, cols = null;
+      if (type === 'only' || type === 'only20') { const y = type === 'only' ? ri(3, 8) : ri(8, 14), bl = type === 'only' ? ri(2, 5) : ri(3, 6); n = y + bl; cols = shuffle(Array(y).fill('y').concat(Array(bl).fill('b'))); this.ans = y; }
+      else { const r = COUNT_RANGE[type]; n = ri(r[0], r[1]); this.ans = n; }
+      this.flies = [this.place(J[0], n, cols)];
+      const k = this.lv ? 4 : 3, cand = shuffle([1, -1, 2, -2, 3].map(d => this.ans + d).filter(v => v >= 1 && v <= 20));
+      this.opts = [this.ans].concat(cand.slice(0, k - 1)).sort((x, y) => x - y); this.shake = this.opts.map(() => 0);
+    }
+    Voice.say(type === 'more' ? 'count_more' : type.startsWith('only') ? 'count_only' : 'count_task', { pitch: 1.4, queue: this.round === 0 });
+  },
+  layout() { const n = this.opts ? this.opts.length : 0, r = Math.max(View.btn / 2 + 8, 62), sp = Math.min(r * 2 + 40, (VW - 330) / Math.max(1, n - 1)); return { r, opts: (this.opts || []).map((_, i) => ({ x: VW / 2 + (i - (n - 1) / 2) * sp, y: VH - r - 22 })), uni: { x: 62, y: VH - 10 }, mouse: { x: VW - 70, y: VH - 14 } }; },
+  counts(f) { return !this.type.startsWith('only') || f.c === 'y'; },
+  update(dt) {
+    this.t += dt; this.st += dt; this.fx.update(dt); if (this.hintT > 0) this.hintT -= dt;
+    if (this.shake) this.shake = this.shake.map(v => Math.max(0, v - dt * 2.5));
+    if (this.winT >= 0) { this.winT += dt; if (this.winT > 2.8) finishMini('mouse'); return; }
+    if (this.state === 'right') { if (this.st > 1.9) { this.round++; if (this.round >= this.plan.length) miniWin(this); else this.setup(); } return; }
+    if (this.auto >= 0) {   // Hilfe: alle passenden Glühwürmchen nacheinander mitzählen
+      this.autoT = (this.autoT || 0) + dt;
+      if (this.autoT > 0.55) { this.autoT = 0; const list = this.flies[0].filter(f => this.counts(f) && !f.mark); if (list.length) this.markFly(list[0]); else this.auto = -1; }
+      return;
+    }
+    this.idle += dt; if (this.idle > CONFIG.hintDelay) this.hint();
+  },
+  markFly(f) { this.marks++; f.mark = this.marks; Sfx.play('note', 440 + Math.min(this.marks, 20) * 30); Voice.say('count_num', { vars: { n: this.marks }, pitch: 1.4 }); },
+  hint() { this.idle = 0; this.hintT = 6; Sfx.play('hint'); if (this.type === 'more') { Voice.say('count_more', { pitch: 1.4 }); return; } Voice.say('count_hint', { pitch: 1.4 }); this.flies[0].forEach(f => f.mark = 0); this.marks = 0; this.auto = 0; this.autoT = 0.3; },
+  useHelper() { if (this.state !== 'play') return false; this.auto = -1; if (this.type === 'more') this.solved(); else { const L = this.layout(); this.down({ x: L.opts[this.opts.indexOf(this.ans)].x, y: L.opts[this.opts.indexOf(this.ans)].y }); } return true; },
+  solved() { this.state = 'right'; this.st = 0; this.wrongs = 0; this.auto = -1; Sfx.play('good'); const J = this.jars()[this.type === 'more' ? this.ans : 0]; this.fx.burst(J.x, J.y, 24, { g: 60, color: '#ffe066' }); Voice.say('math_task', { vars: { aufgabe: this.type === 'more' ? 'Richtig, da sind mehr!' : this.ans + ' Glühwürmchen! Super!' } }); },
+  wrong(i) { if (i >= 0) this.shake[i] = 1; this.wrongs++; Sfx.play('wrong'); Voice.say('try_again'); if (this.wrongs >= 2) { this.wrongs = 0; this.hint(); } },
+  draw(c) {
+    const L = this.layout(), t = this.t, right = this.state === 'right', J = this.jars();
+    const g = c.createLinearGradient(0, 0, 0, VH); g.addColorStop(0, '#2f3a73'); g.addColorStop(1, '#5a6aa8'); c.fillStyle = g; c.fillRect(0, 0, VW, VH);
+    c.fillStyle = 'rgba(255,255,255,0.8)'; for (let i = 0; i < 24; i++) { sparklePath(c, (i * 211 + 40) % VW, 20 + (i * 97) % 200, 2 + (Math.sin(t * 2 + i) + 1) * 1.8); c.fill(); }
+    c.fillStyle = '#3f6e5a'; ell(c, VW / 2, VH + 40, VW * 0.8, 140); c.fill();
+    J.forEach((j, k) => {
+      const glow = right && (this.type !== 'more' || k === this.ans), hintJar = this.hintT > 0 && this.type === 'more' && k === this.ans;
+      if (glow || hintJar) { c.fillStyle = 'rgba(255,236,140,' + (0.25 + Math.sin(t * 6) * 0.1) + ')'; rr(c, j.x - j.w / 2 - 20, j.y - j.h / 2 - 20, j.w + 40, j.h + 40, 50); c.fill(); }
+      rr(c, j.x - j.w / 2, j.y - j.h / 2, j.w, j.h, 40); fs(c, 'rgba(200,230,255,0.16)', 'rgba(220,240,255,0.7)', 4);
+      rr(c, j.x - j.w * 0.3, j.y - j.h / 2 - 24, j.w * 0.6, 26, 8); fs(c, '#c9a46e', '#a5824e', 2);
+      for (const f of this.flies[k]) {
+        const fx = f.x + Math.sin(t * 1.3 + f.ph) * 3, fy = f.y + Math.cos(t * 1.1 + f.ph) * 3;
+        drawFirefly(c, fx, fy, t + f.ph, f.c, 1.15);
+        if (f.mark) { circ(c, fx, fy, 19); c.strokeStyle = '#fff'; c.lineWidth = 3; c.stroke(); circ(c, fx + 15, fy - 15, 11); fs(c, '#ff8fb1', '#fff', 2); c.font = '800 13px system-ui, sans-serif'; c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(String(f.mark), fx + 15, fy - 14); }
+      }
+    });
+    if (this.type.startsWith('only')) { rr(c, VW / 2 - 70, 70 - 26 - 40, 140, 44, 22); fs(c, 'rgba(255,255,255,0.85)'); drawFirefly(c, VW / 2 - 25, 26, t, 'y', 1.1); drawIcon(c, 'check', VW / 2 + 25, 26, 24, '#5fd38d'); }
+    const ai = this.opts ? this.opts.indexOf(this.ans) : -1;
+    c.textAlign = 'center'; c.textBaseline = 'middle';
+    L.opts.forEach((o, i) => {
+      const sx = this.shake[i] ? Math.sin(this.shake[i] * 30) * 9 * this.shake[i] : 0, isHint = this.hintT > 0 && i === ai && !right && this.auto < 0, ok = right && i === ai;
+      drawRoundBtn(c, o.x + sx, o.y, L.r, { color: ok ? '#eafbe9' : '#fffaf0', stroke: ok ? '#5fd38d' : '#fff', glow: isHint, pulse: isHint });
+      c.font = '800 ' + Math.round(L.r * 0.9) + 'px system-ui, sans-serif'; c.fillStyle = '#5a4a7a'; c.fillText(String(this.opts[i]), o.x + sx, o.y + 4);
+    });
+    c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+    drawRoundStars(c, this.plan.length, this.winT >= 0 ? this.plan.length : this.round + (right ? 1 : 0));
+    const happy = right || this.winT >= 0;
+    drawActor(c, 'unicorn', L.uni.x, L.uni.y, { size: 96, t, lift: happy ? Math.abs(Math.sin(t * 8)) * 24 : 0, mark: uniMark(), glow: this.hintT > 0 });
+    drawActor(c, 'mouse', L.mouse.x, L.mouse.y, { size: 100, t, flip: true, lift: happy ? Math.abs(Math.sin(t * 9)) * 22 : 0 });
+    this.fx.draw(c);
+    drawHelperBtn(c, this.id); drawMiniExit(c);
+  },
+  down(p) {
+    const e = miniExit(); if (hit(p, e.x, e.y, e.r + 6)) { Sfx.play('tap'); Game.go(World, { from: 'mouse' }); return; }
+    if (helperDown(p, this)) return;
+    if (this.winT >= 0 || this.state !== 'play' || this.auto >= 0) return;
+    const L = this.layout(); this.idle = 0;
+    if (hit(p, L.uni.x, L.uni.y - 50, 56)) { this.hint(); return; }
+    if (this.type === 'more') { const J = this.jars(); for (let k = 0; k < 2; k++) if (Math.abs(p.x - J[k].x) < J[k].w / 2 && Math.abs(p.y - J[k].y) < J[k].h / 2) { if (k === this.ans) this.solved(); else this.wrong(-1); return; } return; }
+    for (let i = 0; i < L.opts.length; i++) if (hit(p, L.opts[i].x, L.opts[i].y, L.r + 8)) { if (this.opts[i] === this.ans) this.solved(); else this.wrong(i); return; }
+    for (const f of this.flies[0]) if (!f.mark && this.counts(f) && dist(p.x, p.y, f.x, f.y) < 26) { this.markFly(f); return; }
+  }
+};
+
+/* ---------- Igel Ida: Memory ----------
+   Immer zwei gleiche Bilder finden. Beim Paar wird das Wort vorgelesen. */
+const MEMO_LEVELS = [{ pairs: 4, cols: 4 }, { pairs: 6, cols: 4 }, { pairs: 8, cols: 4 }];
+const MemoryGame = {
+  id: 'hedgehog',
+  enter() {
+    this.lv = miniLevel('hedgehog'); const d = MEMO_LEVELS[this.lv]; this.cols = d.cols; this.pairs = d.pairs;
+    const pics = shuffle(Object.keys(PICS).slice()).slice(0, d.pairs);
+    this.cards = shuffle(pics.concat(pics)).map(pic => ({ pic, open: false, done: false, f: 0, shake: 0 }));
+    this.sel = []; this.lock = 0; this.t = 0; this.winT = -1; this.idle = 0; this.hintT = 0; this.hintPair = null; this.peek = 0; this.found = 0; this.fx = new Fx();
+    Voice.say(['hedgehog_intro', 'hedgehog_intro2', 'hedgehog_intro3'][this.lv], { pitch: 1.3 });
+  },
+  layout() {
+    const rows = Math.ceil(this.cards.length / this.cols), x0 = 150, x1 = VW - 150, y0 = 78, y1 = VH - 18;
+    const s = Math.min((x1 - x0) / this.cols - 14, (y1 - y0) / rows - 12, 150), g = s + 14, gx = VW / 2 - g * this.cols / 2, gy = (y0 + y1) / 2 - (s + 12) * rows / 2;
+    return { s, pos: this.cards.map((_, i) => ({ x: gx + g * (i % this.cols + 0.5), y: gy + (s + 12) * (Math.floor(i / this.cols) + 0.5) })), uni: { x: 62, y: VH - 10 }, ida: { x: VW - 70, y: VH - 14 } };
+  },
+  update(dt) {
+    this.t += dt; this.fx.update(dt); if (this.hintT > 0) this.hintT -= dt; if (this.peek > 0) this.peek -= dt;
+    for (const c of this.cards) { const tgt = c.open || c.done || this.peek > 0 ? 1 : 0; c.f = clamp(c.f + (tgt ? dt : -dt) * 5, 0, 1); if (c.shake > 0) c.shake -= dt * 2.5; }
+    if (this.winT >= 0) { this.winT += dt; if (this.winT > 2.8) finishMini('hedgehog'); return; }
+    if (this.lock > 0) { this.lock -= dt; if (this.lock <= 0) { this.sel.forEach(i => this.cards[i].open = false); this.sel = []; } return; }
+    this.idle += dt; if (this.idle > CONFIG.hintDelay) this.hint();
+  },
+  hint() { this.idle = 0; const rest = this.cards.map((c, i) => i).filter(i => !this.cards[i].done); if (!rest.length) return; const a = rest[0], b = rest.find(i => i !== a && this.cards[i].pic === this.cards[a].pic); this.hintPair = [a, b]; this.hintT = 3; Sfx.play('hint'); Voice.say('memo_hint', { pitch: 1.3 }); },
+  useHelper() { if (this.lock > 0 || this.peek > 0) return false; this.peek = 2.5; return true; },
+  flip(i) {
+    const card = this.cards[i]; if (card.open || card.done || this.sel.length >= 2) return;
+    card.open = true; this.sel.push(i); Sfx.play('tap'); this.idle = 0; this.hintT = 0;
+    if (this.sel.length < 2) return;
+    const [a, b] = this.sel, A = this.cards[a], B = this.cards[b];
+    if (A.pic === B.pic) {
+      A.done = B.done = true; this.sel = []; this.found++; Sfx.play('good'); const L = this.layout();
+      this.fx.burst(L.pos[a].x, L.pos[a].y, 12, { g: 80 }); this.fx.burst(L.pos[b].x, L.pos[b].y, 12, { g: 80 });
+      if (this.found >= this.pairs) miniWin(this); else Voice.say('read_word', { vars: { wort: spokenWord(A.pic) } });
+    } else { this.lock = 1.1; A.shake = B.shake = 0.6; if (Math.random() < 0.35) Voice.say('memo_no', { pitch: 1.3 }); }
+  },
+  draw(c) {
+    const L = this.layout(), t = this.t;
+    const g = c.createLinearGradient(0, 0, 0, VH); g.addColorStop(0, '#fff0d4'); g.addColorStop(1, '#ffd9b8'); c.fillStyle = g; c.fillRect(0, 0, VW, VH);
+    c.fillStyle = 'rgba(255,255,255,0.35)'; for (let i = 0; i < 10; i++) { circ(c, (i * 173 + 50) % VW, (i * 89) % VH, 18 + (i % 3) * 8); c.fill(); }
+    this.cards.forEach((card, i) => {
+      const p = L.pos[i], s = L.s, sx = card.shake > 0 ? Math.sin(card.shake * 30) * 6 : 0, k = Math.abs(Math.cos(card.f * Math.PI)), face = card.f > 0.5;
+      const isHint = this.hintT > 0 && this.hintPair && this.hintPair.includes(i);
+      if (isHint) { c.fillStyle = 'rgba(255,225,90,' + (0.5 + Math.sin(t * 8) * 0.2) + ')'; rr(c, p.x - s / 2 - 10, p.y - s / 2 - 10, s + 20, s + 20, 22); c.fill(); }
+      c.save(); c.translate(p.x + sx, p.y); c.scale(Math.max(0.04, k), 1);
+      if (face) { rr(c, -s / 2, -s / 2, s, s, 16); fs(c, card.done ? '#eafbe9' : '#fffdf7', card.done ? '#5fd38d' : '#e6d9bd', card.done ? 5 : 3); drawPic(c, card.pic, 0, 0, s * 0.8); }
+      else { rr(c, -s / 2, -s / 2, s, s, 16); fs(c, '#ffb65c', '#fff', 4); c.fillStyle = 'rgba(255,255,255,0.5)'; heartPath(c, 0, 4, s * 0.25); c.fill(); c.strokeStyle = 'rgba(255,255,255,0.4)'; c.lineWidth = 3; rr(c, -s / 2 + 10, -s / 2 + 10, s - 20, s - 20, 10); c.stroke(); }
+      c.restore();
+    });
+    for (let i = 0; i < this.pairs; i++) { starPath(c, VW - 40 - (this.pairs - 1 - i) * 30, 36, 12); fs(c, i < this.found ? '#ffd54a' : 'rgba(255,255,255,0.8)', '#f0b429', 2); }
+    const happy = this.winT >= 0;
+    drawActor(c, 'unicorn', L.uni.x, L.uni.y, { size: 96, t, lift: happy ? Math.abs(Math.sin(t * 8)) * 24 : 0, mark: uniMark(), glow: this.hintT > 0 });
+    drawActor(c, 'hedgehog', L.ida.x, L.ida.y, { size: 96, t, flip: true, lift: happy ? Math.abs(Math.sin(t * 9)) * 22 : 0 });
+    this.fx.draw(c);
+    drawHelperBtn(c, this.id); drawMiniExit(c);
+  },
+  down(p) {
+    const e = miniExit(); if (hit(p, e.x, e.y, e.r + 6)) { Sfx.play('tap'); Game.go(World, { from: 'hedgehog' }); return; }
+    if (helperDown(p, this)) return;
+    if (this.winT >= 0 || this.lock > 0 || this.peek > 0) return;
+    const L = this.layout();
+    if (hit(p, L.uni.x, L.uni.y - 50, 56)) { this.hint(); return; }
+    for (let i = 0; i < this.cards.length; i++) if (Math.abs(p.x - L.pos[i].x) < L.s / 2 && Math.abs(p.y - L.pos[i].y) < L.s / 2) { this.flip(i); return; }
+  }
+};
+
+const MINIGAMES = { owl: OwlGame, fox: FoxGame, frog: FrogGame, dragon: DragonGame, snail: ReadGame, squirrel: MathGame, mouse: CountGame, hedgehog: MemoryGame };

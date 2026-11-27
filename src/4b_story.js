@@ -3,10 +3,13 @@
    Alles hier hängt sich an World an. Neue Aufträge = neuer Eintrag in QUESTS (+ Sprachtexte q_<id>_offer/_remind/_done).
    Ein Gespräch ist eine Liste von Zeilen: [wer spricht, Sprachtext-Schlüssel, Bilder in der Blase, { vars, choice }]. */
 const NPC_PITCH = { owl: 1.0, fox: 1.1, frog: 1.2, dragon: 1.7, snail: 1.25, squirrel: 1.45, duck: 1.3, bee: 1.6, bear: 0.75, mole: 0.95, bunny: 1.5, uni: 1.3 };
-const COS = { acorn: 't', crown: 't', flowers: 'uni', bow: 'uni' };          // Schmuck: für T oder fürs Einhorn
-const SHOP = [{ id: 'feather', price: 3 }, { id: 'lens', price: 3 }, { id: 'lily', price: 3 }, { id: 'slow', price: 3 }, { id: 'bow', price: 5, cos: true }, { id: 'crown', price: 8, cos: true }];
+const COS = { acorn: 't', crown: 't', shroomhat: 't', flowers: 'uni', bow: 'uni' };          // Schmuck: für T oder fürs Einhorn
+const SHOP = [{ id: 'feather', price: 3 }, { id: 'lens', price: 3 }, { id: 'lily', price: 3 }, { id: 'slow', price: 3 }, { id: 'eye', price: 3 }, { id: 'bow', price: 5, cos: true }, { id: 'crown', price: 8, cos: true }];
 const COLOR_WORD = { r: 'rote', y: 'gelbe', b: 'blaue' };
-const SPLITTERS = ['owl', 'fox', 'frog', 'dragon'];                            // die vier Splitter aus Kapitel 1
+const SPLITTERS_WALD = ['owl', 'fox', 'frog', 'dragon'];                       // Splitter aus Kapitel 1
+const SPLITTERS = SPLITTERS_WALD.concat(['mouse', 'hedgehog']);                 // alle bisher erreichbaren Splitter (8 insgesamt geplant)
+const ALBUM = ['owl', 'fox', 'frog', 'dragon', 'snail', 'squirrel', 'duck', 'bee', 'bear', 'mole', 'bunny', 'mouse', 'hedgehog'];
+const ITEM_VOICE = { chick: 'q_duck_item', nut: 'q_nut_found', lamp: 'q_lamp_item', berry: 'q_cake_item', shroom: 'q_cake_item' };
 // Nebenaufgaben. bushes = Nummern in QUEST_BUSHES; reward: helper/n, item, tool, cos, shop. Jede erledigte Aufgabe gibt zusätzlich 2 Glitzersterne.
 const QUESTS = {
   duck:     { type: 'collect', item: 'chick', n: 3, spots: [[2290, 2400], [1960, 2330], [2880, 2760]], follow: true, reward: { helper: 'lily', n: 2 }, show: ['chick', 'chick', 'chick'] },
@@ -15,7 +18,9 @@ const QUESTS = {
   mole:     { type: 'collect', item: 'glasses', n: 1, hide: 'bush', bushes: [3, 4, 5], reward: { tool: 'compass' }, show: ['glasses', 'bush'] },
   bunny:    { type: 'collect', item: 'hoppel', n: 3, hide: 'bush', bushes: [0, 1, 2], seq: true, reward: { cos: 'flowers' }, show: ['bunny', 'bush'] },
   snail:    { type: 'errand', to: 'fox', give: 'letter', back: 'answer', needLv: 1, learn: true, reward: { helper: 'lens', n: 2 }, show: ['letter', 'fox'] },
-  squirrel: { type: 'collect', item: 'nut', n: 6, hide: 'tree', needLv: 1, learn: true, reward: { cos: 'acorn', shop: true }, show: ['nut', 'BAUM'] }
+  squirrel: { type: 'collect', item: 'nut', n: 6, hide: 'tree', needLv: 1, learn: true, reward: { cos: 'acorn', shop: true }, show: ['nut', 'BAUM'] },
+  mouse:    { type: 'collect', item: 'lamp', n: 5, spots: LANTERNS.map(l => [l[0], l[1] + 26, 'lamp']), needLv: 1, reward: { cos: 'shroomhat' }, show: ['lantern'] },
+  hedgehog: { type: 'collect', item: 'mix', n: 6, spots: CAKE_SPOTS.map(q => [q[0], q[1] + (q[2] === 'berry' ? 30 : 0), q[2]]), needLv: 1, reward: { helper: 'eye', n: 2 }, show: ['berry', 'shroom'] }
 };
 const questBush = i => World.bushes[2 + i];                                    // die festen Auftrags-Büsche stehen nach den zwei ersten Büschen
 
@@ -39,8 +44,12 @@ Object.assign(World, {
       after: () => { S.story = 1; Save.store(); this.startNpc('owl'); } };
     if (S.story === 1 && S.dragonFriend && this.dragonReady()) return { npc: 'dragon', lines: [['dragon', 'story_funki1', ['heart']], ['dragon', 'story_funki2', ['rainbow', 'splitter']], ['dragon', 'story_funki3', ['heart', 'dragon']]],
       after: () => { S.story = 2; Save.store(); this.startNpc('dragon'); } };
-    if (S.story === 2 && SPLITTERS.every(id => S.crystals[id])) return { npc: 'owl', lines: [['owl', 'story_owl4', ['rainbow', 'splitter']], ['owl', 'story_owl5', ['gate']]],
-      after: () => { S.story = 3; Save.store(); Sfx.play('fanfare'); ScreenFx.confetti(VW, 60); this.fx.burst(GATE.x, GATE.y - 60, 30, { g: 60 }); this.hint = { t: 10, target: { x: GATE.x, y: GATE.y + 40, gate: true }, path: this.findPath(this.T.x, this.T.y, GATE.x, GATE.y + 40) || [{ x: GATE.x, y: GATE.y + 40 }] }; } };
+    if (S.story === 2 && SPLITTERS_WALD.every(id => S.crystals[id])) return { npc: 'owl', lines: [['owl', 'story_owl4', ['rainbow', 'splitter']], ['owl', 'story_owl5', ['gate']]],
+      after: () => { S.story = 3; Save.store(); this.setGate(true); Sfx.play('fanfare'); ScreenFx.confetti(VW, 60); this.fx.burst(GATE.x, GATE.y - 60, 30, { g: 60 }); this.hint = { t: 10, target: { x: GATE.x, y: GATE.y + 40, gate: true }, path: this.findPath(this.T.x, this.T.y, GATE.x, GATE.y + 40) || [{ x: GATE.x, y: GATE.y + 40 }] }; } };
+    if (S.story === 3) return { npc: 'mouse', lines: [['mouse', 'story_mia1', ['mouse', 'shroom']], ['mouse', 'story_mia2', ['lantern', 'rainbow']], ['mouse', 'story_mia3', ['splitter', 'mouse', 'hedgehog']]],
+      after: () => { S.story = 4; Save.store(); this.startNpc('mouse'); } };
+    if (S.story === 4 && S.crystals.mouse && S.crystals.hedgehog) return { npc: 'mouse', lines: [['mouse', 'story_mia4', ['rainbow', 'lantern']], ['mouse', 'story_mia5', ['unicorn', 'wings']], ['uni', 'story_uni_wings', ['wings', 'cloud']]],
+      after: () => { S.story = 5; S.wings = true; Save.store(); Sfx.play('fanfare'); ScreenFx.confetti(VW, 70); this.U.hop = 1; delete SIL.unicorn; this.fx.burst(this.U.x, this.U.y - 60, 30, { g: 40 }); } };
     return null;
   },
   storyQuestTarget() {
@@ -157,7 +166,7 @@ Object.assign(World, {
     else Voice.say('quest_accept', { pitch: NPC_PITCH[id] });
   },
   makeQuestItems(q) {
-    if (q.spots) return q.spots.map(p => { const k = this.nearFree(p[0], p[1]); return { x: (k % this.cols + 0.5) * WORLD.cell, y: (Math.floor(k / this.cols) + 0.5) * WORLD.cell, shown: true, got: false }; });
+    if (q.spots) return q.spots.map(p => { const k = this.nearFree(p[0], p[1]); return { x: (k % this.cols + 0.5) * WORLD.cell, y: (Math.floor(k / this.cols) + 0.5) * WORLD.cell, shown: true, got: false, k: p[2] || q.item }; });
     if (q.hide === 'bush') return [{ bush: 2 + pick(q.bushes), shown: false, got: false }];
     // Nüsse: in sechs Bäumen rund um Flink
     const g = NPCS.squirrel, near = this.trees.map((tr, i) => ({ i, d: dist(tr.x, tr.y, g.x, g.y) })).filter(o => o.d > 140 && o.d < 900 && this.trees[o.i].y > 220 && this.trees[o.i].x > 140).sort((a, b) => a.d - b.d).slice(0, 10);
@@ -186,7 +195,7 @@ Object.assign(World, {
   /* ---- Antippen in der Welt, das zu Aufträgen gehört ---- */
   questTap(x, y) {
     const S = Save.data;
-    if (dist(x, y, GATE.x, GATE.y - 50) < 90) { Sfx.play('crystal'); this.fx.burst(GATE.x, GATE.y - 60, 12, { g: 40 }); Voice.say(S.story >= 3 ? 'story_gate' : 'gate_closed'); return true; }
+    if (!this.gateOpen && dist(x, y, GATE.x, GATE.y - 50) < 90) { Sfx.play('crystal'); this.fx.burst(GATE.x, GATE.y - 60, 12, { g: 40 }); Voice.say('gate_closed'); return true; }
     for (const id of this.activeQuests()) {
       const q = QUESTS[id], st = this.qs(id);
       if (q.type === 'collect' && !q.seq) for (const it of st.items) if (it.shown && !it.got && dist(x, y, it.x, it.y - 12) < 46) { Sfx.play('tap'); this.walkTo(it.x, it.y); return true; }
@@ -230,7 +239,7 @@ Object.assign(World, {
       if (q.type !== 'collect' || q.seq || this.blocked()) continue;
       for (const it of st.items) if (it.shown && !it.got && dist(T.x, T.y, it.x, it.y) < 46) {
         it.got = true; st.n++; Save.store(); Sfx.play('star'); this.fx.burst(it.x, it.y - 20, 10, { g: 80 });
-        Voice.say(st.n >= q.n ? 'q_ready_generic' : q.item === 'chick' ? 'q_duck_item' : 'q_nut_found', { pitch: q.item === 'chick' ? 1.8 : 1.15 });
+        Voice.say(st.n >= q.n ? 'q_ready_generic' : ITEM_VOICE[it.k || q.item] || 'q_nut_found', { pitch: q.item === 'chick' ? 1.8 : 1.15 });
       }
     }
   },
@@ -248,7 +257,7 @@ Object.assign(World, {
       if (q.type !== 'collect' || q.seq) continue;
       for (const it of st.items) {
         if (it.got) continue;
-        if (it.shown) { if (!inView(it.x, it.y, 40)) continue; add(it.y, () => { if (q.item === 'chick') drawChick(c, it.x, it.y, t + it.x, 1.4); else if (q.item === 'nut') { c.fillStyle = 'rgba(255,240,140,0.4)'; circ(c, it.x, it.y - 14, 22); c.fill(); drawThing(c, 'nut', it.x, it.y - 14 - Math.abs(Math.sin(t * 3)) * 4, 30); } }); }
+        if (it.shown) { if (!inView(it.x, it.y, 40) || it.k === 'lamp' || it.k === 'berry') continue; add(it.y, () => { if (it.k === 'shroom') drawGoldShroom(c, it.x, it.y, t); else if (q.item === 'chick') drawChick(c, it.x, it.y, t + it.x, 1.4); else if (q.item === 'nut') { c.fillStyle = 'rgba(255,240,140,0.4)'; circ(c, it.x, it.y - 14, 22); c.fill(); drawThing(c, 'nut', it.x, it.y - 14 - Math.abs(Math.sin(t * 3)) * 4, 30); } }); }
         else if (it.tree != null) { const tr = this.trees[it.tree]; if (inView(tr.x, tr.y, 150)) add(tr.y + 0.5, () => drawThing(c, 'nut', tr.x + 16 * tr.s, tr.y - 70 * tr.s + Math.sin(t * 3 + it.tree) * 2, 20)); }
       }
       if (q.follow) { let k = 0; const tr = this.chickTrail; for (const it of st.items) if (it.got) { const p = tr[Math.max(0, tr.length - 1 - 5 * (k + 1))] || this.T; k++; add(p.y, () => drawChick(c, p.x, p.y, t * 1.3 + k, 1.3)); } }
@@ -280,7 +289,7 @@ Object.assign(World, {
       c.save(); circ(c, q.x + 28, q.y + 28, 22); c.clip(); c.fillStyle = '#fff7ea'; c.fill(); const n = NPCS[q.id]; drawActor(c, n.art, q.x + 28, q.y + 28 + 22 * 0.9, { size: 46 * 70 / Math.max(64, n.size), t: 1, noShadow: true }); c.restore();
       if (ready) { circ(c, q.x + 80, q.y + 28, 15); fs(c, '#5fd38d', '#fff', 2.5); drawIcon(c, 'check', q.x + 80, q.y + 28, 17); continue; }
       if (def.type === 'collect') {
-        drawThing(c, def.item === 'hoppel' ? 'bunny' : def.item, q.x + 72, q.y + 28, 30);
+        drawThing(c, def.show ? def.show[0] : def.item, q.x + 72, q.y + 28, 30);
         const sp = Math.min(13, 80 / def.n); for (let k = 0; k < def.n; k++) { circ(c, q.x + 96 + k * sp + 4, q.y + 28, 5); fs(c, k < st.n ? '#ffd54a' : '#fff', '#c9b8e0', 1.5); }
       } else if (def.type === 'sequence') st.order.forEach((col, k) => { drawThing(c, 'flower_' + col, q.x + 72 + k * 32, q.y + 28, 26); if (k < st.idx) { circ(c, q.x + 82 + k * 32, q.y + 18, 7); fs(c, '#5fd38d'); } });
       else if (def.type === 'deliver') { c.globalAlpha = S.inv[def.item] ? 1 : 0.35; drawThing(c, def.item, q.x + 76, q.y + 28, 30); c.globalAlpha = 1; drawThing(c, 'bear', q.x + 120, q.y + 28, 34); }
@@ -304,13 +313,13 @@ Object.assign(World, {
   ovClose() { const R = this.panelRect(), r = Math.max(View.btn / 2 - 6, 42); return { x: R.x + R.w - r - 8, y: R.y + r + 8, r }; },
   packLayout() {
     const R = this.panelRect(), S = Save.data, r = clamp(R.h / 11, 34, 46), row = k => R.y + 92 + k * (R.h - 120) / 3 + 20;
-    const helpers = ['feather', 'lens', 'lily', 'slow'].map((h, i) => ({ id: h, x: R.x + 150 + i * (r * 2 + 50), y: row(1), r }));
+    const helpers = ['feather', 'lens', 'lily', 'slow', 'eye'].map((h, i) => ({ id: h, x: R.x + 150 + i * (r * 2 + 40), y: row(1), r }));
     const cos = S.cos.map((cid, i) => ({ id: cid, x: R.x + 150 + i * (r * 2 + 40), y: row(2), r }));
-    return { R, r, rowY: row, helpers, cos };
+    return { R, r, rowY: row, helpers, cos, album: { x: R.x + 320, y: R.y + 45, r: Math.max(View.btn / 2 - 4, 40) } };
   },
   shopLayout() {
-    const R = this.panelRect(), r = clamp(R.h / 10, 36, 52), cols = 3, cw = (R.w - 120) / cols;
-    return { R, r, goods: SHOP.map((g, i) => ({ g, x: R.x + 80 + cw * (i % cols + 0.5), y: R.y + 130 + Math.floor(i / cols) * (R.h - 150) / 2, r })) };
+    const R = this.panelRect(), r = clamp(R.h / 10, 36, 50), cols = 4, cw = (R.w - 140) / cols;
+    return { R, r, goods: SHOP.map((g, i) => ({ g, x: R.x + 80 + cw * (i % cols + 0.5), y: R.y + 140 + Math.floor(i / cols) * (R.h - 160) / 2, r })) };
   },
   drawOverlay(c, t) {
     const o = this.overlay, R = this.panelRect(), S = Save.data;
@@ -324,6 +333,7 @@ Object.assign(World, {
     if (o.kind === 'pack') {
       const L = this.packLayout();
       drawBackpack(c, R.x + 220, R.y + 45, 46);
+      drawRoundBtn(c, L.album.x, L.album.y, L.album.r, { color: '#f3e8ff', pulse: true }); drawThing(c, 'book', L.album.x, L.album.y, L.album.r * 1.15);
       // Kristalle
       drawCrystal(c, R.x + 60, L.rowY(0), 16, '#d6cfe6');
       npcOrder().forEach((id, i) => { const x = R.x + 150 + i * 80, y = L.rowY(0), lv = this.packLv(id);
@@ -341,6 +351,17 @@ Object.assign(World, {
       // T und Einhorn mit ihrem Schmuck
       drawActor(c, 'unicorn', R.x + R.w - 120, R.y + R.h - 40, { size: 120, t, mark: uniMark() });
       drawActor(c, 't', R.x + R.w - 220, R.y + R.h - 40, { size: 110, t });
+    } else if (o.kind === 'album') {
+      drawThing(c, 'book', R.x + 220, R.y + 45, 50);
+      for (const q of this.albumLayout()) {
+        const f = this.isFriend(q.id), gold = (Save.data.level[q.id] || 0) >= 3;
+        circ(c, q.x, q.y, q.r); fs(c, f ? '#fff7ea' : '#efeaf4', gold ? '#ffd54a' : f ? '#ff8fb1' : '#e0d8ea', gold ? 6 : 4);
+        c.save(); circ(c, q.x, q.y, q.r - 3); c.clip();
+        const n = NPCS[q.id], sz = q.r * 1.6 * Math.min(1.2, 76 / n.size);
+        if (f) drawActor(c, n.art, q.x, q.y + q.r * 0.85, { size: sz, t: 1, noShadow: true }); else { c.globalAlpha = 0.5; drawSilhouette(c, n.art, q.x, q.y + q.r * 0.85, sz); c.globalAlpha = 1; }
+        c.restore();
+        if (f && gold) { starPath(c, q.x + q.r * 0.7, q.y - q.r * 0.7, 10); fs(c, '#ffe066', '#f0b429', 2); }
+      }
     } else {
       const L = this.shopLayout();
       drawActor(c, 'squirrel', R.x + R.w - 70, R.y + R.h - 20, { size: 110, t, flip: true });
@@ -358,10 +379,15 @@ Object.assign(World, {
     }
     c.textAlign = 'left'; c.textBaseline = 'alphabetic';
   },
+  isFriend(id) { const S = Save.data; return !!(S.crystals[id] || (S.quests[id] && S.quests[id].s === 'done')); },
+  albumLayout() { const R = this.panelRect(), cols = 7, r = clamp(Math.min((R.w - 80) / cols / 2 - 8, (R.h - 120) / 4 - 6), 30, 50), cw = (R.w - 60) / cols;
+    return ALBUM.map((id, i) => ({ id, x: R.x + 30 + cw * (i % cols + 0.5), y: R.y + 140 + Math.floor(i / cols) * (r * 2 + 26), r })); },
   overlayDown(p) {
     const o = this.overlay, S = Save.data, X = this.ovClose();
-    if (hit(p, X.x, X.y, X.r + 10)) { this.overlay = null; Sfx.play('tap'); return; }
+    if (hit(p, X.x, X.y, X.r + 10)) { this.overlay = o.kind === 'album' ? { kind: 'pack', t: 0, shake: {} } : null; Sfx.play('tap'); return; }
+    if (o.kind === 'album') { for (const q of this.albumLayout()) if (hit(p, q.x, q.y, q.r + 6)) { const f = this.isFriend(q.id); Sfx.play(f ? 'pop' : 'tap'); Voice.say(f ? 'npc_thanks' : 'album_unknown', { pitch: f ? NPC_PITCH[q.id] : 1.15 }); if (f) ScreenFx.burst(q.x, q.y, 12, { shape: 'heart', color: '#ff8fb1', g: -40 }); return; } return; }
     if (o.kind === 'pack') {
+      const AB = this.packLayout().album; if (hit(p, AB.x, AB.y, AB.r + 8)) { this.overlay = { kind: 'album', t: 0, shake: {} }; Sfx.play('pop'); Voice.say('album_open'); return; }
       for (const q of this.packLayout().cos) if (hit(p, q.x, q.y, q.r + 8)) { const slot = COS[q.id]; S.wear[slot] = S.wear[slot] === q.id ? null : q.id; Save.store(); delete SIL.t; delete SIL.unicorn; Sfx.play('pop'); if (S.wear[slot]) Voice.say('wear_on'); return; }
       return;
     }

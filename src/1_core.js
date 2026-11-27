@@ -110,6 +110,38 @@ const SPEECH = {
   story_owl5:      { text: 'Die anderen Splitter sind im Pilzdorf und auf den Wolkeninseln. Unten bei der Blumenwiese hat sich das Pilztor geöffnet!', audio: null },
   story_gate:      { text: 'Das Pilztor glitzert! Bald geht es hier ins Pilzdorf.', audio: null },
   gate_closed:     { text: 'Das Pilztor ist noch zu. Sammle erst die Splitter im Zauberwald!', audio: null },
+  /* --- Kapitel 2: Pilzdorf --- */
+  area_dorf:       { text: 'Willkommen im Pilzdorf!', audio: null },
+  area_wald:       { text: 'Zurück im Zauberwald!', audio: null },
+  story_mia1:      { text: 'Oh, hallo {spieler}! Willkommen im Pilzdorf. Ich bin Mia, die Bürgermeisterin.', audio: null },
+  story_mia2:      { text: 'Seit der Regenbogenkristall zerbrochen ist, sind unsere Laternen aus. Es ist so dunkel hier!', audio: null },
+  story_mia3:      { text: 'Igel Ida und ich haben je einen Splitter gefunden. Löst du unsere Rätsel? Fang bei mir mit dem Zählen an!', audio: null },
+  story_mia4:      { text: 'Du hast beide Splitter aus dem Pilzdorf! Schau, wie hell es auf einmal ist!', audio: null },
+  story_mia5:      { text: 'Und schau mal dein Einhorn an... es hat Flügel bekommen!', audio: null },
+  story_uni_wings: { text: 'Ich kann fliegen! Bald fliegen wir zusammen zu den Wolkeninseln!', audio: null },
+  mouse_intro:     { text: 'Hilf mir, die Glühwürmchen zu zählen! Tipp sie an, dann zählst du mit.', audio: null },
+  mouse_intro2:    { text: 'Jetzt zählen wir manchmal nur die gelben Glühwürmchen. Pass gut auf!', audio: null },
+  mouse_intro3:    { text: 'Jetzt sind es ganz viele! Und manchmal fragen wir: Wo sind mehr?', audio: null },
+  count_task:      { text: 'Wie viele Glühwürmchen sind im Glas?', audio: null },
+  count_only:      { text: 'Zähle nur die gelben Glühwürmchen!', audio: null },
+  count_more:      { text: 'In welchem Glas sind mehr Glühwürmchen?', audio: null },
+  count_hint:      { text: 'Wir zählen zusammen!', audio: null },
+  count_num:       { text: '{n}', audio: null },
+  hedgehog_intro:  { text: 'Hallo, ich bin Ida, die Bäckerin! Meine Bilderkarten sind durcheinander. Finde immer zwei gleiche!', audio: null },
+  hedgehog_intro2: { text: 'Jetzt sind es mehr Karten! Merk dir gut, wo welches Bild liegt.', audio: null },
+  hedgehog_intro3: { text: 'Jetzt ganz viele Karten! Du schaffst das!', audio: null },
+  memo_hint:       { text: 'Schau mal, diese zwei gehören zusammen!', audio: null },
+  memo_no:         { text: ['Nicht gleich. Merk sie dir!', 'Hm, das passt nicht.'], audio: null },
+  q_mouse_offer:   { text: 'Hilfst du mir, die fünf Pilzlaternen im Dorf wieder anzuzünden? Lauf einfach zu jeder Laterne hin!', audio: null },
+  q_mouse_remind:  { text: 'Es sind fünf Laternen. Lauf zu jeder hin, dann leuchtet sie!', audio: null },
+  q_lamp_item:     { text: ['Die Laterne leuchtet!', 'Wie hell!'], audio: null },
+  q_mouse_done:    { text: 'Alle Laternen leuchten! Danke, {spieler}! Hier ist ein Pilzhut für dich. Der steht dir!', audio: null },
+  q_hedgehog_offer:  { text: 'Ich möchte einen Kuchen backen! Bringst du mir vier Beeren und zwei goldene Pilze? Die wachsen rund ums Dorf.', audio: null },
+  q_hedgehog_remind: { text: 'Ich brauche vier Beeren und zwei goldene Pilze für den Kuchen.', audio: null },
+  q_cake_item:     { text: ['Lecker!', 'Für den Kuchen!', 'Gefunden!'], audio: null },
+  q_hedgehog_done: { text: 'Mmh, das wird ein feiner Kuchen! Danke! Hier sind zwei Zauberaugen: Damit siehst du beim Memory kurz alle Karten.', audio: null },
+  album_open:      { text: 'Das ist dein Album. Hier sind alle deine Freunde!', audio: null },
+  album_unknown:   { text: 'Diese Figur kennst du noch nicht. Such sie in der Welt!', audio: null },
   /* --- Nebenaufgaben --- */
   q_duck_offer:    { text: 'Quak quak! Oh je, meine drei Küken sind weggelaufen. Hilfst du mir, sie zu finden?', audio: null },
   q_duck_remind:   { text: 'Hast du meine Küken gesehen? Es sind drei!', audio: null },
@@ -364,7 +396,7 @@ const Voice = {
 /* ---- Spielstand ---- */
 const Save = {
   data: null,
-  fresh() { return { name: null, nameId: null, crystals: { owl: false, fox: false, frog: false, dragon: false, snail: false, squirrel: false }, level: { owl: 0, fox: 0, frog: 0, dragon: 0, snail: 0, squirrel: 0 }, player: null, learn: true, partyN: 0, goldN: 0, story: 0, quests: {}, inv: {}, helpers: { feather: 0, lens: 0, lily: 0, slow: 0 }, cos: [], wear: { t: null, uni: null }, wallet: 0, tools: {}, shopOpen: false, goldParty: false, party4: false, goldParty4: false, dragonFriend: false, stars: [], rideTold: false, worldV: 0, dragon: { state: 'waiting', x: 0, y: 0, who: null }, celebrated: false, pos: null }; },
+  fresh() { return { name: null, nameId: null, crystals: { owl: false, fox: false, frog: false, dragon: false, snail: false, squirrel: false, mouse: false, hedgehog: false }, level: { owl: 0, fox: 0, frog: 0, dragon: 0, snail: 0, squirrel: 0, mouse: 0, hedgehog: 0 }, player: null, learn: true, partyN: 0, goldN: 0, story: 0, quests: {}, inv: {}, helpers: { feather: 0, lens: 0, lily: 0, slow: 0, eye: 0 }, wings: false, cos: [], wear: { t: null, uni: null }, wallet: 0, tools: {}, shopOpen: false, goldParty: false, party4: false, goldParty4: false, dragonFriend: false, stars: [], rideTold: false, worldV: 0, dragon: { state: 'waiting', x: 0, y: 0, who: null }, celebrated: false, pos: null }; },
   load() {
     this.data = this.fresh();
     try {
@@ -374,7 +406,7 @@ const Save = {
   },
   store() { try { window.localStorage.setItem(CONFIG.saveKey, JSON.stringify(this.data)); } catch (e) {} },
   // Nur den Fortschritt löschen (Kristalle, Stufen, Drache); der Name des Einhorns bleibt
-  resetProgress() { const f = this.fresh(); f.name = this.data.name; f.nameId = this.data.nameId; f.player = this.data.player; f.learn = this.data.learn; f.cos = this.data.cos; f.wear = this.data.wear; this.data = f; this.store(); },
+  resetProgress() { const f = this.fresh(); f.name = this.data.name; f.nameId = this.data.nameId; f.player = this.data.player; f.learn = this.data.learn; f.cos = this.data.cos; f.wear = this.data.wear; f.wings = this.data.wings; this.data = f; this.store(); },
   reset() { this.data = this.fresh(); try { window.localStorage.removeItem(CONFIG.saveKey); } catch (e) {} }
 };
 

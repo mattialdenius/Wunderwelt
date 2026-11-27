@@ -4,9 +4,10 @@
    Zauberwald (Mitte-West), Hügel (Nordwest), Blumenwiese mit Pilzkreis (Südwest),
    Fluss mit drei Brücken, Fuchslichtung (Nordost), Seerosensee (Südost), Drachenfelsen (Osten).
    Weitere Gebiete später: eigenes Objekt nach diesem Muster anlegen (Karte, NPCS, Wege). */
-const WORLD = { w: 5600, h: 3600, cell: 20 };
+const WORLD = { w: 5600, h: 5000, cell: 20 };
+const HEDGE_Y = 3600;                                                      // Hecke zwischen Zauberwald (Norden) und Pilzdorf (Süden)
 const riverX = y => 2500 + 170 * Math.sin(y / 420 + 0.4) + 50 * Math.sin(y / 150);
-const BRIDGES = [900, 1950, 3050].map(y => ({ y, h: 96, w: 270, x: riverX(y) }));
+const BRIDGES = [900, 1950, 3050, 4400].map(y => ({ y, h: 96, w: 270, x: riverX(y) }));
 const LAKE = { x: 3750, y: 2550, rx: 560, ry: 290 };
 const POND = { x: 1750, y: 2250, rx: 125, ry: 72 };
 const RING = { x: 620, y: 2880, r: 105 };       // Pilzkreis: jeder Pilz singt einen Ton
@@ -21,6 +22,9 @@ const NPCS = {
   // Lesen und Rechnen (im Eltern-Bereich abschaltbar, dann verschwinden die beiden)
   snail:    { id: 'snail',    x: 3620, y: 1990, art: 'snail',    size: 82, icon: 'abc',  lift: 0, sound: 'hop', hop: 0, learn: true },
   squirrel: { id: 'squirrel', x: 1040, y: 1780, art: 'squirrel', size: 88, icon: 'math', lift: 0, sound: 'hop', hop: 0, learn: true },
+  // Pilzdorf (Kapitel 2)
+  mouse:    { id: 'mouse',    x: 1600, y: 4170, art: 'mouse',    size: 76, icon: 'firefly', lift: 0, sound: 'squeak', hop: 0 },
+  hedgehog: { id: 'hedgehog', x: 1220, y: 4440, art: 'hedgehog', size: 72, icon: 'cards',   lift: 0, sound: 'hop', hop: 0 },
   // Figuren mit Nebenaufgaben (kein Minispiel, keine Kristalle)
   duck:  { id: 'duck',  x: 3020, y: 2470, art: 'duckNpc', size: 70, icon: 'chick',   lift: 0, sound: 'quak', hop: 0, quest: true },
   bee:   { id: 'bee',   x: 1460, y: 2990, art: 'bee',     size: 64, icon: 'honey',   lift: 26, sound: 'flutter', hop: 0, quest: true },
@@ -29,14 +33,20 @@ const NPCS = {
   bunny: { id: 'bunny', x: 1880, y: 1580, art: 'bunny',   size: 72, icon: 'bush',    lift: 0, sound: 'hop', hop: 0, quest: true }
 };
 const QUEST_NPCS = ['duck', 'bee', 'bear', 'mole', 'bunny'];
-const GATE = { x: 1500, y: 3440 };                                         // Pilztor (öffnet sich am Ende von Kapitel 1)
+const GATE = { x: 1500, y: HEDGE_Y };                                      // Pilztor: einziger Durchgang durch die Hecke (offen ab Ende Kapitel 1)
+// Pilzdorf
+const PLAZA = { x: 1500, y: 4300, r: 150 };
+const HOUSES = [{ x: 1760, y: 4060, r: 78, col: '#ff6b6b', chimney: true }, { x: 1080, y: 4330, r: 62, col: '#ff9f5a', chimney: true }, { x: 1900, y: 4450, r: 58, col: '#c98bff' },
+  { x: 1800, y: 4780, r: 54, col: '#5aa9ff' }, { x: 1180, y: 4780, r: 56, col: '#ff7fb0' }, { x: 860, y: 4060, r: 52, col: '#ffd23f' }, { x: 2200, y: 4060, r: 54, col: '#5fd38d' }];
+const LANTERNS = [[1370, 4190], [1640, 4200], [1500, 4480], [1000, 4560], [1990, 4580]];
+const CAKE_SPOTS = [[700, 4450, 'berry'], [2350, 4650, 'berry'], [600, 4860, 'berry'], [2050, 4910, 'berry'], [850, 4530, 'shroom'], [2300, 4280, 'shroom']];
 const BEE_FLOWERS = [{ x: 1320, y: 2920, c: 'r' }, { x: 1620, y: 2890, c: 'y' }, { x: 1480, y: 3120, c: 'b' }];
 const QUEST_BUSHES = [[2060, 1470], [1740, 1420], [2010, 1730], [520, 3280], [770, 3380], [380, 3060]];
-const NPC_ALL = ['owl', 'fox', 'frog', 'dragon', 'snail', 'squirrel'];
+const NPC_ALL = ['owl', 'fox', 'frog', 'dragon', 'snail', 'squirrel', 'mouse', 'hedgehog'];
 const npcOrder = () => NPC_ALL.filter(id => Save.data.learn || !NPCS[id].learn);   // wer gerade mitspielt (Reihenfolge = Rucksack)
 const walkers = () => npcOrder().filter(id => id !== 'dragon');
 const visibleNpcs = () => walkers().concat(QUEST_NPCS);
-const CRYSTAL_COL = { owl: '#b79cff', fox: '#ffb65c', frog: '#6fdc8c', dragon: '#ff8fb1', snail: '#5fd3e8', squirrel: '#ffd23f' };
+const CRYSTAL_COL = { owl: '#b79cff', fox: '#ffb65c', frog: '#6fdc8c', dragon: '#ff8fb1', snail: '#5fd3e8', squirrel: '#ffd23f', mouse: '#7b8cff', hedgehog: '#e07a5f' };
 const START_POS = { x: 1500, y: 1850 };
 const DRAGON_HOME = { x: NPCS.dragon.x, y: NPCS.dragon.y };
 const BX = i => BRIDGES[i].x;
@@ -50,12 +60,15 @@ const PATHS = [
   [[1500, 1850], [1480, 2350], [1250, 2800], [850, 3080], [1250, 3330], [1850, 3200], [2050, 2900], [1480, 2350]],      // Blumenwiese
   [[3350, 1880], [3480, 1950], [3556, 2020]],                                                                            // Kreuzung – Schnecke
   [[1500, 1850], [1260, 1830], [976, 1810]],                                                                             // Start – Eichhörnchen
-  [[1250, 3330], [1500, 3420]],                                                                                          // Blumenwiese – Pilztor
+  [[1250, 3330], [1500, 3520], [1500, 3680], [1500, 4170]],                                                              // Blumenwiese – Pilztor – Dorfplatz
+  [[1380, 4330], [1220, 4470]], [[1640, 4360], [2300, 4400], [BX(3) - 170, 4400], [BX(3) + 170, 4400], [3200, 4450]],     // Dorf – Bäckerei, Dorf – Brücke
+  [[1500, 4440], [1500, 4850]], [[1370, 4360], [900, 4600]], [[1630, 4250], [2200, 4150]],                                                                                          // Blumenwiese – Pilztor
   [[2050, 2900], [2200, 3050], [BX(2) - 170, 3050], [BX(2) + 170, 3050], [2950, 3080], [3500, 3020], [3900, 2950]]      // Südweg
 ];
 // Versteckte Glitzersterne (werden beim Aufbau auf freie Stellen geschoben)
 const GLITTER = [[600, 520], [1900, 430], [2950, 420], [4300, 520], [5250, 700], [5300, 2500], [4800, 3330], [3950, 3330],
-  [2650, 3420], [420, 3420], [300, 2200], [650, 1500], [1950, 1200], [3950, 2120], [4250, 1150]];
+  [2650, 3420], [420, 3420], [300, 2200], [650, 1500], [1950, 1200], [3950, 2120], [4250, 1150],
+  [380, 4850], [2300, 4900], [3300, 4650], [4700, 4300], [5200, 4900]];   // die letzten fünf liegen südlich der Hecke
 const uniMark = () => { const n = NAMES.find(n => n.id === Save.data.nameId); return n ? n.icon : null; };
 const hopLift = (h, amp = 24) => h > 0 ? Math.sin((1 - clamp(h, 0, 1)) * Math.PI) * amp : 0;
 function segDist(px, py, ax, ay, bx, by) { const dx = bx - ax, dy = by - ay, l = dx * dx + dy * dy; const t = l ? clamp(((px - ax) * dx + (py - ay) * dy) / l, 0, 1) : 0; return Math.hypot(px - ax - dx * t, py - ay - dy * t); }
@@ -70,6 +83,7 @@ const World = {
 
   /* ---- Karte einmalig aufbauen (fester Zufall: sieht jedes Mal gleich aus) ---- */
   spacing(x, y) {
+    if (y > HEDGE_Y) return x > 550 && x < 2550 && y > 3740 ? 600 : 125;   // Pilzdorf: fast keine Bäume, außen herum Wald
     if (y > 2620 && x < 2250) return 330;          // Blumenwiese: weit und offen
     if (y < 760 && x < 2250) return 190;            // Hügel im Norden
     if (x > 4400) return 260;                       // Drachenfelsen: mehr Felsen als Bäume
@@ -77,6 +91,7 @@ const World = {
     return 100;                                     // Zauberwald: dicht
   },
   terrainOK(x, y, m) {
+    if (Math.abs(y - HEDGE_Y) < 40 + m) return false;
     if (x < 90 + m || x > WORLD.w - 90 - m || y < 140 + m || y > WORLD.h - 100 - m) return false;
     if (Math.abs(x - riverX(y)) < 64 + m) return false;
     if (inEll(x, y, LAKE, 16 + m) || inEll(x, y, POND, 16 + m)) return false;
@@ -92,7 +107,7 @@ const World = {
     const occOK = (x, y, s) => { const i0 = Math.floor(x / BK), j0 = Math.floor(y / BK); for (let i = i0 - 2; i <= i0 + 2; i++) for (let j = j0 - 2; j <= j0 + 2; j++) { const a = occ.get(key(i, j)); if (a) for (const o of a) if (dist(x, y, o.x, o.y) < (s + o.s) / 2) return false; } return true; };
     const keep = [[START_POS.x, START_POS.y, 190], [RING.x, RING.y, 210], [DRAGON_HOME.x, DRAGON_HOME.y, 260], [NPCS.fox.x, NPCS.fox.y, 330]];
     for (const k in NPCS) keep.push([NPCS[k].x, NPCS[k].y, 200]);
-    keep.push([GATE.x, GATE.y, 150]); for (const f of BEE_FLOWERS) keep.push([f.x, f.y, 90]); for (const q of QUEST_BUSHES) keep.push([q[0], q[1], 80]);
+    keep.push([GATE.x, GATE.y, 150], [PLAZA.x, PLAZA.y, PLAZA.r + 60]); for (const h of HOUSES) keep.push([h.x, h.y - h.r, h.r + 80]); for (const l of LANTERNS) keep.push([l[0], l[1], 50]); for (const q of CAKE_SPOTS) keep.push([q[0], q[1], 60]); for (const f of BEE_FLOWERS) keep.push([f.x, f.y, 90]); for (const q of QUEST_BUSHES) keep.push([q[0], q[1], 80]);
     for (const b of BRIDGES) { keep.push([b.x - 200, b.y, 170]); keep.push([b.x + 200, b.y, 170]); }
     const free0 = (x, y, m, pm) => this.terrainOK(x, y, m) && pathDist(x, y) > pm && keep.every(k => dist(x, y, k[0], k[1]) > k[2]);
     const tree = (x, y, s, sp) => { this.trees.push({ x, y, s: s || 0.95 + R() * 0.3, kind: R() < 0.22 ? 1 : R() < 0.5 ? 2 : 0, shake: 0 }); addOcc(x, y, sp || 100); };
@@ -136,7 +151,7 @@ const World = {
     this.grid = new Uint8Array(this.cols * this.rows);
     for (let j = 0; j < this.rows; j++) for (let i = 0; i < this.cols; i++) {
       const x = (i + 0.5) * W.cell, y = (j + 0.5) * W.cell;
-      const solid = x < 60 || x > W.w - 60 || y < 110 || y > W.h - 64 || (!onBridge(x, y) && Math.abs(x - riverX(y)) < 64) || inEll(x, y, LAKE, 16) || inEll(x, y, POND, 16);
+      const solid = x < 60 || x > W.w - 60 || y < 110 || y > W.h - 64 || Math.abs(y - HEDGE_Y) < 28 || (!onBridge(x, y) && Math.abs(x - riverX(y)) < 64) || inEll(x, y, LAKE, 16) || inEll(x, y, POND, 16);
       this.grid[j * this.cols + i] = solid ? 1 : 0;
     }
     for (const t of this.trees) this.stamp(t.x, t.y - 4, 31);
@@ -145,10 +160,16 @@ const World = {
     for (const k in NPCS) if (!NPCS[k].learn) this.stamp(NPCS[k].x, NPCS[k].y - 6, k === 'dragon' ? 44 : 36);
     this.stamp(NPCS.fox.x + 86, NPCS.fox.y - 8, 40);     // Fuchsbau
     this.stamp(GATE.x - 62, GATE.y - 10, 30); this.stamp(GATE.x + 62, GATE.y - 10, 30);   // Pfeiler vom Pilztor
+    for (const h of HOUSES) this.stamp(h.x, h.y - h.r * 0.3, h.r * 0.62);
+    this.setGate(Save.data.story >= 3);
     this.gs = new Float32Array(this.grid.length); this.came = new Int32Array(this.grid.length); this.st = new Uint8Array(this.grid.length);
     // Glitzersterne auf freie Stellen schieben
     this.glitter = GLITTER.map(p => { const k = this.nearFree(p[0], p[1]); return { x: (k % this.cols + 0.5) * W.cell, y: (Math.floor(k / this.cols) + 0.5) * W.cell }; });
     this.renderMinimap();
+  },
+  setGate(open) {   // Durchgang im Pilztor frei oder zu
+    const C = WORLD.cell; for (let j = Math.floor((HEDGE_Y - 28) / C); j <= Math.floor((HEDGE_Y + 28) / C); j++) for (let i = Math.floor((GATE.x - 34) / C); i <= Math.floor((GATE.x + 34) / C); i++) { const y = (j + 0.5) * C, x = (i + 0.5) * C; if (Math.abs(y - HEDGE_Y) < 28 && Math.abs(x - GATE.x) < 34) this.grid[j * this.cols + i] = open ? 0 : 1; }
+    this.gateOpen = open;
   },
   stamp(x, y, r) {
     const C = WORLD.cell;
@@ -173,6 +194,9 @@ const World = {
     c.fillStyle = '#a8a8b8'; for (const r of this.rocks) { circ(c, r.x, r.y, r.r * 1.2); c.fill(); }
     for (const t of this.trees) { c.fillStyle = t.kind === 1 ? '#f2a3c3' : t.kind === 2 ? '#4eaa6c' : '#62b874'; circ(c, t.x, t.y - 30, 40); c.fill(); }
     c.fillStyle = '#ff9ecb'; for (const m of this.mushrooms) if (m.ring != null) { circ(c, m.x, m.y, 22); c.fill(); }
+    c.fillStyle = '#3f9a58'; c.fillRect(60, HEDGE_Y - 26, WORLD.w - 120, 52);
+    c.fillStyle = '#e8d6b0'; circ(c, PLAZA.x, PLAZA.y, PLAZA.r); c.fill();
+    for (const h of HOUSES) { c.fillStyle = h.col; circ(c, h.x, h.y - h.r * 0.9, h.r * 1.05); c.fill(); }
     this.minimap = cv;
   },
   free(x, y) { const i = Math.floor(x / WORLD.cell), j = Math.floor(y / WORLD.cell); return i >= 0 && j >= 0 && i < this.cols && j < this.rows && !this.grid[j * this.cols + i]; },
@@ -242,7 +266,7 @@ const World = {
     this.T = { x: pos.x, y: pos.y, face: 1, walk: false, path: null, onArrive: null, hop: 0 };
     this.U = { x: pos.x - 70, y: pos.y + 14, face: 1, walk: false, hop: 0 }; this.trail = [];
     if (!this.free(this.U.x, this.U.y)) { this.U.x = pos.x; this.U.y = pos.y; }
-    this.zoom = 1; this.cam = { x: 0, y: 0 }; this.camTo(1);
+    this.zoom = 1; this.cam = { x: 0, y: 0 }; this.camTo(1); this.area = null; this.banner = null; this.setGate(S.story >= 3);
     if (o.reward) { this.lastReward = o.reward; this.queue.push(() => this.evReward(o.reward)); }
     this.storyDirty = true;
     if (o.first) Voice.say('world_intro'); else if (o.back) Voice.say('welcome_back');
@@ -528,6 +552,9 @@ const World = {
     }
     for (const o of [T, U, D].concat(visibleNpcs().map(k => NPCS[k]))) if (o.hop > 0) o.hop -= dt * 2;
     this.updateQuests(dt);
+    const area = T.y > HEDGE_Y ? 'dorf' : 'wald';
+    if (this.area && area !== this.area) { this.banner = { name: area, t: 0 }; Sfx.play('win'); Voice.say(area === 'dorf' ? 'area_dorf' : 'area_wald'); }
+    this.area = area; if (this.banner && (this.banner.t += dt) > 3) this.banner = null;
     if ((Save.data.wallet || 0) !== this.lastWallet) { this.lastWallet = Save.data.wallet || 0; this.starPop = 1; }
     const zt = this.ride ? (T.walk ? ZOOM_GALLOP : ZOOM_RIDE) : 1;
     if (Math.abs(this.zoom - zt) > 0.001) {   // Zoom um T herum ändern, damit T an derselben Stelle bleibt
@@ -567,7 +594,7 @@ const World = {
     c.save(); c.translate(x, y + Math.sin(t * 3 + i) * 5); c.scale(s, s); c.globalAlpha = done ? 0.85 : 1;
     c.fillStyle = 'rgba(60,40,80,0.15)'; circ(c, 0, 3, 34); c.fill();
     c.beginPath(); c.arc(0, 0, 33, Math.PI * 0.62, Math.PI * 0.38); c.lineTo(0, 46); c.closePath(); fs(c, '#fff', isHint ? '#ffd54a' : '#e8dff5', isHint ? 5 : 3);
-    drawIcon(c, icon, 0, 0, 40);
+    drawThing(c, icon, 0, 0, 40);
     if (lv > 0) for (let k = 0; k < 3; k++) { starPath(c, -20 + k * 20, -46, 9); fs(c, k < lv ? '#ffd54a' : '#fff', k < lv ? '#f0b429' : '#d6cfe6', 2); }   // Stufen-Sterne
     c.restore();
   },
@@ -609,6 +636,10 @@ const World = {
       rr(c, bx, by, B.w, B.h, 10); fs(c, '#d9a871', '#b98852', 3);
       c.strokeStyle = '#b98852'; c.lineWidth = 2; for (let x = bx + 22; x < bx + B.w - 4; x += 22) line(c, x, by + 4, x, by + B.h - 4);
       rr(c, bx - 6, by - 6, B.w + 12, 13, 6); fs(c, '#c08f5c', '#a3764a', 2); rr(c, bx - 6, by + B.h - 7, B.w + 12, 13, 6); fs(c, '#c08f5c', '#a3764a', 2);
+    }
+    if (inView(PLAZA.x, PLAZA.y, PLAZA.r + 40)) {   // Dorfplatz mit Brunnen
+      circ(c, PLAZA.x, PLAZA.y, PLAZA.r); fs(c, '#ecdcbc', '#d9c49c', 6);
+      c.strokeStyle = 'rgba(200,180,140,0.6)'; c.lineWidth = 2; for (let r2 = 40; r2 < PLAZA.r; r2 += 34) { circ(c, PLAZA.x, PLAZA.y, r2); c.stroke(); }
     }
     if (inView(RING.x, RING.y, 160)) { ell(c, RING.x, RING.y, RING.r + 30, RING.r * 0.62 + 22); fs(c, 'rgba(200,245,180,0.7)'); c.fillStyle = 'rgba(255,240,150,' + (0.25 + Math.sin(t * 2) * 0.1) + ')'; ell(c, RING.x, RING.y, RING.r * 0.7, RING.r * 0.4); c.fill(); }
     for (const f of this.flowers) if (inView(f.x, f.y, 20)) drawFlower(c, f);
@@ -652,7 +683,27 @@ const World = {
       add(U.y, () => drawActor(c, 'unicorn', U.x, U.y, { size: 88, t, walk: U.walk, flip: U.face < 0, lift: hopLift(U.hop, 34) + ph(3), mark: uniMark(), glow: !!this.hint }));
       add(T.y + 0.1, () => drawActor(c, 't', T.x, T.y, { size: 84, t, walk: T.walk, flip: T.face < 0, lift: hopLift(T.hop) + ph(4) }));
     }
+    // Hecke mit Lücke für das Pilztor (und für den Fluss)
+    if (cam.y + VHz > HEDGE_Y - 80 && cam.y < HEDGE_Y + 80) add(HEDGE_Y + 14, () => {
+      const rx = riverX(HEDGE_Y);
+      for (let x = Math.floor((cam.x - 60) / 44) * 44; x < cam.x + VWz + 60; x += 44) {
+        if (Math.abs(x - GATE.x) < 96 || Math.abs(x - rx) < 70) continue;
+        const k = (x / 44) % 2 ? 1 : 0;
+        c.fillStyle = '#4fa766'; circ(c, x, HEDGE_Y - 8 + k * 6, 30); c.fill(); c.fillStyle = '#5fb873'; circ(c, x + 10, HEDGE_Y - 24 + k * 6, 22); c.fill(); c.fillStyle = '#74c985'; circ(c, x - 6, HEDGE_Y - 32 + k * 6, 13); c.fill();
+      }
+    });
+    const lit = Save.data.story >= 5, mq = this.qs('mouse');
+    for (const h of HOUSES) if (inView(h.x, h.y - h.r, h.r * 2.4)) add(h.y, () => drawShroomHouse(c, Object.assign(h, { lit }), t));
+    LANTERNS.forEach((l, i) => { if (inView(l[0], l[1], 60)) add(l[1], () => drawLantern(c, l[0], l[1], lit || (mq && (mq.s === 'done' || (mq.items && mq.items[i].got))), t)); });
+    const hq = this.qs('hedgehog');
+    CAKE_SPOTS.forEach((q, i) => { if (q[2] === 'berry' && inView(q[0], q[1], 50)) add(q[1], () => drawBerryBush(c, q[0], q[1], !(hq && (hq.s === 'done' || (hq.items && hq.items[i].got))), t)); });
     items.sort((a, b) => a.y - b.y); for (const it of items) it.f();
+    if (!lit && cam.y + VHz > HEDGE_Y) {   // Abendstimmung im Pilzdorf, bis Kapitel 2 geschafft ist
+      c.fillStyle = 'rgba(40,30,100,0.28)'; c.fillRect(cam.x - 10, HEDGE_Y + 30, VWz + 20, WORLD.h);
+      c.save(); c.globalCompositeOperation = 'lighter';
+      LANTERNS.forEach((l, i) => { if (mq && (mq.s === 'done' || (mq.items && mq.items[i].got)) && inView(l[0], l[1], 120)) { c.fillStyle = 'rgba(255,220,120,0.16)'; circ(c, l[0], l[1] - 40, 110); c.fill(); circ(c, l[0], l[1] - 45, 55); c.fill(); } });
+      c.restore();
+    }
 
     // Hinweis: Sternenspur von T zum Ziel
     if (this.hint) {
@@ -674,6 +725,14 @@ const World = {
       }
     }
     if (this.ev && this.ev.drawScreen) this.ev.drawScreen(c);
+    if (this.banner) {   // Gebietsname beim Betreten (nur zur Freude, nicht zum Spielen nötig)
+      const b = this.banner, a = clamp(Math.min(b.t / 0.4, (3 - b.t) / 0.6), 0, 1), dorf = b.name === 'dorf';
+      c.save(); c.globalAlpha = a; c.font = '800 34px system-ui, sans-serif'; const w = c.measureText(dorf ? 'Pilzdorf' : 'Zauberwald').width + 110;
+      rr(c, VW / 2 - w / 2, 22, w, 64, 32); fs(c, 'rgba(255,255,255,0.9)', dorf ? '#ff6b6b' : '#5fbf57', 4);
+      drawThing(c, dorf ? 'shroom' : 'BAUM', VW / 2 - w / 2 + 38, 54, 40);
+      c.fillStyle = '#5a4a7a'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(dorf ? 'Pilzdorf' : 'Zauberwald', VW / 2 + 22, 56); c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+      c.restore();
+    }
     // Anzeige: Rucksack mit Kristallen, Glitzersterne, Einhorn-Hilfeknopf, Karte
     const H = this.hud(), s0 = this.slotScreen(npcOrder()[0]);
     rr(c, s0.x - 30, H.pack.y - 27, H.pack.x - s0.x + 30, 54, 27); fs(c, 'rgba(255,255,255,0.75)');

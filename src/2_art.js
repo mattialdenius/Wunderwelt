@@ -193,9 +193,12 @@ function drawUnicorn(c, t, o) {
   c.lineCap = 'round'; c.lineJoin = 'round';
   MANE.forEach((col, i) => { c.strokeStyle = col; c.lineWidth = 6; c.beginPath(); c.moveTo(-29, -50); c.quadraticCurveTo(-60, -52 + i * 4, -52 + i * 2.5, -20 + i * 3 + Math.sin(t * 3 + i) * 2); c.stroke(); });
   const leg = (x, ph, shade) => { const dx = ph * w * 5; rr(c, x - 5 + dx, -26, 10, 24, 4); fs(c, shade ? '#efe6f5' : '#ffffff', '#e0d0ec', 1.5); rr(c, x - 5 + dx, -7, 10, 7, 3); fs(c, '#f7b6d2'); };
+  const wings = o.wings !== undefined ? o.wings : Save.data && Save.data.wings;
+  if (wings) drawWing(c, false, t);
   leg(-17, -1, true); leg(19, 1, true);
   ell(c, 0, -43, 32, 20); fs(c, '#ffffff', '#e0d0ec', 2);
   leg(-24, 1, false); leg(12, -1, false);
+  if (wings) drawWing(c, true, t);
   c.beginPath(); c.moveTo(14, -56); c.lineTo(27, -84); c.lineTo(42, -74); c.lineTo(31, -38); c.closePath(); fs(c, '#ffffff', '#e0d0ec', 2);
   c.fillStyle = '#fff'; ell(c, 20, -46, 14, 13); c.fill();
   tri(c, 27, -90, 30, -103, 37, -91); fs(c, '#ffffff', '#e0d0ec', 2);
@@ -293,6 +296,7 @@ function drawButterflyBig(c, t, o) {
 }
 
 const ART = { t: drawT, unicorn: drawUnicorn, owl: drawOwl, fox: drawFox, frog: drawFrog, dragon: drawDragon, butterfly: drawButterflyBig, snail: (c, t, o) => drawSnail(c, t, o), squirrel: (c, t, o) => drawSquirrel(c, t, o),
+  mouse: (c, t, o) => drawMouse(c, t, o), hedgehog: (c, t, o) => drawHedgehog(c, t, o),
   duckNpc: (c, t, o) => drawDuckNpc(c, t, o), bee: (c, t, o) => drawBee(c, t, o), bear: (c, t, o) => drawBear(c, t, o), mole: (c, t, o) => drawMole(c, t, o), bunny: (c, t, o) => drawBunny(c, t, o) };
 
 /* Figur zeichnen: Füße bei (x,y). o: size, flip, t, walk, lift, glow, mark, happy, fly, noShadow, sy */
@@ -579,6 +583,15 @@ function drawThing(c, name, x, y, s) {
     case 'bow': c.fillStyle = '#ff8fb1'; tri(c, 0, 0, -22, -14, -22, 14); c.fill(); tri(c, 0, 0, 22, -14, 22, 14); c.fill(); circ(c, 0, 0, 6); fs(c, '#f06a98'); break;
     case 'shop': rr(c, -20, -4, 40, 24, 6); fs(c, '#d9a066', '#a5672c', 2); c.strokeStyle = '#a5672c'; c.lineWidth = 3; c.beginPath(); c.arc(0, -4, 14, Math.PI, 0); c.stroke(); drawPic(c, 'NUSS', -8, 6, 18); starPath(c, 8, 6, 7); fs(c, '#ffe066'); break;
     case 'cloud': drawIcon(c, 'cloud', 0, 0, 50); break;
+    case 'eye': ell(c, 0, 0, 24, 15); fs(c, '#fff', '#8a6ad8', 3); circ(c, 0, 0, 9); fs(c, '#5aa9ff'); circ(c, 0, 0, 4); fs(c, '#3d2b3a'); c.fillStyle = '#fff'; circ(c, 3, -3, 2); c.fill(); c.fillStyle = '#ffe066'; sparklePath(c, 20, -16, 6); c.fill(); break;
+    case 'firefly': drawFirefly(c, 0, 0, Game.time, 'y', 1.8); break;
+    case 'cards': c.save(); c.rotate(-0.2); rr(c, -22, -16, 24, 32, 5); fs(c, '#ffb65c', '#fff', 2.5); c.restore(); c.save(); c.rotate(0.15); rr(c, -2, -18, 24, 32, 5); fs(c, '#fff', '#e0cfb0', 2.5); c.restore(); c.fillStyle = '#ff6b81'; heartPath(c, 10, -1, 7); c.fill(); break;
+    case 'berry': c.fillStyle = '#d9435e'; [[-7, 4], [7, 4], [0, -6]].forEach(q => { circ(c, q[0], q[1], 10); c.fill(); }); c.fillStyle = 'rgba(255,255,255,0.5)'; circ(c, -10, 0, 3); c.fill(); c.fillStyle = '#5fbf57'; ell(c, 4, -18, 7, 4, -0.4); c.fill(); break;
+    case 'shroom': c.save(); c.translate(0, 18); c.scale(1.8, 1.8); drawMushroom(c, { x: 0, y: 0, col: '#ffcc33', squish: 0 }); c.restore(); break;
+    case 'lantern': drawLantern(c, 0, 30, true, Game.time); break;
+    case 'shroomhat': drawHat(c, 'shroom', 0, 18, 1.2); break;
+    case 'wings': c.save(); c.scale(1.2, 1.2); c.translate(10, 40); drawWing(c, true, 0); c.restore(); break;
+    case 'book': rr(c, -22, -18, 44, 36, 5); fs(c, '#b79cff', '#8a6ad8', 2.5); rr(c, -16, -12, 32, 24, 3); fs(c, '#fff'); c.fillStyle = '#ff8fb1'; heartPath(c, -6, 0, 6); c.fill(); starPath(c, 7, -1, 6); fs(c, '#ffe066'); break;
     case 'check': drawIcon(c, 'check', 0, 0, 50, '#5fd38d'); break;
     case 'compass': circ(c, 0, 0, 22); fs(c, '#fff', '#c9a46e', 4); c.save(); c.rotate(0.5); tri(c, 0, -17, -6, 0, 6, 0); fs(c, '#ff6b6b'); tri(c, 0, 17, -6, 0, 6, 0); fs(c, '#9a8fb5'); c.restore(); starPath(c, 15, -15, 7); fs(c, '#ffe066', '#f0b429', 1.5); break;
     case 'heart': heartPath(c, 0, 6, 24); fs(c, '#ff8fb1', '#f06a98', 2); break;
@@ -591,6 +604,7 @@ function drawThing(c, name, x, y, s) {
 function drawHat(c, kind, x, y, s = 1) {
   c.save(); c.translate(x, y); c.scale(s, s);
   if (kind === 'acorn') { c.beginPath(); c.ellipse(0, -14, 23, 15, 0, Math.PI, 0); c.closePath(); fs(c, '#c98a4a', '#a5672c', 2); c.strokeStyle = 'rgba(120,70,30,0.5)'; c.lineWidth = 1.5; for (let i = -16; i <= 16; i += 8) line(c, i, -14, i + 4, -24); c.strokeStyle = '#8a5528'; c.lineWidth = 4; line(c, 0, -28, 3, -36); }
+  else if (kind === 'shroom') { c.beginPath(); c.ellipse(0, -14, 26, 18, 0, Math.PI, 0); c.closePath(); fs(c, '#ff6b6b', '#d9435e', 2); c.fillStyle = '#fff'; circ(c, -11, -22, 4); c.fill(); circ(c, 4, -27, 3.5); c.fill(); circ(c, 13, -17, 3); c.fill(); }
   else if (kind === 'crown') { c.beginPath(); c.moveTo(-18, -12); c.lineTo(-20, -34); c.lineTo(-9, -22); c.lineTo(0, -38); c.lineTo(9, -22); c.lineTo(20, -34); c.lineTo(18, -12); c.closePath(); fs(c, '#ffd23f', '#e0a800', 2); c.fillStyle = '#ff6b81'; circ(c, 0, -18, 3.5); c.fill(); c.fillStyle = '#5aa9ff'; circ(c, -11, -16, 2.5); c.fill(); circ(c, 11, -16, 2.5); c.fill(); }
   c.restore();
 }
@@ -608,4 +622,81 @@ function drawGate(c, x, y, open, t) {
   c.strokeStyle = '#ff6b6b'; c.lineWidth = 14; c.beginPath(); c.arc(x, y - 52, 58, Math.PI * 1.05, Math.PI * 1.95); c.stroke();
   c.fillStyle = '#fff'; for (let i = 0; i < 5; i++) { const a = Math.PI * (1.15 + i * 0.17); circ(c, x + Math.cos(a) * 58, y - 52 + Math.sin(a) * 58, 3.5); c.fill(); }
   if (open) { c.fillStyle = '#fff'; for (let i = 0; i < 4; i++) { const tw = Math.max(0, Math.sin(t * 4 + i * 1.7)); sparklePath(c, x - 40 + i * 26, y - 100 - (i % 2) * 14, 3 + tw * 6); c.fill(); } }
+}
+
+/* ---- Pilzdorf: Maus Mia (Bürgermeisterin), Igel Ida (Bäckerin), Pilzhäuser, Laternen ---- */
+function drawMouse(c, t, o) {
+  c.strokeStyle = '#ff9ecb'; c.lineWidth = 3.5; c.lineCap = 'round'; c.beginPath(); c.moveTo(-14, -10); c.quadraticCurveTo(-36, -6, -32, -30 + Math.sin(t * 3) * 4); c.stroke();
+  c.fillStyle = '#9a9aae'; ell(c, -8, -3, 8, 5); c.fill(); ell(c, 8, -3, 8, 5); c.fill();
+  ell(c, 0, -24, 17, 22); fs(c, '#b8b8c8', '#9a9aae', 2);
+  c.beginPath(); c.moveTo(-14, -38); c.lineTo(14, -12); c.lineTo(10, -8); c.lineTo(-16, -33); c.closePath(); fs(c, '#ff6b6b');   // Schärpe
+  starPath(c, 2, -22, 5); fs(c, '#ffd23f');
+  circ(c, -15, -66, 11); fs(c, '#b8b8c8', '#9a9aae', 2); circ(c, 15, -66, 11); fs(c, '#b8b8c8', '#9a9aae', 2);
+  circ(c, -15, -66, 6); fs(c, '#ffc9da'); circ(c, 15, -66, 6); fs(c, '#ffc9da');
+  ell(c, 0, -52, 16, 15); fs(c, '#b8b8c8', '#9a9aae', 2);
+  c.fillStyle = '#3d2b3a'; if ((t % 3.6) < 0.12) { c.fillRect(-9, -54, 5, 1.6); c.fillRect(4, -54, 5, 1.6); } else { circ(c, -6, -54, 2.5); c.fill(); circ(c, 6, -54, 2.5); c.fill(); }
+  c.fillStyle = '#ff9ecb'; circ(c, 0, -46, 3.5); c.fill();
+  c.strokeStyle = '#7a7a8e'; c.lineWidth = 1; line(c, 3, -46, 16, -48); line(c, 3, -45, 16, -43); line(c, -3, -46, -16, -48); line(c, -3, -45, -16, -43);
+  c.beginPath(); c.moveTo(-10, -66); c.lineTo(10, -66); c.lineTo(7, -80); c.lineTo(-7, -80); c.closePath(); fs(c, '#5a4a7a'); rr(c, -12, -68, 24, 4, 2); fs(c, '#5a4a7a');   // Hut
+}
+function drawHedgehog(c, t, o) {
+  c.fillStyle = '#8a6a4a'; for (let i = 0; i < 13; i++) { const a = Math.PI * (0.75 + i * 0.12); tri(c, Math.cos(a - 0.1) * 22, -32 + Math.sin(a - 0.1) * 26, Math.cos(a) * 38, -32 + Math.sin(a) * 40, Math.cos(a + 0.1) * 22, -32 + Math.sin(a + 0.1) * 26); c.fill(); }
+  c.fillStyle = '#6a4f36'; ell(c, -8, -3, 8, 5); c.fill(); ell(c, 8, -3, 8, 5); c.fill();
+  ell(c, 0, -28, 22, 26); fs(c, '#8a6a4a');
+  ell(c, 0, -26, 15, 20); fs(c, '#f3d7b0', '#d9b98f', 1.5);
+  rr(c, -12, -30, 24, 22, 4); fs(c, '#fff', '#e3e3ee', 1.5);                                               // Schürze
+  c.fillStyle = '#ff9ecb'; heartPath(c, 0, -18, 5); c.fill();
+  ell(c, 0, -58, 16, 14); fs(c, '#f3d7b0', '#d9b98f', 1.5);
+  c.fillStyle = '#3d2b3a'; circ(c, -6, -60, 2.5); c.fill(); circ(c, 6, -60, 2.5); c.fill(); circ(c, 0, -52, 3.5); c.fill();
+  c.fillStyle = 'rgba(255,130,150,0.45)'; circ(c, -10, -55, 3); c.fill(); circ(c, 10, -55, 3); c.fill();
+  c.fillStyle = '#fff'; c.strokeStyle = '#e3e3ee'; c.lineWidth = 1.5; rr(c, -11, -80, 22, 12, 3); c.fill(); c.stroke();   // Bäckermütze
+  circ(c, -8, -84, 7); c.fill(); c.stroke(); circ(c, 0, -88, 8); c.fill(); c.stroke(); circ(c, 8, -84, 7); c.fill(); c.stroke();
+}
+function drawShroomHouse(c, h, t) {
+  const r = h.r;
+  c.fillStyle = 'rgba(40,60,60,0.18)'; ell(c, h.x, h.y + 2, r * 0.95, r * 0.3); c.fill();
+  c.save(); c.translate(h.x, h.y);
+  rr(c, -r * 0.55, -r * 1.05, r * 1.1, r * 1.05, r * 0.22); fs(c, '#fff3e0', '#e0cfb0', 2.5);                    // Stiel = Hauswand
+  rr(c, -r * 0.16, -r * 0.5, r * 0.32, r * 0.5, r * 0.15); fs(c, '#b98852', '#96693d', 2);                      // Tür
+  c.fillStyle = '#ffd23f'; circ(c, r * 0.09, -r * 0.24, 2.5); c.fill();
+  const lit = h.lit ? '#fff3a0' : '#9ecbff';
+  circ(c, -r * 0.34, -r * 0.7, r * 0.12); fs(c, lit, '#b98852', 2); circ(c, r * 0.34, -r * 0.7, r * 0.12); fs(c, lit, '#b98852', 2);
+  c.beginPath(); c.moveTo(-r * 1.1, -r * 0.95); c.quadraticCurveTo(-r * 1.05, -r * 2.05, 0, -r * 2.1); c.quadraticCurveTo(r * 1.05, -r * 2.05, r * 1.1, -r * 0.95); c.quadraticCurveTo(0, -r * 0.75, -r * 1.1, -r * 0.95); c.closePath();
+  fs(c, h.col, shade(h.col, -0.18), 2.5);
+  c.fillStyle = 'rgba(255,255,255,0.9)'; [[-0.55, -1.45, 0.16], [0.1, -1.75, 0.13], [0.6, -1.35, 0.15], [-0.15, -1.2, 0.09]].forEach(d => { circ(c, d[0] * r, d[1] * r, d[2] * r); c.fill(); });
+  if (h.chimney) { rr(c, r * 0.45, -r * 2.05, r * 0.18, r * 0.35, 3); fs(c, '#c99a6b'); c.fillStyle = 'rgba(255,255,255,0.6)'; circ(c, r * 0.54 + Math.sin(t) * 4, -r * 2.2 - (t * 20 % 30), 6); c.fill(); }
+  c.restore();
+}
+function drawLantern(c, x, y, lit, t) {
+  c.fillStyle = 'rgba(40,60,60,0.18)'; ell(c, x, y + 2, 12, 4); c.fill();
+  c.strokeStyle = '#8a6a4a'; c.lineWidth = 5; c.lineCap = 'round'; line(c, x, y, x, y - 46);
+  c.save(); c.translate(x, y - 50);
+  if (lit) { c.fillStyle = 'rgba(255,236,140,' + (0.35 + Math.sin(t * 3 + x) * 0.1) + ')'; circ(c, 0, 0, 30); c.fill(); }
+  ell(c, 0, 2, 11, 13); fs(c, lit ? '#fff3a0' : '#d6d0e0', '#c9a46e', 2);
+  c.beginPath(); c.arc(0, -6, 16, Math.PI, 0); c.closePath(); fs(c, '#ff6b6b', '#d9435e', 2); c.fillStyle = '#fff'; circ(c, -6, -11, 2.5); c.fill(); circ(c, 5, -13, 2); c.fill();
+  c.restore();
+}
+function drawBerryBush(c, x, y, ripe, t) {
+  c.fillStyle = 'rgba(40,70,50,0.16)'; ell(c, x, y + 2, 26, 7); c.fill();
+  c.fillStyle = '#4fa766'; circ(c, x - 12, y - 12, 14); c.fill(); circ(c, x + 12, y - 12, 14); c.fill(); circ(c, x, y - 22, 17); c.fill();
+  if (ripe) { c.fillStyle = '#d9435e'; [[-10, -16], [6, -26], [14, -12], [-2, -10], [-14, -26]].forEach(p => { circ(c, x + p[0], y + p[1], 4.5); c.fill(); }); }
+}
+function drawGoldShroom(c, x, y, t) {
+  c.fillStyle = 'rgba(255,230,120,' + (0.3 + Math.sin(t * 4) * 0.12) + ')'; circ(c, x, y - 14, 22); c.fill();
+  c.save(); c.translate(x, y); c.scale(1.2, 1.2); drawMushroom(c, { x: 0, y: 0, col: '#ffcc33', squish: 0 }); c.restore();
+}
+function drawFirefly(c, x, y, t, col, s = 1) {
+  const g = 0.6 + Math.sin(t * 5 + x) * 0.25;
+  const rg = c.createRadialGradient(x, y, 2 * s, x, y, 20 * s), rgb = col === 'b' ? '140,200,255' : '255,240,110';
+  rg.addColorStop(0, 'rgba(' + rgb + ',' + g + ')'); rg.addColorStop(1, 'rgba(' + rgb + ',0)'); c.fillStyle = rg; circ(c, x, y, 20 * s); c.fill();
+  c.fillStyle = 'rgba(255,255,255,0.7)'; ell(c, x - 5 * s, y - 6 * s, 5 * s, 3.5 * s, -0.5); c.fill(); ell(c, x + 5 * s, y - 6 * s, 5 * s, 3.5 * s, 0.5); c.fill();
+  circ(c, x, y, 7 * s); fs(c, col === 'b' ? '#7db8ff' : '#ffe066', col === 'b' ? '#4f8fe0' : '#f0b429', 1.5);
+  c.fillStyle = '#5a4a7a'; circ(c, x + 4 * s, y - 2 * s, 3.2 * s); c.fill();
+}
+function drawWing(c, near, t) {   // Flügel fürs Einhorn (ab Kapitel 2)
+  const f = Math.sin(t * 3) * 0.12;
+  c.save(); c.translate(near ? -4 : 4, -60); c.rotate(-0.55 + f + (near ? 0 : -0.15));
+  const cols = near ? ['#ffffff', '#ffe4f3', '#e9ddff'] : ['#f3eefa', '#f3dbe9', '#ddd2f2'];
+  [[34, 13], [28, 10], [20, 7]].forEach((d, i) => { c.beginPath(); c.ellipse(-d[0] * 0.55, -i * 7, d[0], d[1], -0.2, 0, TAU); fs(c, cols[i], '#e0d0ec', 1.5); });
+  c.restore();
 }
